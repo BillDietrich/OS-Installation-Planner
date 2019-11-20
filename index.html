@@ -32,14 +32,51 @@ delete module.exports
 
 <body>
 
+
+
 <script type="text/javascript">
 
 const {ipcRenderer} = require('electron')
 const {Menu, MenuItem} = remote
 
 
-
 // If you just want to pretty print an object and not export it as valid JSON you can use console.dir().
+
+</script>
+
+
+
+
+<!---------------------------------------------------------------------------->
+
+<!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
+<!-- https://www.scriptol.com/javascript/electron-dialog.php -->
+<dialog id="modaldialog" style="height:400px; width:300px;">
+  <div id="modaldialogdiv" class="modaldialog"></div>
+  <button id="cancel" onclick="dialog.close('');">Cancel</button>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <button id="save" onclick="dialog.close('somevaluehere');">Save</button>
+</dialog>
+
+<script type="text/javascript">
+
+var dialog = document.getElementById('modaldialog');
+
+
+function openModalPropertiesDialog(treeNum, myid) {
+
+  document.getElementById('modaldialogdiv').innerHTML = "test1111";
+
+  var fe = function(e) {
+    alert(dialog.returnValue)
+    dialog.removeEventListener("close", fe)
+  }
+
+  var x = dialog.showModal();
+  dialog.addEventListener('close', fe)
+
+}
+
 
 
 //---------------------------------------------------------------------------
@@ -82,6 +119,7 @@ const menuitemProperties = new MenuItem ({
 */
       //ipcRenderer.send('context-menu', {message: "Hi", someData: "Let's go"});
       
+      openModalPropertiesDialog(rightClickTreeNum, rightClickElement.getAttribute('myid'));
   }
 });
 const menuitemSeparator1 = new MenuItem({

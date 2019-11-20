@@ -105,6 +105,7 @@ ipcMain.on('context-menu', (event, arg) => {
 
 // Wait until the app is ready
 app.once('ready', () => {
+
   // Create a new window
   // https://electronjs.org/docs/api/browser-window
   window = new BrowserWindow({

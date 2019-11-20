@@ -38,6 +38,15 @@ div.mytree2 {
 	background-color:pink;
 }
 
+div.modaldialog {
+	display:table;
+	vertical-align:top;
+	margin:0 auto;
+	height: 300px;
+	width: 300px;
+	background-color:lightyellow;
+}
+
 button.top {
 	height: 45px;
 	width: 90px;
