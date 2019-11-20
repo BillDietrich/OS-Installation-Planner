@@ -7,6 +7,9 @@ const osLocale = require('os-locale');
 const os = require('os');
 const systeminformation = require('systeminformation');
 
+// https://nodejs.org/api/path.html#path_path_parse_pathstring
+const path = require('path');
+
 //---------------------------------------------------------------------------
 
 
@@ -56,17 +59,104 @@ function addKeyboardRecord() {
     .then(data => {
         return '{ "name": "keyboard", "type": "keyboard", "removable": false, "language": "' + data + '", "children": []}';
       }
-    ).catch(error => alert("systeminformation.mem() error: " + error));
+    ).catch(error => alert("osLocale() error: " + error));
+  return promise;
+}
+
+
+var diskLayoutData = null;
+var blockDevicesData = null;
+var fsSizeData = null;
+
+function getDiskInfo1() {
+  var promise = null;
+  promise = systeminformation.diskLayout()
+    .then(data => {
+      //alert("diskLayoutData " + JSON.stringify(data));
+      diskLayoutData = data;
+    }
+    ).catch(error => alert("systeminformation.diskLayout() error: " + error));
+  return promise;
+}
+
+function getDiskInfo2() {
+  var promise = null;
+  promise = systeminformation.blockDevices()
+    .then(data => {
+      //alert("blockDevicesData " + JSON.stringify(data));
+      blockDevicesData = data;
+    }
+    ).catch(error => alert("systeminformation.blockDevices() error: " + error));
+  return promise;
+}
+
+function getDiskInfo3() {
+  var promise = null;
+  promise = systeminformation.fsSize()
+    .then(data => {
+      //alert("fsSizeData " + JSON.stringify(data));
+      fsSizeData = data;
+    }
+    ).catch(error => alert("systeminformation.fsSize() error: " + error));
   return promise;
 }
 
 
 function addDiskRecords() {
+  //alert("addDiskRecords: called");
+
+  var i = 0;
+  var text = "";
+  for (i = 0; i < diskLayoutData.length; i++) {
+
+    //alert("addDiskRecords: diskLayoutData[" + i + "] " + JSON.stringify(diskLayoutData));
+    var fulldevicename = diskLayoutData[i].device;
+    var n = fulldevicename.lastIndexOf(path.sep);
+    var name = fulldevicename.substr(n+1);
+    //alert("addDiskRecords: fulldevicename " + fulldevicename + ", path.sep " + path.sep + ", n " + n + ", name " + name);
+
+    var type = (diskLayoutData[i].type === "HD" ? "hardDisk" : "");
+    var removable = (diskLayoutData[i].interfaceType === "USB");
+
+    if (i > 0)
+      text += ',';
+    text += '{ "name": "' + name + '", "type": "' + type + '", "removable": ' + removable + ', "vendor": "' + diskLayoutData[i].vendor + '", "model": "' + diskLayoutData[i].name + '", "serialNumber": "' + diskLayoutData[i].serialNum + '", "sizeBytes": ' + diskLayoutData[i].size + ', "hardwareEncryptionSupported": false, "hardwareEncryptionEnabled": false, "children": [';
+
+    var nSubDevsFound = 0;
+    let MAXPARTNUM = 9;
+    for (k = 1; k<=MAXPARTNUM; k++) {
+
+      let subDevName = fulldevicename + k;
+      var uuid = "";
+
+      for (j = 0; j < blockDevicesData.length; j++) {
+          //alert("addDiskRecords: want name " + name + k + ", see blockDevicesData[j].name " + blockDevicesData[j].name);
+          if (blockDevicesData[j].name === name + k) {
+            uuid = blockDevicesData[j].uuid;
+            break;
+          }
+      }
+
+      for (j = 0; j < fsSizeData.length; j++) {
+          //alert("addDiskRecords: want subDevName " + subDevName + ", see fsSizeData[j].fs " + fsSizeData[j].fs);
+          if (fsSizeData[j].fs === subDevName) {
+            if (nSubDevsFound > 0)
+              text += ',';
+            text += '{ "name": "' + name + k + '", "type": "partition", "start": 0, "sizeBytes":' + fsSizeData[j].size + ', "label": "boot", "fsType": "' + fsSizeData[j].type + '", "UUID": "' + uuid + '", "encryption": "none", "children": [] }';
+            nSubDevsFound++;
+            break;
+          }
+      }
+
+    }
+
+    text += ']}';
+
+  }
+  //alert("addDiskRecords: return " + JSON.stringify(text));
+  return text;
+
   // https://github.com/balena-io-modules/drivelist
-}
-
-
-function addPartitionRecordsForDisk() {
 }
 
 
@@ -199,22 +289,36 @@ function scansystem() {
                     treetext += ',';
                     treetext += text;
 
-                //addDiskRecords()
+                    p = getDiskInfo1()
+                      .then(() => {
 
+                        p = getDiskInfo2()
+                          .then(() => {
 
-                    // close hardware section
-                    treetext += ']}';
+                            p = getDiskInfo3()
+                              .then(() => {
 
-                    treetext += ',{ "name": "software", "children": [';
+                                text = addDiskRecords();
+                                if (text !== "")
+                                  treetext += ',';
+                                treetext += text;
 
-                    // close software section
-                    treetext += ']}';
+                                // close hardware section
+                                treetext += ']}';
 
-                    // close config
-                    treetext += ']';
+                                treetext += ',{ "name": "software", "children": [';
 
-                    //alert("scansystem: finished treetext: " + treetext);
-                    resolve(treetext);
+                                // close software section
+                                treetext += ']}';
+
+                                // close config
+                                treetext += ']';
+
+                                //alert("scansystem: finished treetext: " + treetext);
+                                resolve(treetext);
+                              });
+                          });
+                      });
                   });
               });
           });

@@ -13,8 +13,13 @@ const loadJsonFile = require('load-json-file')
 // https://cnpmjs.org/package/jsonfile
 const jsonFile = require('jsonfile')
 
-// https://nodejs.org/api/path.html#path_path_parse_pathstring
-const path = require('path')
+
+
+
+
+//const crypto = require("crypto");
+//const id = crypto.randomBytes(16).toString("hex");
+
 
 
 //---------------------------------------------------------------------------
@@ -45,7 +50,7 @@ function loadTreeFromText(treenum, text) {
   $('#t' + treenum + 'filename').text("");
   treeobj[treenum] = new TreeView(treedata[treenum], 't' + treenum + 'tree');
   treeobj[treenum].expandAll();
-  //console.log("loadTreeFromText: treedata[treenum] ", treedata[treenum]);
+  console.log("loadTreeFromText: treedata[treenum] ", treedata[treenum]);
   //console.log("loadTreeFromText: return");
 }
 
