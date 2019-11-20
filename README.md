@@ -7,11 +7,31 @@ Electron desktop application to plan and pre-configure a single-user desktop OS 
 
 ## Functionality
 
+* User runs this application on their existing Windows, Mac or Linux system.
+* Application scans existing system and lists hardware, software, security, and network settings.
+* User can copy existing configuration to new configuration.
+* User can modify new configuration to change to different OS, or dual-booting two OS's, etc.
+* Application provides wizards to help user figure out what they want.
+* Application produces a set of instructions for doing the installation.
+* Application produces a pre-seeding or setup-automation file to be used as input to the standard OS installer.
 
 ## Use
 
+1. Launch the application.
+1. See main window:
+
 ![Main window](Screenshot-MainWindow.png "Main window")
 
+3. Click on "Scan system" button.
+1. See settings of existing system appear in left tree pane.
+1. Click on "Copy to New" button.
+1. See settings copied from existing system appear in middle tree pane.
+1. Click on "Change" button, and see wizard appear asking what user wants to do.
+1. Or: Right-click on items in the middle tree and edit them.
+1. When middle tree is finished, click on "Get Instructions" button.
+1. See instructions appear in right tree pane.
+1. Print or copy the instructions.
+1. Follow the instructions to change your system.
 
 
 
