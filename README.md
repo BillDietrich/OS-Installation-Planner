@@ -10,7 +10,7 @@ Electron desktop application to plan and pre-configure a single-user desktop OS 
 
 ## Use
 
-![Using the extension](UsingTheExtension.jpg "Using the extension")
+![Main window](Screenshot-MainWindow.png "Main window")
 
 
 
@@ -35,6 +35,7 @@ Electron desktop application to plan and pre-configure a single-user desktop OS 
 
 ## Development
 ### To-Do list
+* Hard-coded path to Electron in package.json
 
 ### Development Environment
 I'm no expert on this stuff, maybe I'm doing some things stupidly.

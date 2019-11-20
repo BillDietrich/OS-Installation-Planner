@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<!---------------------------------------------------------------------------
+  "OS Installation Planner" index.html
+  Runs in Electron render process
+----------------------------------------------------------------------------->
+
+
+<head>
+
+<title>OS Installation Planner</title>
+<meta charset="UTF-8">
+<meta name="description" content="Plan and pre-configure a single-user desktop OS installation">
+<meta name="keywords" content="desktop, OS, install, plan, configure">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="index.css" />
+<link rel="stylesheet" href="treeview.css" />
+
+<script>
+delete module.exports
+</script>
+
+<script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+<script src="treeview.js"></script>
+<script src="scansystem.js" charset="utf-8"></script>
+<script src="window.js" charset="utf-8"></script>
+
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+const {ipcRenderer} = require('electron')
+const {Menu, MenuItem} = remote
+
+
+
+// If you just want to pretty print an object and not export it as valid JSON you can use console.dir().
+
+
+//---------------------------------------------------------------------------
+//   right-click / context menus
+//   from https://www.tutorialspoint.com/electron/electron_menus.htm
+
+
+// https://stackoverflow.com/questions/32636750/how-to-add-a-right-click-menu-in-electron-that-has-inspect-element-option-like
+var rightClickPosition = null
+var rightClickTreeElementId = ""
+var rightClickElement = null
+var rightClickTreeNum = 0
+
+// https://electronjs.org/docs/api/menu
+const menu = new Menu()
+
+// https://electronjs.org/docs/api/menu-item
+const menuitemProperties = new MenuItem ({
+  label: 'Properties',
+  click(menuItem, browserWindow, event) {
+      // context menu only appears if right-click in one of the trees
+      //console.log('context menu: Properties item clicked, menuItem: ' + menuItem)
+      //console.log('context menu: Properties item clicked, browserWindow: ' + browserWindow)
+      //console.log('context menu: Properties item clicked, event: ' + JSON.stringify(event))
+
+      console.log('context menu: Properties item clicked, element.attributes: ' + JSON.stringify(element.attributes))
+      console.log('context menu: Properties item clicked, element.getAttribute(myid): ' + JSON.stringify(element.getAttribute('myid')))
+      console.log('context menu: Properties item clicked, element.textContent: ' + JSON.stringify(element.textContent))
+/*
+      if (element.parentNode) {
+        console.log('context menu: Properties item clicked, element.parentNode.attributes: ' + JSON.stringify(element.parentNode.class))
+        console.log('context menu: Properties item clicked, element.parentNode.getAttribute(myid): ' + JSON.stringify(element.parentNode.getAttribute('myid')))
+        console.log('context menu: Properties item clicked, element.parentNode.textContent: ' + JSON.stringify(element.parentNode.textContent))
+        if (element.parentNode.parentNode) {
+          console.log('context menu: Properties item clicked, element.parentNode.parentNode.attributes: ' + JSON.stringify(element.parentNode.parentNode.class))
+          console.log('context menu: Properties item clicked, element.parentNode.parentNode.getAttribute(myid): ' + JSON.stringify(element.parentNode.parentNode.getAttribute('myid')))
+          console.log('context menu: Properties item clicked, element.parentNode.parentNode.textContent: ' + JSON.stringify(element.parentNode.parentNode.textContent))
+        }
+      }
+*/
+      //ipcRenderer.send('context-menu', {message: "Hi", someData: "Let's go"});
+      
+  }
+});
+const menuitemSeparator1 = new MenuItem({
+  type: 'separator'
+});
+const menuitemClone = new MenuItem ({
+  label: 'Clone',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: Clone item clicked')
+  }
+});
+const menuitemDelete = new MenuItem ({
+  label: 'Delete',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: Delete item clicked')
+  }
+});
+const menuitemEdit = new MenuItem ({
+  label: 'Edit',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: Edit item clicked')
+  }
+});
+const menuitemNewChild = new MenuItem ({
+  label: 'New Child',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: New Child item clicked')
+  }
+});
+const menuitemSeparator2 = new MenuItem({
+  type: 'separator'
+});
+const menuitemReadFromFile = new MenuItem ({
+  label: 'Read from file',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: Read from file item clicked')
+      readTreeUsingDialog(rightClickTreeNum);
+  }
+});
+const menuitemSaveToFile = new MenuItem ({
+  label: 'Save to file',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: Save to file item clicked');
+      saveTreeUsingDialog(rightClickTreeNum);
+  }
+});
+const menuitemViewPrintable = new MenuItem ({
+  label: 'View printable',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: View printable item clicked')
+  }
+});
+const menuitemSeparator3 = new MenuItem({
+  type: 'separator'
+});
+const menuitemExpandAllNodesInTree = new MenuItem ({
+  label: 'Expand all nodes in tree',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: Expand all nodes in tree item clicked')
+      treeobj[rightClickTreeNum].expandAll();
+  }
+});
+const menuitemCollapseAllNodesInTree = new MenuItem ({
+  label: 'Collapse all nodes in tree',
+  click() { 
+      // context menu only appears if right-click in one of the trees
+      console.log('context menu: Collapse all nodes in tree item clicked')
+      treeobj[rightClickTreeNum].collapseAll();
+  }
+});
+menu.append(menuitemProperties);
+menu.append(menuitemSeparator1);
+menu.append(menuitemClone);
+menu.append(menuitemDelete);
+menu.append(menuitemEdit);
+menu.append(menuitemNewChild);
+menu.append(menuitemSeparator2);
+menu.append(menuitemReadFromFile);
+menu.append(menuitemSaveToFile);
+menu.append(menuitemViewPrintable);
+menu.append(menuitemSeparator3);
+menu.append(menuitemExpandAllNodesInTree);
+menu.append(menuitemCollapseAllNodesInTree);
+//menu.append(new MenuItem({label: 'MenuItem2', type: 'checkbox', checked: true}))
+
+
+
+// Prevent default action of right click in chromium. Replace with our menu.
+window.addEventListener('contextmenu', (e) => {
+  // https://electronjs.org/docs/api/web-contents#event-context-menu
+  e.preventDefault()
+  //console.log("e.x ", e.x , " e.y ", e.y);
+  rightClickElement = document.elementFromPoint(e.x, e.y)
+  rightClickTreeElementId = "";
+  rightClickTreeNum = 0;
+  var rect = document.getElementById("t0tree").getBoundingClientRect();
+  //console.log("bounds of t0tree are trbl ", rect.top, rect.right, rect.bottom, rect.left);
+  if ((e.x >= rect.left) && (e.x <= rect.right) && (e.y <= rect.bottom) && (e.y >= rect.top)) {
+    rightClickTreeElementId = "t0tree";
+    rightClickTreeNum = 0;
+  } else {
+    rect = document.getElementById("t1tree").getBoundingClientRect();
+    //console.log("bounds of t1tree are trbl ", rect.top, rect.right, rect.bottom, rect.left);
+    if ((e.x >= rect.left) && (e.x <= rect.right) && (e.y <= rect.bottom) && (e.y >= rect.top)) {
+      rightClickTreeElementId = "t1tree";
+      rightClickTreeNum = 1;
+    } else {
+      rect = document.getElementById("t2tree").getBoundingClientRect();
+      //console.log("bounds of t2tree are trbl ", rect.top, rect.right, rect.bottom, rect.left);
+      if ((e.x >= rect.left) && (e.x <= rect.right) && (e.y <= rect.bottom) && (e.y >= rect.top)) {
+        rightClickTreeElementId = "t2tree";
+        rightClickTreeNum = 2;
+      }
+    }
+  }
+  if (rightClickTreeElementId !== "") {
+    // show context menu only in the trees
+    rightClickPosition = {x: e.x, y: e.y}   // save position of click
+
+    let myid = rightClickElement.getAttribute('myid');
+    menuitemProperties.enabled = (myid === '3');
+    menuitemClone.enabled = (myid === '3');
+    menuitemDelete.enabled = (myid === '3');
+    menuitemEdit.enabled = (myid === '3');
+    menuitemNewChild.enabled = (myid === '3');
+
+    menu.popup(remote.getCurrentWindow())
+  }
+}, false)
+
+function doscansystem() {
+  scansystem().then((treetext) =>
+    {
+      loadTreeFromText(0, treetext);
+      //loadTreeFromText(0, '[{"name":"x","children":[]}]');
+    });
+}
+</script>
+
+
+<!--------------------------------------------------------------------------->
+
+<div style="text-align:center;">
+<span style="height:100px; vertical-align:middle">
+  <button id="scansystem1" class="top"
+  title="Scan your current system to record hardware, software, security, and network settings."
+  onclick="doscansystem();"
+  >Scan System</button>
+</span>
+<span style="height:100px; vertical-align:middle">
+  <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>
+</span>
+<span style="height:100px; vertical-align:middle">
+  <button type="button" class="top"
+  title="Copy everything from the Existing configuration pane to the New configuration pane.">Copy to New</button>
+</span>
+<span style="height:100px; vertical-align:middle">
+  <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>
+</span>
+<span style="height:100px; vertical-align:middle">
+  <button type="button" class="top"
+  title="Edit the New configuration to make the changes you want: add a second operating system,
+  or replace the operating system with another, or add/remove other software, or add/remove hardware.">Make Changes</button>
+</span>
+<span style="height:100px; vertical-align:middle">
+  <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>
+</span>
+<span style="height:100px; vertical-align:middle">
+  <button type="button" class="top"
+  title="Get instructions for changing the system from the Existing configuration to the new configuration.
+  Many steps will be manual steps, and some may be automatic steps.">Get Instructions</button>
+</span>
+<span style="height:100px; vertical-align:middle">
+  <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>
+</span>
+<span style="height:100px; vertical-align:middle">
+  <button type="button" class="top"
+  title="Read and perform the steps in the instructions to change your system.">Follow Instructions</button>
+</span>
+</div>
+<br />
+
+<table>
+<tr>
+  <td><center><b>Existing</b> (<label id="t0filename"></label>)</center></td>
+  <td>&nbsp;</td>
+  <td><center><b>New</b> (<label id="t1filename"></label>)</center></td>
+  <td>&nbsp;</td>
+  <td><center><b>Instructions</b> (<label id="t2filename"></label>)</center></td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr>
+
+<td id="tdt0tree">
+<!--
+<button id="t0expandAll" class="treeinsidepane">Expand All</button>
+<button id="t0collapseAll" class="treeinsidepane">Collapse All</button>
+<br /><br />
+-->
+<div id="t0tree" class="mytree0"></div>
+</td>
+<td>
+<img src="forward_button.png" title="" alt="" />
+</td>
+<td id="tdt1tree">
+<div id="t1tree" class="mytree1"></div>
+</td>
+<td>
+<img src="forward_button.png" title="" alt="" />
+</td>
+<td id="tdt2tree">
+<div id="t2tree" class="mytree2"></div>
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+</table>
+
+</body>
+
+</html>
