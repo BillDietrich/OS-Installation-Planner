@@ -37,6 +37,8 @@ Electron desktop application to plan and pre-configure a single-user desktop OS 
 
 ### Limitations
 
+* Before doing "Scan System", enable all networks (Wi-Fi and wired), and attach and mount all USB devices (drives, printers, etc), so the application can scan them.  If something such as Wi-Fi is disabled, probably it won't be found by the application.
+
 
 #### Quirks
 

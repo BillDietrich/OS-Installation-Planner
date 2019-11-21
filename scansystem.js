@@ -5,6 +5,8 @@
 
 const osLocale = require('os-locale');
 const os = require('os');
+
+// https://github.com/sebhildebrandt/systeminformation
 const systeminformation = require('systeminformation');
 
 // https://nodejs.org/api/path.html#path_path_parse_pathstring
@@ -160,6 +162,61 @@ function addDiskRecords() {
 }
 
 
+function addGraphicsRecords() {
+  var promise = null;
+  promise = systeminformation.graphics()
+    .then(data => {
+      //alert("addGraphicsRecord: " + JSON.stringify(data));
+      var text = "";
+      var nFound = 0;
+      
+      var controllers = data.controllers;
+      for (i = 0; i < controllers.length; i++) {
+        if (nFound > 0)
+          text += ',';
+        text += '{ "name": "graphicsController' + i + '", "vendor":"' + controllers[i].vendor + '", "model":"' + controllers[i].model + '", "vram":' + controllers[i].vram + ', "vramDynamic":' + controllers[i].vramDynamic + ', "children": [] }';
+        nFound++;
+      }
+      
+      var displays = data.displays;
+      for (i = 0; i < displays.length; i++) {
+        if (nFound > 0)
+          text += ',';
+        text += '{ "name": "display' + i + '", "vendor":"' + displays[i].vendor + '", "model":"' + displays[i].model + '", "main":' + displays[i].main + ', "builtin":' + displays[i].builtin + ', "connection":"' + displays[i].connection + '", "sizex":' + displays[i].sizex + ', "sizey":' + displays[i].sizey + ', "pixeldepth":' + displays[i].pixeldepth + ', "resolutionx":' + displays[i].resolutionx + ', "resolutiony":' + displays[i].resolutiony + ', "currentResX":' + displays[i].currentResX + ', "currentResY":' + displays[i].currentResY + ', "positionX":' + displays[i].positionX + ', "positionY":' + displays[i].positionY + ', "currentRefreshRate":' + displays[i].currentRefreshRate + ', "children": [] }';
+        nFound++;
+      }
+
+      return text;
+    }
+    ).catch(error => alert("systeminformation.graphics() error: " + error));
+  return promise;
+}
+
+
+function addNetworkInterfaceRecords() {
+  var promise = null;
+  promise = systeminformation.networkInterfaces()
+    .then(data => {
+      //alert("addNetworkInterfaceRecords: " + JSON.stringify(data));
+      var text = "";
+      var nFound = 0;
+            
+      for (i = 0; i < data.length; i++) {
+        if ((data[i].type === "wired") || (data[i].type === "wireless")) {
+          if (nFound > 0)
+            text += ',';
+          text += '{ "name": "' + data[i].ifaceName + '", "mac":"' + data[i].mac + '", "type":"' + data[i].type + '", "children": [] }';
+          nFound++;
+        }
+      }
+
+      return text;
+    }
+    ).catch(error => alert("systeminformation.networkInterfaces() error: " + error));
+  return promise;
+}
+
+
 function addBIOSRecord() {
   var promise = null;
   promise = systeminformation.bios()
@@ -262,7 +319,21 @@ function scansystem() {
     systeminformation.wifiNetworks()
       .then(data => alert("systeminformation.wifiNetworks(): " + JSON.stringify(data)))
       .catch(error => alert("systeminformation.wifiNetworks() error: " + error));
+    systeminformation.time()
+      .then(data => alert("systeminformation.time(): " + JSON.stringify(data)))
+      .catch(error => alert("systeminformation.time() error: " + error));
+
+    systeminformation.getStaticData()
+      .then(data => console.log("systeminformation.getStaticData(): " + JSON.stringify(data)))
+      .catch(error => alert("systeminformation.getStaticData() error: " + error));
+    systeminformation.getDynamicData()
+      .then(data => console.log("systeminformation.getDynamicData(): " + JSON.stringify(data)))
+      .catch(error => alert("systeminformation.getDynamicData() error: " + error));
+    systeminformation.getAllData()
+      .then(data => console.log("systeminformation.getAllData(): " + JSON.stringify(data)))
+      .catch(error => alert("systeminformation.getAllData() error: " + error));
   }
+
 
   return new Promise((resolve, reject) => {
 
@@ -303,19 +374,31 @@ function scansystem() {
                                   treetext += ',';
                                 treetext += text;
 
-                                // close hardware section
-                                treetext += ']}';
+                                p = addGraphicsRecords()
+                                  .then(text => {
+                                    treetext += ',';
+                                    treetext += text;
 
-                                treetext += ',{ "name": "software", "children": [';
+                                    p = addNetworkInterfaceRecords()
+                                      .then(text => {
+                                        treetext += ',';
+                                        treetext += text;
 
-                                // close software section
-                                treetext += ']}';
+                                        // close hardware section
+                                        treetext += ']}';
 
-                                // close config
-                                treetext += ']';
+                                        treetext += ',{ "name": "software", "children": [';
 
-                                //alert("scansystem: finished treetext: " + treetext);
-                                resolve(treetext);
+                                        // close software section
+                                        treetext += ']}';
+
+                                        // close config
+                                        treetext += ']';
+
+                                        //alert("scansystem: finished treetext: " + treetext);
+                                        resolve(treetext);
+                                      });
+                                  });
                               });
                           });
                       });
