@@ -17,55 +17,62 @@ const jsonFile = require('jsonfile')
 
 
 
-//const crypto = require("crypto");
-//const id = crypto.randomBytes(16).toString("hex");
-
-
 
 //---------------------------------------------------------------------------
 
-var treedata = new Array(null, null, null);
-var treeobj = new Array(null, null, null);
-var treefilename = new Array(null, null, null);
-var treefilepathname = new Array(null, null, null);
+var gObjTree = new Array(null, null, null);
+var gObjTreeView = new Array(null, null, null);
+var gsTreeFilename = new Array(null, null, null);
+var gsTreeFilepathname = new Array(null, null, null);
 
 
 //---------------------------------------------------------------------------
 
 function loadTreeFromFile(treenum) {
   //console.log("loadTreeFromFile: called, ", treenum, filename);
-  treedata[treenum] = loadJsonFile.sync(treefilename[treenum]);
-  $('#t' + treenum + 'filename').text(treefilename[treenum]);
-  treeobj[treenum] = new TreeView(treedata[treenum], 't' + treenum + 'tree');
-  treeobj[treenum].expandAll();
-  //console.log("loadTreeFromFile: treedata[treenum] ", treedata[treenum]);
+  gObjTree[treenum] = loadJsonFile.sync(gsTreeFilename[treenum]);
+  $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
+  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree');
+  gObjTreeView[treenum].expandAll();
+  //console.log("loadTreeFromFile: gObjTree[treenum] ", gObjTree[treenum]);
   //console.log("loadTreeFromFile: return");
 }
 
 function loadTreeFromText(treenum, text) {
   //console.log("loadTreeFromText: called, ", treenum, text);
-  treefilename[treenum] = "";
-  // don't wipe out the treefilepathname
-  treedata[treenum] = JSON.parse(text);
+  gsTreeFilename[treenum] = "";
+  // don't wipe out the gsTreeFilepathname
+  gObjTree[treenum] = JSON.parse(text);
   $('#t' + treenum + 'filename').text("");
-  treeobj[treenum] = new TreeView(treedata[treenum], 't' + treenum + 'tree');
-  treeobj[treenum].expandAll();
-  console.log("loadTreeFromText: treedata[treenum] ", treedata[treenum]);
+  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree');
+  gObjTreeView[treenum].expandAll();
+  console.log("loadTreeFromText: gObjTree[treenum] ", gObjTree[treenum]);
+  //console.log("loadTreeFromText: return");
+}
+
+function loadTree(treenum, objTree) {
+  console.log("loadTreeFromText: called, ", treenum, JSON.stringify(objTree));
+  gsTreeFilename[treenum] = "";
+  // don't wipe out the gsTreeFilepathname
+  gObjTree[treenum] = objTree;
+  $('#t' + treenum + 'filename').text("");
+  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree');
+  gObjTreeView[treenum].expandAll();
   //console.log("loadTreeFromText: return");
 }
 
 function saveTreeToFile(treenum) {
   console.log("saveTreeToFile: called, ", treenum);
   // https://www.w3schools.com/nodejs/nodejs_filesystem.asp
-  //fs.writeFile(treefilename[treenum], 'utf8');
-  //fs.writeFileSync(treefilepathname[treenum], JSON.stringify(treedata[treenum]));
+  //fs.writeFile(gsTreeFilename[treenum], 'utf8');
+  //fs.writeFileSync(gsTreeFilepathname[treenum], JSON.stringify(gObjTree[treenum]));
   try {
-    jsonFile.writeFileSync(treefilepathname[treenum], treedata[treenum]);
+    jsonFile.writeFileSync(gsTreeFilepathname[treenum], gObjTree[treenum]);
   } catch(err) {
     console.log('saveTreeToFile: error', err);
   }
   /*
-  fs.writeFileSync(treefilepathname[treenum], JSON.stringify(treedata[treenum]), function(err) {
+  fs.writeFileSync(gsTreeFilepathname[treenum], JSON.stringify(gObjTree[treenum]), function(err) {
     if (err)
       console.log('saveTreeToFile: error', err);
   });
@@ -89,7 +96,7 @@ function readTreeUsingDialog(treenum) {
   }
   let options = {
     title : buttonText,
-    defaultPath: treefilepathname[treenum],
+    defaultPath: gsTreeFilepathname[treenum],
     buttonLabel : buttonText,
     filters :[ {name: 'json', extensions: ['json']} ],
     properties : ['openFile']
@@ -97,9 +104,9 @@ function readTreeUsingDialog(treenum) {
 
   var p = dialog.showOpenDialog(WIN, options).then((retobj) => {
     console.log("readTreeUsingDialog: retobj.filePaths ", retobj.filePaths);
-    treefilename[treenum] = path.parse(retobj.filePaths[0]).base;
-    treefilepathname[treenum] = retobj.filePaths[0];
-    $('#t' + treenum + 'filename').text(treefilename[treenum]);
+    gsTreeFilename[treenum] = path.parse(retobj.filePaths[0]).base;
+    gsTreeFilepathname[treenum] = retobj.filePaths[0];
+    $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
 
     loadTreeFromFile(treenum);
   });
@@ -123,21 +130,38 @@ function saveTreeUsingDialog(treenum) {
   }
   let options = {
     title : buttonText,
-    defaultPath: treefilepathname[treenum],
+    defaultPath: gsTreeFilepathname[treenum],
     buttonLabel : buttonText,
     filters :[ {name: 'json', extensions: ['json']} ]
   };
 
   var p = dialog.showSaveDialog(WIN, options).then((retobj) => {
     console.log("saveTreeUsingDialog: retobj.filePath ", retobj.filePath);
-    treefilename[treenum] = path.parse(retobj.filePath).base;
-    treefilepathname[treenum] = retobj.filePath;
-    $('#t' + treenum + 'filename').text(treefilename[treenum]);
+    gsTreeFilename[treenum] = path.parse(retobj.filePath).base;
+    gsTreeFilepathname[treenum] = retobj.filePath;
+    $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
 
     saveTreeToFile(treenum);
   });
 
   console.log("saveTreeUsingDialog: return");
+}
+
+function copyExistingTreeToNew(existingtreenum, newtreenum) {
+  gsTreeFilename[newtreenum] = "";
+  // don't wipe out the gsTreeFilepathname
+
+  gObjTree[newtreenum] = gObjTree[existingtreenum];
+  gObjTree[newtreenum].name = "New configuration";
+  gObjTree[newtreenum].type = "newConfiguration";
+  const guid = crypto.randomBytes(16).toString("hex");
+  gObjTree[newtreenum].guid = guid;
+  gObjTree[newtreenum].comparedGuid = gObjTree[existingtreenum].guid;
+
+  $('#t' + newtreenum + 'filename').text("");
+  gObjTreeView[newtreenum] = new TreeView(gObjTree[newtreenum], 't' + newtreenum + 'tree');
+  gObjTreeView[newtreenum].expandAll();
+  //console.log("loadTreeFromText: return");
 }
 
 
@@ -168,15 +192,15 @@ t2data = loadJsonFile.sync(t2filename);
 $('#t2filename').text(t2filename);
 */
 console.log("__dirname " , __dirname);
-treefilename[0] = "System-Existing.json";
-treefilepathname[0] = __dirname + path.sep + treefilename[0];
+gsTreeFilename[0] = "System-Existing.json";
+gsTreeFilepathname[0] = __dirname + path.sep + gsTreeFilename[0];
 loadTreeFromFile(0);
 //loadTreeFromFile(0, null, '[{"name":"y","children":[]}]');
-treefilename[1] = "System-New.json";
-treefilepathname[1] = __dirname + path.sep + treefilename[1];
+gsTreeFilename[1] = "System-New.json";
+gsTreeFilepathname[1] = __dirname + path.sep + gsTreeFilename[1];
 loadTreeFromFile(1);
-treefilename[2] = "System-Instructions.json";
-treefilepathname[2] = __dirname + path.sep + treefilename[2];
+gsTreeFilename[2] = "System-Instructions.json";
+gsTreeFilepathname[2] = __dirname + path.sep + gsTreeFilename[2];
 loadTreeFromFile(2);
 //alert("t0data.constructor.name: " + t0data.constructor.name);
 //alert("t0data[0]: " + t0data[0]);

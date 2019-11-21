@@ -259,12 +259,21 @@ window.addEventListener('contextmenu', (e) => {
 }, false)
 
 function doscansystem() {
-  scansystem().then((treetext) =>
-    {
-      loadTreeFromText(0, treetext);
-      //loadTreeFromText(0, '[{"name":"x","children":[]}]');
-    });
+  $('body').addClass('waiting');
+  scansystem().then((objTree) => {
+    loadTree(0, objTree);
+    $('body').removeClass('waiting');
+  });
 }
+
+function docopyexistingtonew() {
+  $('body').addClass('waiting');
+  scansystem().then((objTree) => {
+    copyExistingTreeToNew(0, 1);
+    $('body').removeClass('waiting');
+  });
+}
+
 </script>
 
 
@@ -282,7 +291,9 @@ function doscansystem() {
 </span>
 <span style="height:100px; vertical-align:middle">
   <button type="button" class="top"
-  title="Copy everything from the Existing configuration pane to the New configuration pane.">Copy to New</button>
+  title="Copy everything from the Existing configuration pane to the New configuration pane."
+  onclick="docopyexistingtonew();"
+  >Copy to New</button>
 </span>
 <span style="height:100px; vertical-align:middle">
   <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>

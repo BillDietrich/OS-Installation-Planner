@@ -67,5 +67,9 @@ button.treeinsidepane {
 	font-size: smaller;
 }
 
+body.waiting * {
+    cursor: progress;
+}
+
 
 /*---------------------------------------------------------------------------*/
