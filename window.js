@@ -151,17 +151,20 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
   gsTreeFilename[newtreenum] = "";
   // don't wipe out the gsTreeFilepathname
 
-  gObjTree[newtreenum] = gObjTree[existingtreenum];
-  gObjTree[newtreenum].name = "New configuration";
-  gObjTree[newtreenum].type = "newConfiguration";
-  const guid = crypto.randomBytes(16).toString("hex");
-  gObjTree[newtreenum].guid = guid;
-  gObjTree[newtreenum].comparedGuid = gObjTree[existingtreenum].guid;
+  // clone whole object tree; can't just clone top object
+  gObjTree[newtreenum] = JSON.parse(JSON.stringify(gObjTree[existingtreenum]));
+
+  gObjTree[newtreenum][0].name = "New configuration";
+  gObjTree[newtreenum][0].type = "newConfiguration";
+  let newguid = crypto.randomBytes(16).toString("hex");
+  gObjTree[newtreenum][0].guid = newguid;
+  let oldguid = gObjTree[existingtreenum][0].guid;
+  gObjTree[newtreenum][0].comparedGuid = oldguid;
 
   $('#t' + newtreenum + 'filename').text("");
   gObjTreeView[newtreenum] = new TreeView(gObjTree[newtreenum], 't' + newtreenum + 'tree');
   gObjTreeView[newtreenum].expandAll();
-  //console.log("loadTreeFromText: return");
+  //console.log("copyExistingTreeToNew: return");
 }
 
 

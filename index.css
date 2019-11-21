@@ -38,12 +38,21 @@ div.mytree2 {
 	background-color:pink;
 }
 
-div.modaldialog {
+div.modaldialogframe {
 	display:table;
 	vertical-align:top;
 	margin:0 auto;
-	height: 300px;
-	width: 300px;
+	height: 400px;
+	width: 600px;
+	background-color:lightyellow;
+}
+
+textarea.modaldialogcontent {
+	display:table;
+	vertical-align:top;
+	margin:0 auto;
+	height: 350px;
+	width: 550px;
 	background-color:lightyellow;
 }
 

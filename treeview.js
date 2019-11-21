@@ -91,6 +91,7 @@
           leaf.setAttribute('myid', '1');
           content.setAttribute('myid', '2');
           text.setAttribute('myid', '3');
+          text.setAttribute('JSON', JSON.stringify(item));
           expando.setAttribute('myid', '4');
 
           leaf.setAttribute('class', 'tree-leaf');

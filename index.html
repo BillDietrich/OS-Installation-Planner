@@ -23,7 +23,9 @@
 delete module.exports
 </script>
 
+<!-- https://api.jquery.com/ -->
 <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+
 <script src="treeview.js"></script>
 <script src="scansystem.js" charset="utf-8"></script>
 <script src="window.js" charset="utf-8"></script>
@@ -51,11 +53,12 @@ const {Menu, MenuItem} = remote
 
 <!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
 <!-- https://www.scriptol.com/javascript/electron-dialog.php -->
-<dialog id="modaldialog" style="height:400px; width:300px;">
-  <div id="modaldialogdiv" class="modaldialog"></div>
+<dialog id="modaldialog" class="modaldialogframe">
+  <textarea id="modaldialogtext" class="modaldialogcontent"></textarea>
+  <br />
   <button id="cancel" onclick="dialog.close('');">Cancel</button>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <button id="save" onclick="dialog.close('somevaluehere');">Save</button>
+  <button id="save" onclick="dialog.close(document.getElementById('modaldialogtext').value);">Save</button>
 </dialog>
 
 <script type="text/javascript">
@@ -63,17 +66,30 @@ const {Menu, MenuItem} = remote
 var dialog = document.getElementById('modaldialog');
 
 
-function openModalPropertiesDialog(treeNum, myid) {
+// don't display children; user could blow up tree, or contents would be too big
+function JSONreplacer(key, value) {
+  // Filtering out properties
+  if (key === 'children') {
+    return undefined;
+  }
+  return value;
+}
 
-  document.getElementById('modaldialogdiv').innerHTML = "test1111";
+
+function openPropertiesDialog(element, bReadonly) {
+
+  //document.getElementById('modaldialogdiv').innerHTML = "test1111";
+  var sPrettyJSON = JSON.stringify(JSON.parse(element.getAttribute("JSON")), JSONreplacer, '\t');
+  document.getElementById('modaldialogtext').innerHTML = sPrettyJSON;
+  document.getElementById('modaldialogtext').readOnly = bReadonly;
 
   var fe = function(e) {
-    alert(dialog.returnValue)
-    dialog.removeEventListener("close", fe)
+    console.log("modal dialog returned " + dialog.returnValue);
+    dialog.removeEventListener("close", fe);
   }
 
   var x = dialog.showModal();
-  dialog.addEventListener('close', fe)
+  dialog.addEventListener('close', fe);
 
 }
 
@@ -119,7 +135,7 @@ const menuitemProperties = new MenuItem ({
 */
       //ipcRenderer.send('context-menu', {message: "Hi", someData: "Let's go"});
       
-      openModalPropertiesDialog(rightClickTreeNum, rightClickElement.getAttribute('myid'));
+      openPropertiesDialog(rightClickElement, (rightClickTreeNum == 0));
   }
 });
 const menuitemSeparator1 = new MenuItem({
