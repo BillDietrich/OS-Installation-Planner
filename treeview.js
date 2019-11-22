@@ -91,6 +91,9 @@
           leaf.setAttribute('myid', '1');
           content.setAttribute('myid', '2');
           text.setAttribute('myid', '3');
+          console.log("treeview render: item " + JSON.stringify(item));
+          text.setAttribute('nodeId', item.nodeId);
+          text.id = 't' + self.treenum + '-' + item.nodeId;
           text.setAttribute('JSON', JSON.stringify(item));
           expando.setAttribute('myid', '4');
 
@@ -173,8 +176,9 @@
        * @property {object} data The JSON object that represents the tree structure
        * @property {DOMElement} node The DOM element to render the tree in
        */
-      function TreeView(data, node) {
+      function TreeView(data, node, treenum) {
         this.handlers = {};
+        this.treenum = treenum;
         this.node = node;
         this.data = data;
         render(this);

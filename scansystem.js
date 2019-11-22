@@ -32,6 +32,27 @@ var gTree = null;
 var gNextNodeId = 0;
 
 
+//---------------------------------
+// standard fields of a node:
+//  {
+//    name: "something",
+//    ...
+//    nodeStatus: "existing / added / deleted / changed",
+//    nodeId: number,
+//    children: []
+//  }
+
+// indices of the top array:
+const TOP_CONFIG = 0;
+const TOP_SYSTEM = 1;
+const TOP_HARDWARE = 2;
+const TOP_SOFTWARE = 3;
+const TOP_SETTINGS = 4;
+const TOP_CONNECTIONS = 5;
+
+//---------------------------------
+
+
 function addExistingConfigurationInfo() {
   //console.log("addExistingConfigurationRecord: called");
   const guid = crypto.randomBytes(16).toString("hex");
@@ -42,6 +63,7 @@ function addExistingConfigurationInfo() {
             guid: guid,
             comparedGuid: "",
             nextNodeId: 0,
+            nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
             });
@@ -54,15 +76,46 @@ function addSystemInfo() {
   var system = gObjAllData.system;
   gTree.push({
             name: "system",
+            hostname: gObjAllData.os.hostname,
             manufacturer: system.manufacturer,
             model: system.model,
             chassisType: gObjAllData.chassis.type,
             serial: system.serial,
             uuid: system.uuid,
             sku: system.sku,
+            nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
             });
+
+  gTree.push({
+            name: "hardware",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
+  gTree.push({
+            name: "software",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
+  gTree.push({
+            name: "settings",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
+  gTree.push({
+            name: "connections",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
   //console.log("addSystemRecord: return");
 }
 
@@ -70,13 +123,14 @@ function addSystemInfo() {
 function addMotherboardInfo() {
   //console.log("addMotherboardRecord: called");
   var baseboard = gObjAllData.baseboard;
-  gTree.push({
+  gTree[TOP_HARDWARE].children.push({
             name: "motherboard",
             manufacturer: baseboard.manufacturer,
             model: baseboard.model,
             version: baseboard.version,
             serial: baseboard.serial,
             assetTag: baseboard.assetTag,
+            nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
             });
@@ -85,9 +139,28 @@ function addMotherboardInfo() {
 
 function addRAMInfo() {
   //console.log("addRAMRecord: called");
-  gTree.push({
+  gTree[TOP_HARDWARE].children.push({
             name: "RAM",
             sizeBytes: gObjAllData.mem.total,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
+
+function addBatteryInfo() {
+  //console.log("addBatteryInfo: called");
+  gTree[TOP_HARDWARE].children.push({
+            name: "battery",
+            hasbattery: gObjAllData.battery.hasbattery,
+            maxcapacity: gObjAllData.battery.maxcapacity,
+            currentcapacity: gObjAllData.battery.currentcapacity,
+            type: gObjAllData.battery.type,
+            model: gObjAllData.battery.model,
+            manufacturer: gObjAllData.battery.manufacturer,
+            serial: gObjAllData.battery.serial,
+            nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
             });
@@ -97,9 +170,10 @@ function addRAMInfo() {
 function addKeyboardInfo() {
   //console.log("addKeyboardRecord: called");
   // gets system locale, not actual info about keyboard
-  gTree.push({
+  gTree[TOP_HARDWARE].children.push({
             name: "keyboard",
             language: osLocale.sync(),
+            nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
             });
@@ -135,6 +209,7 @@ function addDiskInfo() {
               sizeBytes: diskLayoutData[i].size,
               hardwareEncryptionSupported: false,
               hardwareEncryptionEnabled: false,
+              nodeStatus: "existing",
               nodeId: gNextNodeId++,
               children: []
               });
@@ -163,6 +238,7 @@ function addDiskInfo() {
               sizeBytes: fsSizeData[j].size,
               fsType: fsSizeData[j].type,
               UUID: uuid,
+              nodeStatus: "existing",
               nodeId: gNextNodeId++,
               children: []
               });
@@ -172,7 +248,7 @@ function addDiskInfo() {
 
     }
 
-    gTree.push(objDisk);
+    gTree[TOP_HARDWARE].children.push(objDisk);
 
   }
   console.log("addDiskRecords: return " + JSON.stringify(objDisk));
@@ -199,15 +275,17 @@ function addGraphicsInfo() {
       bus: controllers[i].bus,
       vram: controllers[i].vram,
       vramDynamic: controllers[i].vramDynamic,
+      nodeStatus: "existing",
       nodeId: gNextNodeId++,
       children: []
       });
   }
 
-  gTree.push(objControllers);
+  gTree[TOP_HARDWARE].children.push(objControllers);
 
   var objDisplays = new Object({
     name: "displays",
+    nodeStatus: "existing",
     nodeId: gNextNodeId++,
     children: []
   });
@@ -230,12 +308,13 @@ function addGraphicsInfo() {
       positionX: displays[i].positionX,
       positionY: displays[i].positionY,
       currentRefreshRate: displays[i].currentRefreshRate,
+      nodeStatus: "existing",
       nodeId: gNextNodeId++,
       children: []
       });
   }
 
-  gTree.push(objDisplays);
+  gTree[TOP_HARDWARE].children.push(objDisplays);
 }
 
 
@@ -244,6 +323,7 @@ function addNetworkInterfaceInfo() {
 
   var objIfaces = new Object({
     name: "networkInterfaces",
+    nodeStatus: "existing",
     nodeId: gNextNodeId++,
     children: []
   });
@@ -260,25 +340,69 @@ function addNetworkInterfaceInfo() {
         bus: networkInterfaces[i].bus,
         bus: networkInterfaces[i].bus,
         bus: networkInterfaces[i].bus,
+        nodeStatus: "existing",
         nodeId: gNextNodeId++,
         children: []
         });
     }
   }
 
-  gTree.push(objIfaces);
+  gTree[TOP_HARDWARE].children.push(objIfaces);
 }
+
+
 
 
 function addBIOSInfo() {
-  var promise = null;
-  promise = systeminformation.bios()
-    .then(data => {
-      treetext += ',{ "name": "BIOS", "type": "BIOS", "removable": false, "vendor": "' + data.vendor + '", "version": "' + data.version + '", "releaseDate": "' + data.releaseDate + '", "revision": "' + data.revision + '", "children": []}';
-      }
-    ).catch(error => console.log("systeminformation.bios() error: " + error));
-  return promise;
+  //console.log("addBIOSInfo: called");
+  gTree[TOP_SOFTWARE].children.push({
+            name: "BIOS",
+            vendor: gObjAllData.bios.vendor,
+            version: gObjAllData.bios.version,
+            releaseDate: gObjAllData.bios.releaseDate,
+            revision: gObjAllData.bios.revision,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
 }
+
+
+function addOSInfo() {
+  //console.log("addOSInfo: called");
+  gTree[TOP_SOFTWARE].children.push({
+            name: "OS",
+            platform: gObjAllData.os.platform,
+            distro: gObjAllData.os.distro,
+            release: gObjAllData.os.release,
+            codename: gObjAllData.os.codename,
+            kernel: gObjAllData.os.kernel,
+            arch: gObjAllData.os.arch,
+            hostname: gObjAllData.os.hostname,
+            codepage: gObjAllData.os.codepage,
+            logofile: gObjAllData.os.logofile,
+            serial: gObjAllData.os.serial,
+            build: gObjAllData.os.build,
+            servicepack: gObjAllData.os.servicepack,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
+
+function addTimeInfo() {
+  //console.log("addTimeInfo: called");
+  gTree[TOP_SETTINGS].children.push({
+            name: "time",
+            timezone: gObjAllData.time.timezone,
+            timezoneName: gObjAllData.time.timezoneName,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
 
 
 // app.getGPUInfo(infoType)
@@ -408,12 +532,18 @@ function scansystem() {
             addSystemInfo();
             addMotherboardInfo();
             addRAMInfo();
+            addBatteryInfo();
             addKeyboardInfo();
             addDiskInfo();
             addGraphicsInfo();
             addNetworkInterfaceInfo();
+
+            addBIOSInfo();
+            addOSInfo();
+
+            addTimeInfo();
             
-            gTree[0].nextNodeId = gNextNodeId;
+            gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
 
             console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
             resolve(gTree);

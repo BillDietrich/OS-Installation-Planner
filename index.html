@@ -69,6 +69,7 @@ var dialog = document.getElementById('modaldialog');
 // don't display children; user could blow up tree, or contents would be too big
 function JSONreplacer(key, value) {
   // Filtering out properties
+  // ALSO ADD nodeId and nodeStatus to this !!!!!!!!!!!!!!!!!!!!!!!!!!
   if (key === 'children') {
     return undefined;
   }
@@ -84,8 +85,11 @@ function openPropertiesDialog(element, bReadonly) {
   document.getElementById('modaldialogtext').readOnly = bReadonly;
 
   var fe = function(e) {
-    console.log("modal dialog returned " + dialog.returnValue);
+    console.log("openPropertiesDialog: modal dialog returned " + dialog.returnValue);
     dialog.removeEventListener("close", fe);
+    if (dialog.returnValue) {
+      console.log("openPropertiesDialog: changed value");
+    }
   }
 
   var x = dialog.showModal();

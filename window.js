@@ -32,7 +32,7 @@ function loadTreeFromFile(treenum) {
   //console.log("loadTreeFromFile: called, ", treenum, filename);
   gObjTree[treenum] = loadJsonFile.sync(gsTreeFilename[treenum]);
   $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
-  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree');
+  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
   gObjTreeView[treenum].expandAll();
   //console.log("loadTreeFromFile: gObjTree[treenum] ", gObjTree[treenum]);
   //console.log("loadTreeFromFile: return");
@@ -44,7 +44,7 @@ function loadTreeFromText(treenum, text) {
   // don't wipe out the gsTreeFilepathname
   gObjTree[treenum] = JSON.parse(text);
   $('#t' + treenum + 'filename').text("");
-  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree');
+  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
   gObjTreeView[treenum].expandAll();
   console.log("loadTreeFromText: gObjTree[treenum] ", gObjTree[treenum]);
   //console.log("loadTreeFromText: return");
@@ -56,7 +56,7 @@ function loadTree(treenum, objTree) {
   // don't wipe out the gsTreeFilepathname
   gObjTree[treenum] = objTree;
   $('#t' + treenum + 'filename').text("");
-  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree');
+  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
   gObjTreeView[treenum].expandAll();
   //console.log("loadTreeFromText: return");
 }
@@ -172,11 +172,28 @@ function saveTreeUsingDialog(treenum) {
   console.log("saveTreeUsingDialog: return");
 }
 
+
+
+//---------------------------------
+// standard fields of a node:
+//  {
+//    name: "something",
+//    ...
+//    nodeStatus: "existing / added / deleted / changed",
+//    nodeId: number,
+//    children: []
+//  }
+//---------------------------------
+
+
 function copyExistingTreeToNew(existingtreenum, newtreenum) {
   gsTreeFilename[newtreenum] = "";
   // don't wipe out the gsTreeFilepathname
 
   // clone whole object tree; can't just clone top object
+  //var sTree = JSON.stringify(gObjTree[existingtreenum]);
+  //var sTreeNew = sTree.replace(/nodeStatus:\"existing\"/g, "nodeStatus:\"existing\"");;
+  //gObjTree[newtreenum] = JSON.parse(sTreeNew);
   gObjTree[newtreenum] = JSON.parse(JSON.stringify(gObjTree[existingtreenum]));
 
   gObjTree[newtreenum][0].name = "New configuration";
@@ -187,7 +204,7 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
   gObjTree[newtreenum][0].comparedGuid = oldguid;
 
   $('#t' + newtreenum + 'filename').text("");
-  gObjTreeView[newtreenum] = new TreeView(gObjTree[newtreenum], 't' + newtreenum + 'tree');
+  gObjTreeView[newtreenum] = new TreeView(gObjTree[newtreenum], 't' + newtreenum + 'tree', newtreenum);
   gObjTreeView[newtreenum].expandAll();
   //console.log("copyExistingTreeToNew: return");
 }
@@ -255,9 +272,9 @@ loadTreeFromFile(2);
   // Create trees
   //
 /*
-  t0 = new TreeView(t0data, 't0tree');
-  t1 = new TreeView(t1data, 't1tree');
-  t2 = new TreeView(t2data, 't2tree');
+  t0 = new TreeView(t0data, 't0tree', 0);
+  t1 = new TreeView(t1data, 't1tree', 1);
+  t2 = new TreeView(t2data, 't2tree', 2);
 */
   //$('#t0tree').text("hello");
   //alert("JSON.stringify(t0): " + JSON.stringify(t0));
@@ -273,7 +290,7 @@ loadTreeFromFile(2);
       loadTreeFromFile(0, null, treetext);
       t0data = JSON.parse(treetext);
       alert("bind function scansystem1: new t0data: " + JSON.stringify(t0data));
-      t0 = new TreeView(t0data, 't0tree');
+      t0 = new TreeView(t0data, 't0tree', 0);
       t0.expandAll();
     });
   });
