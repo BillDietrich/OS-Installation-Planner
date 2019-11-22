@@ -29,16 +29,20 @@ const crypto = require("crypto");
 var gObjAllData = null;
 var gObjBlockDevices = null;
 var gTree = null;
+var gNextNodeId = 0;
 
 
 function addExistingConfigurationInfo() {
   //console.log("addExistingConfigurationRecord: called");
   const guid = crypto.randomBytes(16).toString("hex");
+  gNextNodeId = 1001;
   gTree.push({
             name: "Existing configuration",
             type: "existingConfiguration",
             guid: guid,
             comparedGuid: "",
+            nextNodeId: 0,
+            nodeId: gNextNodeId++,
             children: []
             });
   //console.log("addExistingConfigurationRecord: return");
@@ -56,6 +60,7 @@ function addSystemInfo() {
             serial: system.serial,
             uuid: system.uuid,
             sku: system.sku,
+            nodeId: gNextNodeId++,
             children: []
             });
   //console.log("addSystemRecord: return");
@@ -72,6 +77,7 @@ function addMotherboardInfo() {
             version: baseboard.version,
             serial: baseboard.serial,
             assetTag: baseboard.assetTag,
+            nodeId: gNextNodeId++,
             children: []
             });
 }
@@ -82,6 +88,7 @@ function addRAMInfo() {
   gTree.push({
             name: "RAM",
             sizeBytes: gObjAllData.mem.total,
+            nodeId: gNextNodeId++,
             children: []
             });
 }
@@ -93,6 +100,7 @@ function addKeyboardInfo() {
   gTree.push({
             name: "keyboard",
             language: osLocale.sync(),
+            nodeId: gNextNodeId++,
             children: []
             });
 }
@@ -127,6 +135,7 @@ function addDiskInfo() {
               sizeBytes: diskLayoutData[i].size,
               hardwareEncryptionSupported: false,
               hardwareEncryptionEnabled: false,
+              nodeId: gNextNodeId++,
               children: []
               });
 
@@ -154,6 +163,7 @@ function addDiskInfo() {
               sizeBytes: fsSizeData[j].size,
               fsType: fsSizeData[j].type,
               UUID: uuid,
+              nodeId: gNextNodeId++,
               children: []
               });
             break;
@@ -189,6 +199,7 @@ function addGraphicsInfo() {
       bus: controllers[i].bus,
       vram: controllers[i].vram,
       vramDynamic: controllers[i].vramDynamic,
+      nodeId: gNextNodeId++,
       children: []
       });
   }
@@ -197,6 +208,7 @@ function addGraphicsInfo() {
 
   var objDisplays = new Object({
     name: "displays",
+    nodeId: gNextNodeId++,
     children: []
   });
 
@@ -218,6 +230,7 @@ function addGraphicsInfo() {
       positionX: displays[i].positionX,
       positionY: displays[i].positionY,
       currentRefreshRate: displays[i].currentRefreshRate,
+      nodeId: gNextNodeId++,
       children: []
       });
   }
@@ -231,6 +244,7 @@ function addNetworkInterfaceInfo() {
 
   var objIfaces = new Object({
     name: "networkInterfaces",
+    nodeId: gNextNodeId++,
     children: []
   });
 
@@ -246,6 +260,7 @@ function addNetworkInterfaceInfo() {
         bus: networkInterfaces[i].bus,
         bus: networkInterfaces[i].bus,
         bus: networkInterfaces[i].bus,
+        nodeId: gNextNodeId++,
         children: []
         });
     }
@@ -398,6 +413,8 @@ function scansystem() {
             addGraphicsInfo();
             addNetworkInterfaceInfo();
             
+            gTree[0].nextNodeId = gNextNodeId;
+
             console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
             resolve(gTree);
 

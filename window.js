@@ -94,21 +94,34 @@ function readTreeUsingDialog(treenum) {
     case 1: buttonText = "Read file of new system's configuration"; break;
     case 2: buttonText = "Read file of instructions"; break;
   }
+  var defaultPath = "";
+  if (gsTreeFilepathname[treenum] === null) {
+    switch (treenum) {
+      case 0: defaultPath = __dirname + path.sep + "System-Existing.json"; break;
+      case 1: defaultPath = __dirname + path.sep + "System-New.json"; break;
+      case 2: defaultPath = __dirname + path.sep + "System-Instructions.json"; break;
+    }
+  }
+  console.log("readTreeUsingDialog: defaultPath ", defaultPath);
   let options = {
     title : buttonText,
-    defaultPath: gsTreeFilepathname[treenum],
+    defaultPath: defaultPath,
     buttonLabel : buttonText,
     filters :[ {name: 'json', extensions: ['json']} ],
     properties : ['openFile']
   };
 
+  // https://electronjs.org/docs/api/dialog
   var p = dialog.showOpenDialog(WIN, options).then((retobj) => {
-    console.log("readTreeUsingDialog: retobj.filePaths ", retobj.filePaths);
-    gsTreeFilename[treenum] = path.parse(retobj.filePaths[0]).base;
-    gsTreeFilepathname[treenum] = retobj.filePaths[0];
-    $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
+    console.log("readTreeUsingDialog: retobj.canceled ", retobj.canceled);
+    if (!retobj.canceled) {
+      console.log("readTreeUsingDialog: retobj.filePaths ", retobj.filePaths);
+      gsTreeFilename[treenum] = path.parse(retobj.filePaths[0]).base;
+      gsTreeFilepathname[treenum] = retobj.filePaths[0];
+      $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
 
-    loadTreeFromFile(treenum);
+      loadTreeFromFile(treenum);
+    }
   });
 
   console.log("readTreeUsingDialog: return");
@@ -128,20 +141,32 @@ function saveTreeUsingDialog(treenum) {
     case 1: buttonText = "Save new system's configuration"; break;
     case 2: buttonText = "Save instructions"; break;
   }
+  var defaultPath = "";
+  if (gsTreeFilepathname[treenum] === null) {
+    switch (treenum) {
+      case 0: defaultPath = __dirname + path.sep + "System-Existing.json"; break;
+      case 1: defaultPath = __dirname + path.sep + "System-New.json"; break;
+      case 2: defaultPath = __dirname + path.sep + "System-Instructions.json"; break;
+    }
+  }
+  console.log("saveTreeUsingDialog: defaultPath ", defaultPath);
   let options = {
     title : buttonText,
-    defaultPath: gsTreeFilepathname[treenum],
+    defaultPath: defaultPath,
     buttonLabel : buttonText,
     filters :[ {name: 'json', extensions: ['json']} ]
   };
 
   var p = dialog.showSaveDialog(WIN, options).then((retobj) => {
-    console.log("saveTreeUsingDialog: retobj.filePath ", retobj.filePath);
-    gsTreeFilename[treenum] = path.parse(retobj.filePath).base;
-    gsTreeFilepathname[treenum] = retobj.filePath;
-    $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
+    console.log("saveTreeUsingDialog: retobj.canceled ", retobj.canceled);
+    if (!retobj.canceled) {
+      console.log("saveTreeUsingDialog: retobj.filePath ", retobj.filePath);
+      gsTreeFilename[treenum] = path.parse(retobj.filePath).base;
+      gsTreeFilepathname[treenum] = retobj.filePath;
+      $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
 
-    saveTreeToFile(treenum);
+      saveTreeToFile(treenum);
+    }
   });
 
   console.log("saveTreeUsingDialog: return");
@@ -194,6 +219,8 @@ let t2filename = "System-Instructions.json";
 t2data = loadJsonFile.sync(t2filename);
 $('#t2filename').text(t2filename);
 */
+
+/*
 console.log("__dirname " , __dirname);
 gsTreeFilename[0] = "System-Existing.json";
 gsTreeFilepathname[0] = __dirname + path.sep + gsTreeFilename[0];
@@ -205,6 +232,8 @@ loadTreeFromFile(1);
 gsTreeFilename[2] = "System-Instructions.json";
 gsTreeFilepathname[2] = __dirname + path.sep + gsTreeFilename[2];
 loadTreeFromFile(2);
+*/
+
 //alert("t0data.constructor.name: " + t0data.constructor.name);
 //alert("t0data[0]: " + t0data[0]);
 //alert("t0data[0].name: " + t0data[0].name);
