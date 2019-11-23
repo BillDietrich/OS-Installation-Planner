@@ -1,6 +1,6 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.9",
+ "version": "0.2.10",
  "description": "OS Installation Planner",
  "author": "Bill Dietrich",
  "license": "ISC",
@@ -20,6 +20,8 @@
  },
  "dependencies": {
   "electron": "^7.1.2",
+  "fs": "0.0.1-security",
+  "graceful-fs": "^4.2.3",
   "jsonfile": "^5.0.0",
   "load-json-file": "^6.2.0",
   "os": "^0.1.1",

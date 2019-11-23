@@ -5,9 +5,6 @@
 
 const {remote} = require('electron')
 
-// https://nodejs.org/api/fs.html
-//const {fs} = require('graceful-fs')
-
 const loadJsonFile = require('load-json-file')
 
 // https://cnpmjs.org/package/jsonfile
@@ -51,14 +48,14 @@ function loadTreeFromText(treenum, text) {
 }
 
 function loadTree(treenum, objTree) {
-  console.log("loadTreeFromText: called, ", treenum, JSON.stringify(objTree));
+  console.log("loadTree: called, ", treenum, JSON.stringify(objTree));
   gsTreeFilename[treenum] = "";
   // don't wipe out the gsTreeFilepathname
   gObjTree[treenum] = objTree;
   $('#t' + treenum + 'filename').text("");
   gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
   gObjTreeView[treenum].expandAll();
-  //console.log("loadTreeFromText: return");
+  //console.log("loadTree: return");
 }
 
 function saveTreeToFile(treenum) {
@@ -192,7 +189,7 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
 
   // clone whole object tree; can't just clone top object
   //var sTree = JSON.stringify(gObjTree[existingtreenum]);
-  //var sTreeNew = sTree.replace(/nodeStatus:\"existing\"/g, "nodeStatus:\"existing\"");;
+  //var sTreeNew = sTree.replace(/nodeStatus:\"existing\"/g, "nodeStatus:\"existing\"");
   //gObjTree[newtreenum] = JSON.parse(sTreeNew);
   gObjTree[newtreenum] = JSON.parse(JSON.stringify(gObjTree[existingtreenum]));
 

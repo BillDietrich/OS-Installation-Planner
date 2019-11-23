@@ -9,6 +9,11 @@ const osLocale = require('os-locale');
 
 const os = require('os');
 
+// https://www.npmjs.com/package/graceful-fs
+// https://nodejs.org/api/fs.html
+//const fs = require('graceful-fs');
+const fs = require('fs');
+
 // https://github.com/sebhildebrandt/systeminformation
 const systeminformation = require('systeminformation');
 
@@ -404,6 +409,50 @@ function addTimeInfo() {
 }
 
 
+function addApplicationInfo() {
+  console.log("addApplicationInfo: called");
+  
+  const apps = [
+    { path: "/usr/bin/firefox", name: "Firefox" },
+    { path: "/opt/bogus", name: "bogus" },
+    { path: "/opt/thunderbird", name: "Thunderbird" }
+  ];
+
+  var objApps = new Object({
+    name: "applications",
+    nodeStatus: "existing",
+    nodeId: gNextNodeId++,
+    children: []
+  });
+
+  for (i = 0; i < apps.length; i++) {
+    let filepath = apps[i].path.replace(/\//g, path.sep);
+
+    var exists = true;
+    try {
+      fs.accessSync(filepath);
+      //fs.statSync(filepath);
+      //exists = fs.existsSync(filepath);
+    } catch(e) {
+      //console.log("addApplicationInfo: caught e " + e);
+      exists = false;
+    }
+    //console.log("addApplicationInfo: i " + i + ", path " + apps[i].path + ", filepath " + filepath + ", exists " + exists);
+
+    if (exists) {
+      objApps.children.push({
+                name: apps[i].name,
+                nodeStatus: "existing",
+                nodeId: gNextNodeId++,
+                children: []
+                });
+    }
+  }
+
+  gTree[TOP_SOFTWARE].children.push(objApps);
+}
+
+
 
 // app.getGPUInfo(infoType)
 // app.getGPUFeatureStatus()
@@ -542,6 +591,8 @@ function scansystem() {
             addOSInfo();
 
             addTimeInfo();
+
+            addApplicationInfo();
             
             gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
 
