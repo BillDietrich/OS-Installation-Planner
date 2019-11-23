@@ -90,6 +90,7 @@
 
           leaf.setAttribute('myid', '1');
           content.setAttribute('myid', '2');
+          // this is the visible, clickable text of a node
           text.setAttribute('myid', '3');
           console.log("treeview render: item " + JSON.stringify(item));
           text.setAttribute('nodeId', item.nodeId);
@@ -146,6 +147,7 @@
           var parent = (e.target || e.currentTarget).parentNode;
           var data = JSON.parse(parent.getAttribute('data-item'));
           var leaves = parent.parentNode.querySelector('.tree-child-leaves');
+          nodeClicked(e.target || e.currentTarget);  // in index.html
           if (leaves) {
             if (leaves.classList.contains('hidden')) {
               self.expand(parent, leaves);

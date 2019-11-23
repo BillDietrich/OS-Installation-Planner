@@ -59,7 +59,7 @@ const TOP_CONNECTIONS = 5;
 
 
 function addExistingConfigurationInfo() {
-  //console.log("addExistingConfigurationRecord: called");
+  //console.log("addExistingConfigurationInfo: called");
   const guid = crypto.randomBytes(16).toString("hex");
   gNextNodeId = 1001;
   gTree.push({
@@ -72,12 +72,12 @@ function addExistingConfigurationInfo() {
             nodeId: gNextNodeId++,
             children: []
             });
-  //console.log("addExistingConfigurationRecord: return");
+  //console.log("addExistingConfigurationInfo: return");
 }
 
 
 function addSystemInfo() {
-  //console.log("addSystemRecord: called");
+  //console.log("addSystemInfo: called");
   var system = gObjAllData.system;
   gTree.push({
             name: "system",
@@ -121,12 +121,12 @@ function addSystemInfo() {
             children: []
             });
 
-  //console.log("addSystemRecord: return");
+  //console.log("addSystemInfo: return");
 }
 
 
 function addMotherboardInfo() {
-  //console.log("addMotherboardRecord: called");
+  //console.log("addMotherboardInfo: called");
   var baseboard = gObjAllData.baseboard;
   gTree[TOP_HARDWARE].children.push({
             name: "motherboard",
@@ -142,8 +142,27 @@ function addMotherboardInfo() {
 }
 
 
+function addCPUInfo() {
+  //console.log("addCPUInfo: called");
+  var cpu = gObjAllData.cpu;
+  gTree[TOP_HARDWARE].children.push({
+            name: "CPU",
+            manufacturer: cpu.manufacturer,
+            brand: cpu.brand,
+            vendor: cpu.vendor,
+            family: cpu.family,
+            model: cpu.model,
+            stepping: cpu.stepping,
+            revision: cpu.revision,
+            flags: cpu.flags,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
 function addRAMInfo() {
-  //console.log("addRAMRecord: called");
+  //console.log("addRAMInfo: called");
   gTree[TOP_HARDWARE].children.push({
             name: "RAM",
             sizeBytes: gObjAllData.mem.total,
@@ -173,7 +192,7 @@ function addBatteryInfo() {
 
 
 function addKeyboardInfo() {
-  //console.log("addKeyboardRecord: called");
+  //console.log("addKeyboardInfo: called");
   // gets system locale, not actual info about keyboard
   gTree[TOP_HARDWARE].children.push({
             name: "keyboard",
@@ -188,18 +207,18 @@ function addKeyboardInfo() {
 
 
 function addDiskInfo() {
-  //console.log("addDiskRecords: called");
+  //console.log("addDiskInfo: called");
   var diskLayoutData = gObjAllData.diskLayout;
   var fsSizeData = gObjAllData.fsSize;
 
   var i = 0;
   for (i = 0; i < diskLayoutData.length; i++) {
 
-    //console.log("addDiskRecords: diskLayoutData[" + i + "] " + JSON.stringify(diskLayoutData));
+    //console.log("addDiskInfo: diskLayoutData[" + i + "] " + JSON.stringify(diskLayoutData));
     var fulldevicename = diskLayoutData[i].device;
     var n = fulldevicename.lastIndexOf(path.sep);
     var name = fulldevicename.substr(n+1);
-    //console.log("addDiskRecords: fulldevicename " + fulldevicename + ", path.sep " + path.sep + ", n " + n + ", name " + name);
+    //console.log("addDiskInfo: fulldevicename " + fulldevicename + ", path.sep " + path.sep + ", n " + n + ", name " + name);
 
     var type = (diskLayoutData[i].type === "HD" ? "hardDisk" : "");
     var removable = (diskLayoutData[i].interfaceType === "USB");
@@ -226,7 +245,7 @@ function addDiskInfo() {
       var uuid = "";
 
       for (j = 0; j < gObjBlockDevices.length; j++) {
-          //console.log("addDiskRecords: want name " + name + k + ", see gObjBlockDevices[j].name " + gObjBlockDevices[j].name);
+          //console.log("addDiskInfo: want name " + name + k + ", see gObjBlockDevices[j].name " + gObjBlockDevices[j].name);
           if (gObjBlockDevices[j].name === name + k) {
             uuid = gObjBlockDevices[j].uuid;
             break;
@@ -234,7 +253,7 @@ function addDiskInfo() {
       }
 
       for (j = 0; j < fsSizeData.length; j++) {
-          //console.log("addDiskRecords: want subDevName " + subDevName + ", see fsSizeData[j].fs " + fsSizeData[j].fs);
+          //console.log("addDiskInfo: want subDevName " + subDevName + ", see fsSizeData[j].fs " + fsSizeData[j].fs);
           if (fsSizeData[j].fs === subDevName) {
             objDisk.children.push({
               name: name + k,
@@ -256,7 +275,7 @@ function addDiskInfo() {
     gTree[TOP_HARDWARE].children.push(objDisk);
 
   }
-  console.log("addDiskRecords: return " + JSON.stringify(objDisk));
+  console.log("addDiskInfo: return " + JSON.stringify(objDisk));
 
   // https://github.com/balena-io-modules/drivelist
 }
@@ -360,6 +379,11 @@ function addNetworkInterfaceInfo() {
 
 function addBIOSInfo() {
   //console.log("addBIOSInfo: called");
+
+  // supports UEFI ?
+  // supports Secure Boot ?
+  // supports ACPI ?
+
   gTree[TOP_SOFTWARE].children.push({
             name: "BIOS",
             vendor: gObjAllData.bios.vendor,
@@ -375,6 +399,17 @@ function addBIOSInfo() {
 
 function addOSInfo() {
   //console.log("addOSInfo: called");
+
+  // Booted from UEFI or BIOS ?
+  // https://itsfoss.com/check-uefi-or-bios/
+  // Does folder /sys/firmware/efi exist ?
+    var bBootedFromUEFI = true;
+    try {
+      fs.accessSync("/sys/firmware/efi");
+    } catch(e) {
+      bBootedFromUEFI = false;
+    }
+
   gTree[TOP_SOFTWARE].children.push({
             name: "OS",
             platform: gObjAllData.os.platform,
@@ -389,6 +424,7 @@ function addOSInfo() {
             serial: gObjAllData.os.serial,
             build: gObjAllData.os.build,
             servicepack: gObjAllData.os.servicepack,
+            bootedFromUEFI: bBootedFromUEFI,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -561,6 +597,36 @@ function scansystem() {
   }
 
 
+  if (false) {
+    // CLI commands: dmidecode, biosdecode, vpddecode, ownership
+    // DMI (some say SMBIOS) table
+    // https://www.webopedia.com/TERM/D/DMI.html
+    // https://wiki.osdev.org/System_Management_BIOS
+    // https://en.wikipedia.org/wiki/System_Management_BIOS
+    // https://www.tecmint.com/how-to-get-hardware-information-with-dmidecode-command-on-linux/
+
+    // DMI type 13, BIOS Language Information, Currently Installed Language
+    // DMI type 16, Physical Memory Array, Maximum Capacity
+    // DMI type 0, Characteristics, BIOS is upgradeable ? ACPI supported ?  UEFI supported ?
+
+    // https://github.com/mjhasbach/node-ms-wmic
+    // https://github.com/ruiming/node-wmic
+    // https://www.npmjs.com/package/node-wmi
+    // https://www.npmjs.com/package/ms-wmic
+    // https://npm.taobao.org/package/wmic-js
+    // https://github.com/jpgrusling/node-wmi
+
+    // ACPI
+    // https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface
+    // https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/acpi-driver
+    // https://www.geeksforgeeks.org/acpi-command-in-linux-with-examples/
+    // https://wiki.ubuntu.com/Kernel/Reference/ACPITricksAndTips
+    // https://www.kernel.org/doc/html/latest/firmware-guide/acpi/namespace.html
+
+    // OSPM
+  }
+
+
   return new Promise((resolve, reject) => {
 
     p = systeminformation.getAllData("", "")
@@ -580,6 +646,7 @@ function scansystem() {
             addExistingConfigurationInfo();
             addSystemInfo();
             addMotherboardInfo();
+            addCPUInfo();
             addRAMInfo();
             addBatteryInfo();
             addKeyboardInfo();

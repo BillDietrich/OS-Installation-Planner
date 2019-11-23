@@ -125,6 +125,8 @@ const menuitemProperties = new MenuItem ({
       console.log('context menu: Properties item clicked, rightClickElement.attributes: ' + JSON.stringify(rightClickElement.attributes))
       console.log('context menu: Properties item clicked, rightClickElement.getAttribute(myid): ' + JSON.stringify(rightClickElement.getAttribute('myid')))
       console.log('context menu: Properties item clicked, rightClickElement.textContent: ' + JSON.stringify(rightClickElement.textContent))
+      //console.log('context menu: Properties item clicked, rightClickElement.id: ' + rightClickElement.id);
+      //console.log('context menu: Properties item clicked, rightClickElement.onclick: ' + rightClickElement.onclick);
 /*
       if (rightClickElement.parentNode) {
         console.log('context menu: Properties item clicked, rightClickElement.parentNode.attributes: ' + JSON.stringify(rightClickElement.parentNode.class))
@@ -293,6 +295,49 @@ function docopyexistingtonew() {
     $('body').removeClass('waiting');
   });
 }
+
+
+function setTreeLeafTextElementToColor(sId, sColor) {
+  var element = document.getElementById(sId);
+  if (!element)
+    return;
+  switch (sColor) {
+    case 'red': element.setAttribute('class', 'tree-leaf-text-red'); break;
+    case 'pink': element.setAttribute('class', 'tree-leaf-text-pink'); break;
+    case 'green': element.setAttribute('class', 'tree-leaf-text-green'); break;
+    case 'yellow': element.setAttribute('class', 'tree-leaf-text-yellow'); break;
+    default: element.setAttribute('class', 'tree-leaf-text'); break;
+  }
+}
+
+var gLastClickedTarget = null;
+var gLastClickedId = "";
+
+function nodeClicked(target) {
+  //console.log("nodeClicked: id ", target.id);
+  //console.log("nodeClicked: nodeId ", target.getAttribute("nodeId"));
+  var nodeId = "";
+  var id = "";
+  if (gLastClickedTarget) {
+    nodeId = gLastClickedTarget.getAttribute("nodeId");
+    for (i = 0; i < 3; i++) {
+      id = "t" + '012'[i] + "-" + nodeId;
+      //console.log("nodeClicked: do id ", id);
+      setTreeLeafTextElementToColor(id, "");
+    }
+  }
+  nodeId = target.getAttribute("nodeId");
+  for (i = 0; i < 3; i++) {
+    id = "t" + '012'[i] + "-" + nodeId;
+    //console.log("nodeClicked: do id ", id);
+    setTreeLeafTextElementToColor(id, "yellow");
+  }
+  gLastClickedTarget = target;
+  gLastClickedId = target.id;
+}
+
+
+
 
 </script>
 
