@@ -10,7 +10,7 @@ div.mytree0 {
 	vertical-align:top;
 	margin:0 auto;
 	height: 1000px;
-	width: 300px;
+	width: 320px;
 	background-color:lightgreen;
 }
 
@@ -22,7 +22,7 @@ div.mytree1 {
 	vertical-align:top;
 	margin:0 auto;
 	height: 1000px;
-	width: 300px;
+	width: 320px;
 	background-color:lightblue;
 }
 
@@ -34,11 +34,11 @@ div.mytree2 {
 	vertical-align:top;
 	margin:0 auto;
 	height: 1000px;
-	width: 300px;
+	width: 320px;
 	background-color:pink;
 }
 
-div.modaldialogframe {
+div.propertiesDialogFrame {
 	display:table;
 	vertical-align:top;
 	margin:0 auto;
@@ -47,13 +47,22 @@ div.modaldialogframe {
 	background-color:lightyellow;
 }
 
-textarea.modaldialogcontent {
+textarea.propertiesDialogContent {
 	display:table;
 	vertical-align:top;
 	margin:0 auto;
 	height: 450px;
 	width: 550px;
 	background-color:lightyellow;
+}
+
+div.makeChangesDialogFrame {
+	display:table;
+	vertical-align:top;
+	margin:0 auto;
+	height: 500px;
+	width: 600px;
+	background-color:lightblue;
 }
 
 button.top {

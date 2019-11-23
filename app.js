@@ -110,7 +110,7 @@ app.once('ready', () => {
   // https://electronjs.org/docs/api/browser-window
   window = new BrowserWindow({
     // Set the initial width in px
-    width: 1030,
+    width: 1100,
     // Set the initial height in px
     height: 650,
     // Set the default background color of the window to match the CSS
