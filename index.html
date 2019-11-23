@@ -14,6 +14,10 @@
 <meta name="description" content="Plan and pre-configure a single-user desktop OS installation">
 <meta name="keywords" content="desktop, OS, install, plan, configure">
 
+<!--  meta http-equiv="Content-Security-Policy"
+  content="default-src 'none'; script-src 'self unsafe-inline'; img-src 'self' data:; style-src 'self unsafe-inline'; font-src 'self';"
+/ -->
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="index.css" />
@@ -241,9 +245,11 @@ menu.append(menuitemCollapseAllNodesInTree);
 window.addEventListener('contextmenu', (e) => {
   // https://electronjs.org/docs/api/web-contents#event-context-menu
   e.preventDefault()
+
   //console.log("e.x ", e.x , " e.y ", e.y);
   rightClickElement = document.elementFromPoint(e.x, e.y)
   rightClickTreeElementId = "";
+
   rightClickTreeNum = 0;
   var rect = document.getElementById("t0tree").getBoundingClientRect();
   //console.log("bounds of t0tree are trbl ", rect.top, rect.right, rect.bottom, rect.left);
@@ -270,11 +276,36 @@ window.addEventListener('contextmenu', (e) => {
     rightClickPosition = {x: e.x, y: e.y}   // save position of click
 
     let myid = rightClickElement.getAttribute('myid');
-    menuitemProperties.enabled = (myid === '3');
-    menuitemClone.enabled = (myid === '3');
-    menuitemDelete.enabled = (myid === '3');
-    menuitemEdit.enabled = (myid === '3');
-    menuitemNewChild.enabled = (myid === '3');
+
+    if (myid === '3') {
+      // it's a leaf of the tree
+      let sJSON = rightClickElement.getAttribute('JSON');
+      let bNodeEditable = JSON.parse(sJSON).nodeEditable;
+      let bNodeCanAddChildren = JSON.parse(sJSON).nodeCanAddChildren;
+      console.log("myid "+ myid + ", sJSON " + sJSON + ", bNodeEditable " + bNodeEditable);
+      menuitemProperties.enabled = true;
+      menuitemClone.enabled = (rightClickTreeNum != 0) && bNodeEditable;
+      menuitemDelete.enabled = (rightClickTreeNum != 0) && bNodeEditable;
+      menuitemEdit.enabled = (rightClickTreeNum != 0) && bNodeEditable;
+      menuitemNewChild.enabled = (rightClickTreeNum != 0) && bNodeCanAddChildren;
+      menuitemReadFromFile.enabled = false;
+      menuitemSaveToFile.enabled = false;
+      menuitemViewPrintable.enabled = false;
+      menuitemExpandAllNodesInTree.enabled = false;
+      menuitemCollapseAllNodesInTree.enabled = false;
+    } else {
+      // it's a blank area of the tree
+      menuitemProperties.enabled = false;
+      menuitemClone.enabled = false;
+      menuitemDelete.enabled = false;
+      menuitemEdit.enabled = false;
+      menuitemNewChild.enabled = false;
+      menuitemReadFromFile.enabled = true;
+      menuitemSaveToFile.enabled = true;
+      menuitemViewPrintable.enabled = true;
+      menuitemExpandAllNodesInTree.enabled = true;
+      menuitemCollapseAllNodesInTree.enabled = true;
+    }
 
     menu.popup(remote.getCurrentWindow())
   }

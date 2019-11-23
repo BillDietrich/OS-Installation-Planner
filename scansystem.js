@@ -42,6 +42,8 @@ var gNextNodeId = 0;
 //  {
 //    name: "something",
 //    ...
+//    nodeEditable: boolean,
+//    nodeCanAddChildren: boolean,
 //    nodeStatus: "existing / added / deleted / changed",
 //    nodeId: number,
 //    children: []
@@ -52,8 +54,15 @@ const TOP_CONFIG = 0;
 const TOP_SYSTEM = 1;
 const TOP_HARDWARE = 2;
 const TOP_SOFTWARE = 3;
-const TOP_SETTINGS = 4;
-const TOP_CONNECTIONS = 5;
+
+// indices in the software children array
+const SOFTWARE_BIOS = 0;
+const SOFTWARE_OS = 1;
+
+// indices in the OS children array
+const OS_SETTINGS = 0;
+const OS_CONNECTIONS = 1;
+const OS_APPLICATIONS = 2;
 
 //---------------------------------
 
@@ -68,6 +77,8 @@ function addExistingConfigurationInfo() {
             guid: guid,
             comparedGuid: "",
             nextNodeId: 0,
+            nodeEditable: false,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -88,6 +99,8 @@ function addSystemInfo() {
             serial: system.serial,
             uuid: system.uuid,
             sku: system.sku,
+            nodeEditable: false,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -95,6 +108,8 @@ function addSystemInfo() {
 
   gTree.push({
             name: "hardware",
+            nodeEditable: false,
+            nodeCanAddChildren: true,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -102,20 +117,8 @@ function addSystemInfo() {
 
   gTree.push({
             name: "software",
-            nodeStatus: "existing",
-            nodeId: gNextNodeId++,
-            children: []
-            });
-
-  gTree.push({
-            name: "settings",
-            nodeStatus: "existing",
-            nodeId: gNextNodeId++,
-            children: []
-            });
-
-  gTree.push({
-            name: "connections",
+            nodeEditable: false,
+            nodeCanAddChildren: true,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -135,6 +138,8 @@ function addMotherboardInfo() {
             version: baseboard.version,
             serial: baseboard.serial,
             assetTag: baseboard.assetTag,
+            nodeEditable: false,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -155,6 +160,8 @@ function addCPUInfo() {
             stepping: cpu.stepping,
             revision: cpu.revision,
             flags: cpu.flags,
+            nodeEditable: false,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -166,6 +173,8 @@ function addRAMInfo() {
   gTree[TOP_HARDWARE].children.push({
             name: "RAM",
             sizeBytes: gObjAllData.mem.total,
+            nodeEditable: true,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -184,6 +193,8 @@ function addBatteryInfo() {
             model: gObjAllData.battery.model,
             manufacturer: gObjAllData.battery.manufacturer,
             serial: gObjAllData.battery.serial,
+            nodeEditable: true,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -197,6 +208,8 @@ function addKeyboardInfo() {
   gTree[TOP_HARDWARE].children.push({
             name: "keyboard",
             language: osLocale.sync(),
+            nodeEditable: true,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -233,6 +246,8 @@ function addDiskInfo() {
               sizeBytes: diskLayoutData[i].size,
               hardwareEncryptionSupported: false,
               hardwareEncryptionEnabled: false,
+              nodeEditable: true,
+              nodeCanAddChildren: true,
               nodeStatus: "existing",
               nodeId: gNextNodeId++,
               children: []
@@ -262,6 +277,8 @@ function addDiskInfo() {
               sizeBytes: fsSizeData[j].size,
               fsType: fsSizeData[j].type,
               UUID: uuid,
+              nodeEditable: true,
+              nodeCanAddChildren: false,
               nodeStatus: "existing",
               nodeId: gNextNodeId++,
               children: []
@@ -288,6 +305,10 @@ function addGraphicsInfo() {
 
   var objControllers = new Object({
     name: "graphicsControllers",
+    nodeEditable: false,
+    nodeCanAddChildren: true,
+    nodeStatus: "existing",
+    nodeId: gNextNodeId++,
     children: []
   });
 
@@ -299,6 +320,8 @@ function addGraphicsInfo() {
       bus: controllers[i].bus,
       vram: controllers[i].vram,
       vramDynamic: controllers[i].vramDynamic,
+      nodeEditable: true,
+      nodeCanAddChildren: false,
       nodeStatus: "existing",
       nodeId: gNextNodeId++,
       children: []
@@ -309,6 +332,8 @@ function addGraphicsInfo() {
 
   var objDisplays = new Object({
     name: "displays",
+    nodeEditable: false,
+    nodeCanAddChildren: true,
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
     children: []
@@ -332,6 +357,8 @@ function addGraphicsInfo() {
       positionX: displays[i].positionX,
       positionY: displays[i].positionY,
       currentRefreshRate: displays[i].currentRefreshRate,
+      nodeEditable: true,
+      nodeCanAddChildren: false,
       nodeStatus: "existing",
       nodeId: gNextNodeId++,
       children: []
@@ -347,6 +374,8 @@ function addNetworkInterfaceInfo() {
 
   var objIfaces = new Object({
     name: "networkInterfaces",
+    nodeEditable: false,
+    nodeCanAddChildren: true,
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
     children: []
@@ -364,6 +393,8 @@ function addNetworkInterfaceInfo() {
         bus: networkInterfaces[i].bus,
         bus: networkInterfaces[i].bus,
         bus: networkInterfaces[i].bus,
+        nodeEditable: true,
+        nodeCanAddChildren: false,
         nodeStatus: "existing",
         nodeId: gNextNodeId++,
         children: []
@@ -390,6 +421,8 @@ function addBIOSInfo() {
             version: gObjAllData.bios.version,
             releaseDate: gObjAllData.bios.releaseDate,
             revision: gObjAllData.bios.revision,
+            nodeEditable: true,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -425,19 +458,51 @@ function addOSInfo() {
             build: gObjAllData.os.build,
             servicepack: gObjAllData.os.servicepack,
             bootedFromUEFI: bBootedFromUEFI,
+            nodeEditable: true,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
             });
+
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
+    name: "settings",
+    nodeEditable: false,
+    nodeCanAddChildren: true,
+    nodeStatus: "existing",
+    nodeId: gNextNodeId++,
+    children: []
+  });
+
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
+    name: "connections",
+    nodeEditable: false,
+    nodeCanAddChildren: true,
+    nodeStatus: "existing",
+    nodeId: gNextNodeId++,
+    children: []
+  });
+
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
+    name: "applications",
+    nodeEditable: false,
+    nodeCanAddChildren: true,
+    nodeStatus: "existing",
+    nodeId: gNextNodeId++,
+    children: []
+  });
+
 }
 
 
 function addTimeInfo() {
   //console.log("addTimeInfo: called");
-  gTree[TOP_SETTINGS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
             name: "time",
             timezone: gObjAllData.time.timezone,
             timezoneName: gObjAllData.time.timezoneName,
+            nodeEditable: true,
+            nodeCanAddChildren: false,
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -454,13 +519,6 @@ function addApplicationInfo() {
     { path: "/opt/thunderbird", name: "Thunderbird" }
   ];
 
-  var objApps = new Object({
-    name: "applications",
-    nodeStatus: "existing",
-    nodeId: gNextNodeId++,
-    children: []
-  });
-
   for (i = 0; i < apps.length; i++) {
     let filepath = apps[i].path.replace(/\//g, path.sep);
 
@@ -476,16 +534,16 @@ function addApplicationInfo() {
     //console.log("addApplicationInfo: i " + i + ", path " + apps[i].path + ", filepath " + filepath + ", exists " + exists);
 
     if (exists) {
-      objApps.children.push({
+      gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_APPLICATIONS].children.push({
                 name: apps[i].name,
+                nodeEditable: true,
+                nodeCanAddChildren: false,
                 nodeStatus: "existing",
                 nodeId: gNextNodeId++,
                 children: []
                 });
     }
   }
-
-  gTree[TOP_SOFTWARE].children.push(objApps);
 }
 
 
@@ -658,7 +716,6 @@ function scansystem() {
             addOSInfo();
 
             addTimeInfo();
-
             addApplicationInfo();
             
             gTree[TOP_CONFIG].nextNodeId = gNextNodeId;

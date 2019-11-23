@@ -176,6 +176,8 @@ function saveTreeUsingDialog(treenum) {
 //  {
 //    name: "something",
 //    ...
+//    nodeEditable: boolean,
+//    nodeCanAddChildren: boolean,
 //    nodeStatus: "existing / added / deleted / changed",
 //    nodeId: number,
 //    children: []
