@@ -209,6 +209,43 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
 }
 
 
+function findNode(nodeId, objTree) {
+  console.log("findNode: called, nodeId " + nodeId);
+  console.log("findNode: Array.isArray(objTree) " + Array.isArray(objTree));
+  if (Array.isArray(objTree)) {
+    console.log("findNode: array length " + objTree.length);
+    for (var i = 0; i < objTree.length; i++) {
+      var obj = findNode(nodeId, objTree[i]);
+      if (obj) {
+        console.log("findNode: success in array position " + i);
+        return obj;
+      }
+    }
+    console.log("findNode: not in array");
+    return null;
+  } else {
+    console.log("findNode: check nodeId " + objTree.nodeId);
+    if (objTree.nodeId === nodeId) {
+      console.log("findNode: success");
+      return objTree;
+    } else if (objTree.children.length == 0) {
+      console.log("findNode: no children");
+      return null;
+    } else
+      console.log("findNode: check the children of " + objTree.nodeId);
+      return findNode(nodeId, objTree.children);
+      //return null;
+  }
+}
+
+
+function doClone(nodeId, treenum) {
+  console.log("doClone: called, nodeId " + nodeId + ", treenum " + treenum);
+  var obj = findNode(nodeId, gObjTree[treenum]);
+  console.log("doClone: found obj " + obj);
+}
+
+
 //---------------------------------------------------------------------------
 
 // "document ready" function:

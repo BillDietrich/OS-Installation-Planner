@@ -226,8 +226,7 @@ function addDiskInfo() {
   var diskLayoutData = gObjAllData.diskLayout;
   var fsSizeData = gObjAllData.fsSize;
 
-  var i = 0;
-  for (i = 0; i < diskLayoutData.length; i++) {
+  for (var i = 0; i < diskLayoutData.length; i++) {
 
     //console.log("addDiskInfo: diskLayoutData[" + i + "] " + JSON.stringify(diskLayoutData));
     var fulldevicename = diskLayoutData[i].device;
@@ -256,12 +255,12 @@ function addDiskInfo() {
               });
 
     let MAXPARTNUM = 9;
-    for (k = 1; k<=MAXPARTNUM; k++) {
+    for (var k = 1; k<=MAXPARTNUM; k++) {
 
       let subDevName = fulldevicename + k;
       var uuid = "";
 
-      for (j = 0; j < gObjBlockDevices.length; j++) {
+      for (var j = 0; j < gObjBlockDevices.length; j++) {
           //console.log("addDiskInfo: want name " + name + k + ", see gObjBlockDevices[j].name " + gObjBlockDevices[j].name);
           if (gObjBlockDevices[j].name === name + k) {
             uuid = gObjBlockDevices[j].uuid;
@@ -269,7 +268,7 @@ function addDiskInfo() {
           }
       }
 
-      for (j = 0; j < fsSizeData.length; j++) {
+      for (var j = 0; j < fsSizeData.length; j++) {
           //console.log("addDiskInfo: want subDevName " + subDevName + ", see fsSizeData[j].fs " + fsSizeData[j].fs);
           if (fsSizeData[j].fs === subDevName) {
             objDisk.children.push({
@@ -322,7 +321,7 @@ function addGraphicsInfo() {
     children: []
   });
 
-  for (i = 0; i < controllers.length; i++) {
+  for (var i = 0; i < controllers.length; i++) {
     objControllers.children.push({
       name: "graphicsController" + i,
       vendor: controllers[i].vendor,
@@ -349,7 +348,7 @@ function addGraphicsInfo() {
     children: []
   });
 
-  for (i = 0; i < displays.length; i++) {
+  for (var i = 0; i < displays.length; i++) {
     objDisplays.children.push({
       name: "display" + i,
       vendor: displays[i].vendor,
@@ -391,7 +390,7 @@ function addNetworkInterfaceInfo() {
     children: []
   });
 
-  for (i = 0; i < networkInterfaces.length; i++) {
+  for (var i = 0; i < networkInterfaces.length; i++) {
     if ((networkInterfaces[i].type === "wired") || (networkInterfaces[i].type === "wireless")) {
       objIfaces.children.push({
         name: networkInterfaces[i].ifaceName,
@@ -532,7 +531,7 @@ function addApplicationInfo() {
     { path: "/opt/thunderbird", name: "Thunderbird" }
   ];
 
-  for (i = 0; i < apps.length; i++) {
+  for (var i = 0; i < apps.length; i++) {
     let filepath = apps[i].path.replace(/\//g, path.sep);
 
     var exists = true;

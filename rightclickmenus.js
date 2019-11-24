@@ -66,6 +66,9 @@ const menuitemClone = new MenuItem ({
   click() { 
       // context menu only appears if right-click in one of the trees
       console.log('context menu: Clone item clicked')
+      let sJSON = rightClickElement.getAttribute('JSON');
+      let nodeId = JSON.parse(sJSON).nodeId;
+      doClone(nodeId, rightClickTreeNum);
   }
 });
 const menuitemDelete = new MenuItem ({

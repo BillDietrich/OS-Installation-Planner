@@ -72,9 +72,9 @@ var propertiesDialogElement = document.getElementById('propertiesDialog');
 function propertiesDialogJSONreplacer(key, value) {
   // Filtering out properties
   // ALSO ADD nodeId and nodeStatus to this !!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (key === 'children') {
-    return undefined;
-  }
+  //if (key === 'children') {
+  //  return undefined;
+  //}
   return value;
 }
 
@@ -110,7 +110,23 @@ function openPropertiesDialog(element, bReadonly) {
 <dialog id="makeChangesDialog" class="makeChangesDialogFrame">
 What would you like to change ?
 <br /><br />
-Your current OS is
+Your current OS is <span id="mcdCurrentOS"></span>.
+<br /><br />
+<button id="mcd_replace">Replace</button> current OS with:
+<select id="mcd_replace_select">
+  <option value="Linux" selected>Linux</option>
+  <option value="Windows">Windows</option>
+  <option value="OSX">Mac OS X</option>
+</select>
+<br />
+or
+<br />
+<button id="mcd_dual">Dual-boot</button> current OS along with:
+<select id="mcd_dual_select">
+  <option value="Linux" selected>Linux</option>
+  <option value="Windows">Windows</option>
+  <option value="OSX">Mac OS X</option>
+</select>
 <br /><br />
 <button id="mcdcancel" onclick="makeChangesDialogElement.close('cancel');">Cancel</button>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -131,6 +147,7 @@ function openMakeChangesDialog() {
   }
 
   var x = makeChangesDialogElement.showModal();
+  document.getElementById('mcdCurrentOS').innerText = "abcdef";
   makeChangesDialogElement.addEventListener('close', fe);
 
 }
