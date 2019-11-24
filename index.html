@@ -58,9 +58,9 @@ delete module.exports
 <dialog id="propertiesDialog" class="propertiesDialogFrame">
   <textarea id="propertiesDialogText" class="propertiesDialogContent"></textarea>
   <br />
-  <button id="cancel" onclick="propertiesDialogElement.close('');">Cancel</button>
+  <button id="pdcancel" onclick="propertiesDialogElement.close('');">Cancel</button>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <button id="save" onclick="propertiesDialogElement.close(document.getElementById('propertiesDialogText').value);">Save</button>
+  <button id="pdsave" onclick="propertiesDialogElement.close(document.getElementById('propertiesDialogText').value);">Save</button>
 </dialog>
 
 <script type="text/javascript">
@@ -101,8 +101,9 @@ function openPropertiesDialog(element, bReadonly) {
 </script>
 
 
-//----------------------------------------------------------------------------
-// Make Changes Dialog
+<!----------------------------------------------------------------------------
+ Make Changes Dialog
+------------------------------------------------------------------------------>
 
 <!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
 <!-- https://www.scriptol.com/javascript/electron-dialog.php -->
@@ -111,9 +112,9 @@ What would you like to change ?
 <br /><br />
 Your current OS is
 <br /><br />
-<button id="cancel" onclick="makeChangesDialogElement.close('cancel');">Cancel</button>
+<button id="mcdcancel" onclick="makeChangesDialogElement.close('cancel');">Cancel</button>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<button id="save" onclick="makeChangesDialogElement.close('save');">Save</button>
+<button id="mcdsave" onclick="makeChangesDialogElement.close('save');">Save</button>
 </dialog>
 
 <script type="text/javascript">

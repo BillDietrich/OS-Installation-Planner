@@ -118,8 +118,13 @@ app.once('ready', () => {
     backgroundColor: "#D6D8DC",
     // Don't show the window until it's ready, this prevents any white flickering
     show: false,
-    webPreferences: { devTools: true, nodeIntegration: true }
+    webPreferences: { devTools: true, nodeIntegration: true },
+    icon: __dirname + '/osinstallationplanner.png'
   })
+
+  // packaging the app:
+  // use electron-packager and set the icon using the --icon switch
+  // use https://iconverticons.com/online/ to convert png to icns for OS X
 
   // Load a URL in the window to the local index.html path
   window.loadURL(url.format({

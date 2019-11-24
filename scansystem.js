@@ -35,6 +35,8 @@ var gObjAllData = null;
 var gObjBlockDevices = null;
 var gTree = null;
 var gNextNodeId = 0;
+var gBootPartitionUUID = "";
+var gRootPartitionUUID = "";
 
 
 //---------------------------------
@@ -283,6 +285,14 @@ function addDiskInfo() {
               nodeId: gNextNodeId++,
               children: []
               });
+            if (fsSizeData[j].mount === "/boot") {
+              // we've found the boot partition for the current OS
+              gBootPartitionUUID = uuid;
+            }
+            if (fsSizeData[j].mount === "/") {
+              // we've found the root partition for the current OS
+              gRootPartitionUUID = uuid;
+            }
             break;
           }
       }
@@ -430,6 +440,7 @@ function addBIOSInfo() {
 }
 
 
+// this is reading the currently booted OS
 function addOSInfo() {
   //console.log("addOSInfo: called");
 
@@ -444,7 +455,7 @@ function addOSInfo() {
     }
 
   gTree[TOP_SOFTWARE].children.push({
-            name: "OS",
+            name: "OS - " + gObjAllData.os.platform + " - " + gObjAllData.os.distro + " - " + gObjAllData.os.release,
             platform: gObjAllData.os.platform,
             distro: gObjAllData.os.distro,
             release: gObjAllData.os.release,
@@ -458,6 +469,8 @@ function addOSInfo() {
             build: gObjAllData.os.build,
             servicepack: gObjAllData.os.servicepack,
             bootedFromUEFI: bBootedFromUEFI,
+            bootPartitionUUID: gBootPartitionUUID,
+            rootPartitionUUID: gRootPartitionUUID,
             nodeEditable: true,
             nodeCanAddChildren: false,
             nodeStatus: "existing",
