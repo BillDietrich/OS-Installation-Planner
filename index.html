@@ -58,14 +58,14 @@ delete module.exports
 <dialog id="propertiesDialog" class="propertiesDialogFrame">
   <textarea id="propertiesDialogText" class="propertiesDialogContent"></textarea>
   <br />
-  <button id="pdcancel" onclick="propertiesDialogElement.close('');">Cancel</button>
+  <button id="pdcancel" onclick="gPropertiesDialogElement.close('');">Cancel</button>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <button id="pdsave" onclick="propertiesDialogElement.close(document.getElementById('propertiesDialogText').value);">Save</button>
+  <button id="pdsave" onclick="gPropertiesDialogElement.close(document.getElementById('propertiesDialogText').value);">Save</button>
 </dialog>
 
 <script type="text/javascript">
 
-var propertiesDialogElement = document.getElementById('propertiesDialog');
+var gPropertiesDialogElement = document.getElementById('propertiesDialog');
 
 
 // don't display children; user could blow up tree, or contents would be too big
@@ -86,15 +86,15 @@ function openPropertiesDialog(element, bReadonly) {
   document.getElementById('propertiesDialogText').readOnly = bReadonly;
 
   var fe = function(e) {
-    console.log("openPropertiesDialog: modal dialog returned " + propertiesDialogElement.returnValue);
-    propertiesDialogElement.removeEventListener("close", fe);
-    if (propertiesDialogElement.returnValue) {
+    console.log("openPropertiesDialog: modal dialog returned " + gPropertiesDialogElement.returnValue);
+    gPropertiesDialogElement.removeEventListener("close", fe);
+    if (gPropertiesDialogElement.returnValue) {
       console.log("openPropertiesDialog: changed value");
     }
   }
 
-  var x = propertiesDialogElement.showModal();
-  propertiesDialogElement.addEventListener('close', fe);
+  var x = gPropertiesDialogElement.showModal();
+  gPropertiesDialogElement.addEventListener('close', fe);
 
 }
 

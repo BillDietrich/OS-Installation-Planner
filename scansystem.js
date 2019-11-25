@@ -235,6 +235,20 @@ function addMouseTouchpadInfo() {
 
 
 
+function addAudioInfo() {
+  //console.log("addAudioInfo: called");
+  gTree[TOP_HARDWARE].children.push({
+            name: "audio",
+            nodeEditable: true,
+            nodeCanAddChildren: false,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
+
+
 function addDiskInfo() {
   //console.log("addDiskInfo: called");
   var diskLayoutData = gObjAllData.diskLayout;
@@ -475,6 +489,7 @@ function addOSInfo() {
             codename: gObjAllData.os.codename,
             kernel: gObjAllData.os.kernel,
             arch: gObjAllData.os.arch,
+            desktop: "",
             hostname: gObjAllData.os.hostname,
             codepage: gObjAllData.os.codepage,
             logofile: gObjAllData.os.logofile,
@@ -735,6 +750,7 @@ function scansystem() {
             addBatteryInfo();
             addKeyboardInfo();
             addMouseTouchpadInfo();
+            addAudioInfo();
             addDiskInfo();
             addGraphicsInfo();
             addNetworkInterfaceInfo();

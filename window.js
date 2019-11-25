@@ -58,6 +58,14 @@ function loadTree(treenum, objTree) {
   //console.log("loadTree: return");
 }
 
+// tree object has changed, refresh the view of it
+function refreshTreeView(treenum) {
+  console.log("refreshTreeView: called, ", treenum);
+  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
+  gObjTreeView[treenum].expandAll();
+  //console.log("refreshTreeView: return");
+}
+
 function saveTreeToFile(treenum) {
   console.log("saveTreeToFile: called, ", treenum);
   // https://www.w3schools.com/nodejs/nodejs_filesystem.asp
@@ -262,11 +270,31 @@ function findNode(nodeId, objTree, objParent) {
 
 function doClone(nodeId, treenum) {
   console.log("doClone: called, nodeId " + nodeId + ", treenum " + treenum);
+
   var obj = findNode(nodeId, gObjTree[treenum], null);
   //console.log("doClone: found obj.node " + obj.node + " obj.parent " + obj.parent);
   console.log("doClone: found obj.node.nodeId " + obj.node.nodeId + " obj.parent.nodeId " + obj.parent.nodeId);
   console.log("doClone: found obj.node.name " + obj.node.name + " obj.parent.name " + obj.parent.name);
+
   // MORE !!!!
+}
+
+
+function doDelete(nodeId, treenum) {
+  console.log("doDelete: called, nodeId " + nodeId + ", treenum " + treenum);
+
+  var obj = findNode(nodeId, gObjTree[treenum], null);
+  //console.log("doDelete: found obj.node " + obj.node + " obj.parent " + obj.parent);
+  console.log("doDelete: found obj.node.nodeId " + obj.node.nodeId + " obj.parent.nodeId " + obj.parent.nodeId);
+  console.log("doDelete: found obj.node.name " + obj.node.name + " obj.parent.name " + obj.parent.name);
+
+  for (var i = 0; i < obj.parent.children.length; i++) {
+    if (obj.parent.children[i].nodeId === nodeId) {
+      console.log("doDelete: delete item " + i + " from array");
+      obj.parent.children.splice(i, 1);
+      break;
+    }
+  }
 }
 
 

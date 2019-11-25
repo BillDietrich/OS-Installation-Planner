@@ -19,10 +19,10 @@ const {Menu, MenuItem} = remote
 
 
 // https://stackoverflow.com/questions/32636750/how-to-add-a-right-click-menu-in-electron-that-has-inspect-element-option-like
-var rightClickPosition = null
-var rightClickTreeElementId = ""
-var rightClickElement = null
-var rightClickTreeNum = 0
+var gRightClickPosition = null
+var gRightClickTreeElementId = ""
+var gRightClickElement = null
+var gRightClickTreeNum = 0
 
 // https://electronjs.org/docs/api/menu
 const menu = new Menu()
@@ -36,26 +36,26 @@ const menuitemProperties = new MenuItem ({
       //console.log('context menu: Properties item clicked, browserWindow: ' + browserWindow)
       //console.log('context menu: Properties item clicked, event: ' + JSON.stringify(event))
 
-      console.log('context menu: Properties item clicked, rightClickElement.attributes: ' + JSON.stringify(rightClickElement.attributes))
-      console.log('context menu: Properties item clicked, rightClickElement.getAttribute(myid): ' + JSON.stringify(rightClickElement.getAttribute('myid')))
-      console.log('context menu: Properties item clicked, rightClickElement.textContent: ' + JSON.stringify(rightClickElement.textContent))
-      //console.log('context menu: Properties item clicked, rightClickElement.id: ' + rightClickElement.id);
-      //console.log('context menu: Properties item clicked, rightClickElement.onclick: ' + rightClickElement.onclick);
+      console.log('context menu: Properties item clicked, gRightClickElement.attributes: ' + JSON.stringify(gRightClickElement.attributes))
+      console.log('context menu: Properties item clicked, gRightClickElement.getAttribute(myid): ' + JSON.stringify(gRightClickElement.getAttribute('myid')))
+      console.log('context menu: Properties item clicked, gRightClickElement.textContent: ' + JSON.stringify(gRightClickElement.textContent))
+      //console.log('context menu: Properties item clicked, gRightClickElement.id: ' + gRightClickElement.id);
+      //console.log('context menu: Properties item clicked, gRightClickElement.onclick: ' + gRightClickElement.onclick);
 /*
-      if (rightClickElement.parentNode) {
-        console.log('context menu: Properties item clicked, rightClickElement.parentNode.attributes: ' + JSON.stringify(rightClickElement.parentNode.class))
-        console.log('context menu: Properties item clicked, rightClickElement.parentNode.getAttribute(myid): ' + JSON.stringify(rightClickElement.parentNode.getAttribute('myid')))
-        console.log('context menu: Properties item clicked, rightClickElement.parentNode.textContent: ' + JSON.stringify(rightClickElement.parentNode.textContent))
-        if (rightClickElement.parentNode.parentNode) {
-          console.log('context menu: Properties item clicked, rightClickElement.parentNode.parentNode.attributes: ' + JSON.stringify(rightClickElement.parentNode.parentNode.class))
-          console.log('context menu: Properties item clicked, rightClickElement.parentNode.parentNode.getAttribute(myid): ' + JSON.stringify(rightClickElement.parentNode.parentNode.getAttribute('myid')))
-          console.log('context menu: Properties item clicked, rightClickElement.parentNode.parentNode.textContent: ' + JSON.stringify(rightClickElement.parentNode.parentNode.textContent))
+      if (gRightClickElement.parentNode) {
+        console.log('context menu: Properties item clicked, gRightClickElement.parentNode.attributes: ' + JSON.stringify(gRightClickElement.parentNode.class))
+        console.log('context menu: Properties item clicked, gRightClickElement.parentNode.getAttribute(myid): ' + JSON.stringify(gRightClickElement.parentNode.getAttribute('myid')))
+        console.log('context menu: Properties item clicked, gRightClickElement.parentNode.textContent: ' + JSON.stringify(gRightClickElement.parentNode.textContent))
+        if (gRightClickElement.parentNode.parentNode) {
+          console.log('context menu: Properties item clicked, gRightClickElement.parentNode.parentNode.attributes: ' + JSON.stringify(gRightClickElement.parentNode.parentNode.class))
+          console.log('context menu: Properties item clicked, gRightClickElement.parentNode.parentNode.getAttribute(myid): ' + JSON.stringify(gRightClickElement.parentNode.parentNode.getAttribute('myid')))
+          console.log('context menu: Properties item clicked, gRightClickElement.parentNode.parentNode.textContent: ' + JSON.stringify(gRightClickElement.parentNode.parentNode.textContent))
         }
       }
 */
       //ipcRenderer.send('context-menu', {message: "Hi", someData: "Let's go"});
       
-      openPropertiesDialog(rightClickElement, (rightClickTreeNum == 0));
+      openPropertiesDialog(gRightClickElement, (gRightClickTreeNum == 0));
   }
 });
 const menuitemSeparator1 = new MenuItem({
@@ -66,9 +66,10 @@ const menuitemClone = new MenuItem ({
   click() { 
       // context menu only appears if right-click in one of the trees
       console.log('context menu: Clone item clicked')
-      let sJSON = rightClickElement.getAttribute('JSON');
+      let sJSON = gRightClickElement.getAttribute('JSON');
       let nodeId = JSON.parse(sJSON).nodeId;
-      doClone(nodeId, rightClickTreeNum);
+      doClone(nodeId, gRightClickTreeNum);
+      refreshTreeView(gRightClickTreeNum);
   }
 });
 const menuitemDelete = new MenuItem ({
@@ -76,6 +77,10 @@ const menuitemDelete = new MenuItem ({
   click() { 
       // context menu only appears if right-click in one of the trees
       console.log('context menu: Delete item clicked')
+      let sJSON = gRightClickElement.getAttribute('JSON');
+      let nodeId = JSON.parse(sJSON).nodeId;
+      doDelete(nodeId, gRightClickTreeNum);
+      refreshTreeView(gRightClickTreeNum);
   }
 });
 const menuitemEdit = new MenuItem ({
@@ -100,7 +105,7 @@ const menuitemReadFromFile = new MenuItem ({
   click() { 
       // context menu only appears if right-click in one of the trees
       console.log('context menu: Read from file item clicked')
-      readTreeUsingDialog(rightClickTreeNum);
+      readTreeUsingDialog(gRightClickTreeNum);
   }
 });
 const menuitemSaveToFile = new MenuItem ({
@@ -108,7 +113,7 @@ const menuitemSaveToFile = new MenuItem ({
   click() { 
       // context menu only appears if right-click in one of the trees
       console.log('context menu: Save to file item clicked');
-      saveTreeUsingDialog(rightClickTreeNum);
+      saveTreeUsingDialog(gRightClickTreeNum);
   }
 });
 const menuitemViewPrintable = new MenuItem ({
@@ -126,7 +131,7 @@ const menuitemExpandAllNodesInTree = new MenuItem ({
   click() { 
       // context menu only appears if right-click in one of the trees
       console.log('context menu: Expand all nodes in tree item clicked')
-      gObjTreeView[rightClickTreeNum].expandAll();
+      gObjTreeView[gRightClickTreeNum].expandAll();
   }
 });
 const menuitemCollapseAllNodesInTree = new MenuItem ({
@@ -134,7 +139,7 @@ const menuitemCollapseAllNodesInTree = new MenuItem ({
   click() { 
       // context menu only appears if right-click in one of the trees
       console.log('context menu: Collapse all nodes in tree item clicked')
-      gObjTreeView[rightClickTreeNum].collapseAll();
+      gObjTreeView[gRightClickTreeNum].collapseAll();
   }
 });
 menu.append(menuitemProperties);
@@ -160,47 +165,47 @@ window.addEventListener('contextmenu', (e) => {
   e.preventDefault()
 
   //console.log("e.x ", e.x , " e.y ", e.y);
-  rightClickElement = document.elementFromPoint(e.x, e.y)
-  rightClickTreeElementId = "";
+  gRightClickElement = document.elementFromPoint(e.x, e.y)
+  gRightClickTreeElementId = "";
 
-  rightClickTreeNum = 0;
+  gRightClickTreeNum = 0;
   var rect = document.getElementById("t0tree").getBoundingClientRect();
   //console.log("bounds of t0tree are trbl ", rect.top, rect.right, rect.bottom, rect.left);
   if ((e.x >= rect.left) && (e.x <= rect.right) && (e.y <= rect.bottom) && (e.y >= rect.top)) {
-    rightClickTreeElementId = "t0tree";
-    rightClickTreeNum = 0;
+    gRightClickTreeElementId = "t0tree";
+    gRightClickTreeNum = 0;
   } else {
     rect = document.getElementById("t1tree").getBoundingClientRect();
     //console.log("bounds of t1tree are trbl ", rect.top, rect.right, rect.bottom, rect.left);
     if ((e.x >= rect.left) && (e.x <= rect.right) && (e.y <= rect.bottom) && (e.y >= rect.top)) {
-      rightClickTreeElementId = "t1tree";
-      rightClickTreeNum = 1;
+      gRightClickTreeElementId = "t1tree";
+      gRightClickTreeNum = 1;
     } else {
       rect = document.getElementById("t2tree").getBoundingClientRect();
       //console.log("bounds of t2tree are trbl ", rect.top, rect.right, rect.bottom, rect.left);
       if ((e.x >= rect.left) && (e.x <= rect.right) && (e.y <= rect.bottom) && (e.y >= rect.top)) {
-        rightClickTreeElementId = "t2tree";
-        rightClickTreeNum = 2;
+        gRightClickTreeElementId = "t2tree";
+        gRightClickTreeNum = 2;
       }
     }
   }
-  if (rightClickTreeElementId !== "") {
+  if (gRightClickTreeElementId !== "") {
     // show context menu only in the trees
-    rightClickPosition = {x: e.x, y: e.y}   // save position of click
+    gRightClickPosition = {x: e.x, y: e.y}   // save position of click
 
-    let myid = rightClickElement.getAttribute('myid');
+    let myid = gRightClickElement.getAttribute('myid');
 
     if (myid === '3') {
       // it's a leaf of the tree
-      let sJSON = rightClickElement.getAttribute('JSON');
+      let sJSON = gRightClickElement.getAttribute('JSON');
       let bNodeEditable = JSON.parse(sJSON).nodeEditable;
       let bNodeCanAddChildren = JSON.parse(sJSON).nodeCanAddChildren;
       console.log("myid "+ myid + ", sJSON " + sJSON + ", bNodeEditable " + bNodeEditable);
       menuitemProperties.enabled = true;
-      menuitemClone.enabled = (rightClickTreeNum != 0) && bNodeEditable;
-      menuitemDelete.enabled = (rightClickTreeNum != 0) && bNodeEditable;
-      menuitemEdit.enabled = (rightClickTreeNum != 0) && bNodeEditable;
-      menuitemNewChild.enabled = (rightClickTreeNum != 0) && bNodeCanAddChildren;
+      menuitemClone.enabled = (gRightClickTreeNum != 0) && bNodeEditable;
+      menuitemDelete.enabled = (gRightClickTreeNum != 0) && bNodeEditable;
+      menuitemEdit.enabled = (gRightClickTreeNum != 0) && bNodeEditable;
+      menuitemNewChild.enabled = (gRightClickTreeNum != 0) && bNodeCanAddChildren;
       menuitemReadFromFile.enabled = false;
       menuitemSaveToFile.enabled = false;
       menuitemViewPrintable.enabled = false;
