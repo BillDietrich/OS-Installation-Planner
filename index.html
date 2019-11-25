@@ -163,6 +163,7 @@ function doscansystem() {
   $('body').addClass('waiting');
   scansystem().then((objTree) => {
     loadTree(0, objTree);
+    refreshTreeView(0);
     $('body').removeClass('waiting');
   });
 }
@@ -171,7 +172,10 @@ function docopyexistingtonew() {
   $('body').addClass('waiting');
   scansystem().then((objTree) => {
     copyExistingTreeToNew(0, 1);
+    refreshTreeView(1);
     makeInstructions(gObjTree[1][TOP_CONFIG].guid, 2);
+    $('#t' + 2 + 'filename').text("");
+    refreshTreeView(2);
     $('body').removeClass('waiting');
   });
 }
@@ -232,7 +236,7 @@ function nodeClicked(target) {
   >Scan System</button>
 </span>
 <span style="height:100px; vertical-align:middle">
-  <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>
+  <span class="toparrow"><img src="osinstallationplanner-32x17.png" title="" alt="" /></span>
 </span>
 <span style="height:100px; vertical-align:middle">
   <button type="button" class="top"
@@ -241,7 +245,7 @@ function nodeClicked(target) {
   >Copy to New</button>
 </span>
 <span style="height:100px; vertical-align:middle">
-  <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>
+  <span class="toparrow"><img src="osinstallationplanner-32x17.png" title="" alt="" /></span>
 </span>
 <span style="height:100px; vertical-align:middle">
   <button type="button" class="top"
@@ -251,7 +255,7 @@ function nodeClicked(target) {
   >Make Changes</button>
 </span>
 <span style="height:100px; vertical-align:middle">
-  <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>
+  <span class="toparrow"><img src="osinstallationplanner-32x17.png" title="" alt="" /></span>
 </span>
 <span style="height:100px; vertical-align:middle">
   <button type="button" class="top"
@@ -259,7 +263,7 @@ function nodeClicked(target) {
   Many steps will be manual steps, and some may be automatic steps.">Get Instructions</button>
 </span>
 <span style="height:100px; vertical-align:middle">
-  <span class="toparrow"><img src="forward_button.png" title="" alt="" /></span>
+  <span class="toparrow"><img src="osinstallationplanner-32x17.png" title="" alt="" /></span>
 </span>
 <span style="height:100px; vertical-align:middle">
   <button type="button" class="top"
@@ -289,13 +293,13 @@ function nodeClicked(target) {
 <div id="t0tree" class="mytree0"></div>
 </td>
 <td>
-<img src="forward_button.png" title="" alt="" />
+<img src="osinstallationplanner-32x17.png" title="" alt="" />
 </td>
 <td id="tdt1tree">
 <div id="t1tree" class="mytree1"></div>
 </td>
 <td>
-<img src="forward_button.png" title="" alt="" />
+<img src="osinstallationplanner-32x17.png" title="" alt="" />
 </td>
 <td id="tdt2tree">
 <div id="t2tree" class="mytree2"></div>

@@ -24,12 +24,13 @@
 
 // indices of the top array:
 //const TOP_CONFIG = 0;
-const TOP_PLAN = 1;
-const TOP_TEST = 2;
-const TOP_PREPARE = 3;
-const TOP_CHANGEHARDWARE = 4;
-const TOP_INSTALL = 5;
-const TOP_POSTINSTALL = 6;
+const TOP_CURRENTSYSTEM = 1;
+const TOP_PLAN = 2;
+const TOP_TEST = 3;
+const TOP_PREPARE = 4;
+const TOP_CHANGEHARDWARE = 5;
+const TOP_INSTALL = 6;
+const TOP_POSTINSTALL = 7;
 
 
 //---------------------------------
@@ -58,6 +59,17 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
             systemTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: false,
+            nodeStatus: "existing",
+            nodeId: gNextInstrNodeId++,
+            children: []
+            });
+
+
+  gInstrTree.push({
+            name: "Current system",
+            systemTreeNodeId: 0,
+            nodeEditable: false,
+            nodeCanAddChildren: true,
             nodeStatus: "existing",
             nodeId: gNextInstrNodeId++,
             children: []
@@ -127,9 +139,6 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
   gInstrTree[TOP_CONFIG].nextNodeId = gNextInstrNodeId;
   console.log("makeBasicInstructions: finished, gInstrTree: " + JSON.stringify(gInstrTree));
 
-  $('#t' + instrTreeNum + 'filename').text("");
-  refreshTreeView(instrTreeNum);
-
   console.log("makeBasicInstructions: return");
 }
 
@@ -156,8 +165,6 @@ function addInstruction(parentNodeId, name, text, systemTreeNodeId) {
 
   console.log("addInstruction: finished, gObjTree[2]: " + JSON.stringify(gObjTree[2]));
 
-  refreshTreeView(2);
-
   return gNextInstrNodeId-1;
 }
 
@@ -173,6 +180,8 @@ function makeInstructions(newTreeGuid, instrTreeNum) {
   makeBasicInstructions(newTreeGuid, instrTreeNum);
 
   var nodeId = 0;
+
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_CURRENTSYSTEM].nodeId, "You're not using anti-virus ?", "", 0);
 
   nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What do you use your system for now ?", "", 0);
   nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What do you want to use your system for in the future ?", "", 0);

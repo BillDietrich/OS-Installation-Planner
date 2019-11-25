@@ -92,7 +92,7 @@
           content.setAttribute('myid', '2');
           // this is the visible, clickable text of a node
           text.setAttribute('myid', '3');
-          console.log("treeview render: item " + JSON.stringify(item));
+          //console.log("treeview render: item " + JSON.stringify(item));
           text.setAttribute('nodeId', item.nodeId);
           text.id = 't' + self.treenum + '-' + item.nodeId;
           text.setAttribute('JSON', JSON.stringify(item));

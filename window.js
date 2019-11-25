@@ -30,7 +30,6 @@ function loadTreeFromFile(treenum) {
   gObjTree[treenum] = loadJsonFile.sync(gsTreeFilename[treenum]);
   $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
   gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
-  gObjTreeView[treenum].expandAll();
   //console.log("loadTreeFromFile: gObjTree[treenum] ", gObjTree[treenum]);
   //console.log("loadTreeFromFile: return");
 }
@@ -42,7 +41,6 @@ function loadTreeFromText(treenum, text) {
   gObjTree[treenum] = JSON.parse(text);
   $('#t' + treenum + 'filename').text("");
   gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
-  gObjTreeView[treenum].expandAll();
   console.log("loadTreeFromText: gObjTree[treenum] ", gObjTree[treenum]);
   //console.log("loadTreeFromText: return");
 }
@@ -54,7 +52,6 @@ function loadTree(treenum, objTree) {
   gObjTree[treenum] = objTree;
   $('#t' + treenum + 'filename').text("");
   gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
-  gObjTreeView[treenum].expandAll();
   //console.log("loadTree: return");
 }
 
@@ -126,6 +123,7 @@ function readTreeUsingDialog(treenum) {
       $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
 
       loadTreeFromFile(treenum);
+      refreshTreeView(treenum);
     }
   });
 
@@ -212,7 +210,6 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
 
   $('#t' + newtreenum + 'filename').text("");
   gObjTreeView[newtreenum] = new TreeView(gObjTree[newtreenum], 't' + newtreenum + 'tree', newtreenum);
-  gObjTreeView[newtreenum].expandAll();
   //console.log("copyExistingTreeToNew: return");
 }
 
@@ -268,6 +265,22 @@ function findNode(nodeId, objTree, objParent) {
 }
 
 
+function makeAllNodeIdsUnique(objTree, treenum) {
+  console.log("makeAllNodeIdsUnique: called, treenum " + treenum);
+
+  console.log("makeAllNodeIdsUnique: gObjTree[treenum][TOP_CONFIG].nextNodeId " + gObjTree[treenum][TOP_CONFIG].nextNodeId);
+  objTree.nodeId = gObjTree[treenum][TOP_CONFIG].nextNodeId++;
+  console.log("makeAllNodeIdsUnique: objTree.nodeId set to " + objTree.nodeId);
+  
+  console.log("makeAllNodeIdsUnique: check the children of " + objTree.nodeId);
+  console.log("makeAllNodeIdsUnique: array length " + objTree.children.length);
+  for (var i = 0; i < objTree.children.length; i++) {
+    console.log("makeAllNodeIdsUnique: try array position " + i);
+    makeAllNodeIdsUnique(objTree.children[i], treenum);
+  }
+}
+
+
 function doClone(nodeId, treenum) {
   console.log("doClone: called, nodeId " + nodeId + ", treenum " + treenum);
 
@@ -276,7 +289,20 @@ function doClone(nodeId, treenum) {
   console.log("doClone: found obj.node.nodeId " + obj.node.nodeId + " obj.parent.nodeId " + obj.parent.nodeId);
   console.log("doClone: found obj.node.name " + obj.node.name + " obj.parent.name " + obj.parent.name);
 
-  // MORE !!!!
+  // clone whole object tree; can't just clone top object
+  var newObj = JSON.parse(JSON.stringify(obj.node));
+
+  newObj.name = obj.node.name + " - clone";
+
+  makeAllNodeIdsUnique(newObj, treenum);
+
+  // insert into array after original object, don't put at end
+  for (var i = 0; i < obj.parent.children.length; i++) {
+    if (obj.parent.children[i].nodeId === nodeId) {
+      obj.parent.children.splice(i+1, 0, newObj);
+      break;
+    }
+  }
 }
 
 

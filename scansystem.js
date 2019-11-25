@@ -764,6 +764,9 @@ function scansystem() {
             gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
 
             console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
+
+            gObjTree[0] = gTree;
+
             resolve(gTree);
 
           })
