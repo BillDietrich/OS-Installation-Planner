@@ -221,6 +221,20 @@ function addKeyboardInfo() {
 
 
 
+function addMouseTouchpadInfo() {
+  //console.log("addMouseTouchpadInfo: called");
+  gTree[TOP_HARDWARE].children.push({
+            name: "mousetouchpad",
+            nodeEditable: true,
+            nodeCanAddChildren: false,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
+
+
 function addDiskInfo() {
   //console.log("addDiskInfo: called");
   var diskLayoutData = gObjAllData.diskLayout;
@@ -720,6 +734,7 @@ function scansystem() {
             addRAMInfo();
             addBatteryInfo();
             addKeyboardInfo();
+            addMouseTouchpadInfo();
             addDiskInfo();
             addGraphicsInfo();
             addNetworkInterfaceInfo();

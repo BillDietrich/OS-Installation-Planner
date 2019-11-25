@@ -209,40 +209,64 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
 }
 
 
-function findNode(nodeId, objTree) {
-  console.log("findNode: called, nodeId " + nodeId);
-  console.log("findNode: Array.isArray(objTree) " + Array.isArray(objTree));
-  if (Array.isArray(objTree)) {
-    console.log("findNode: array length " + objTree.length);
+// returns {node:objNode, parent:objParent}
+function findNode(nodeId, objTree, objParent) {
+
+  //console.log("findNode: called, nodeId " + nodeId);
+  //console.log("findNode: Array.isArray(objTree) " + Array.isArray(objTree));
+  //console.log("findNode: check nodeId " + objTree.nodeId);
+
+  if (objParent === null) {
+    // special case; top of tree, which is array of objects with no children[]
     for (var i = 0; i < objTree.length; i++) {
-      var obj = findNode(nodeId, objTree[i]);
-      if (obj) {
-        console.log("findNode: success in array position " + i);
+      //console.log("findNode: top: try array position " + i);
+      var obj = findNode(nodeId, objTree[i], objTree);
+      if (obj.node) {
+        //console.log("findNode: top: success in array position " + i);
         return obj;
       }
     }
-    console.log("findNode: not in array");
-    return null;
-  } else {
-    console.log("findNode: check nodeId " + objTree.nodeId);
-    if (objTree.nodeId === nodeId) {
-      console.log("findNode: success");
-      return objTree;
-    } else if (objTree.children.length == 0) {
-      console.log("findNode: no children");
-      return null;
-    } else
-      console.log("findNode: check the children of " + objTree.nodeId);
-      return findNode(nodeId, objTree.children);
-      //return null;
+    //console.log("findNode: not in array");
+    return {node:null, parent:null};
   }
+  
+  else if (objTree.nodeId === nodeId) {
+    //console.log("findNode: success");
+    return {node:objTree, parent:objParent};
+  }
+  
+  else if (objTree.children.length == 0) {
+    //console.log("findNode: no children");
+    return {node:null, parent:null};
+  }
+  
+  else {
+    //console.log("findNode: check the children of " + objTree.nodeId);
+    //console.log("findNode: array length " + objTree.children.length);
+    for (var i = 0; i < objTree.children.length; i++) {
+      //console.log("findNode: try array position " + i);
+      var obj = findNode(nodeId, objTree.children[i], objTree);
+      if (obj.node) {
+        //console.log("findNode: success in array position " + i);
+        return obj;
+      }
+    }
+    //console.log("findNode: not in array");
+    return {node:null, parent:null};
+  }
+
+  // never get here
+  return {node:null, parent:null};
 }
 
 
 function doClone(nodeId, treenum) {
   console.log("doClone: called, nodeId " + nodeId + ", treenum " + treenum);
-  var obj = findNode(nodeId, gObjTree[treenum]);
-  console.log("doClone: found obj " + obj);
+  var obj = findNode(nodeId, gObjTree[treenum], null);
+  //console.log("doClone: found obj.node " + obj.node + " obj.parent " + obj.parent);
+  console.log("doClone: found obj.node.nodeId " + obj.node.nodeId + " obj.parent.nodeId " + obj.parent.nodeId);
+  console.log("doClone: found obj.node.name " + obj.node.name + " obj.parent.name " + obj.parent.name);
+  // MORE !!!!
 }
 
 
