@@ -298,6 +298,8 @@ function doDelete(nodeId, treenum) {
 }
 
 
+
+
 //---------------------------------------------------------------------------
 
 // "document ready" function:

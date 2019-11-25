@@ -32,6 +32,7 @@ delete module.exports
 
 <script src="treeview.js"></script>
 <script src="scansystem.js" charset="utf-8"></script>
+<script src="instructions.js" charset="utf-8"></script>
 <script src="window.js" charset="utf-8"></script>
 
 </head>
@@ -170,6 +171,7 @@ function docopyexistingtonew() {
   $('body').addClass('waiting');
   scansystem().then((objTree) => {
     copyExistingTreeToNew(0, 1);
+    makeInstructions(gObjTree[1][TOP_CONFIG].guid, 2);
     $('body').removeClass('waiting');
   });
 }
