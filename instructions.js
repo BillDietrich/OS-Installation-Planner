@@ -157,6 +157,8 @@ function addInstruction(parentNodeId, name, text, systemTreeNodeId) {
   console.log("addInstruction: finished, gObjTree[2]: " + JSON.stringify(gObjTree[2]));
 
   refreshTreeView(2);
+
+  return gNextInstrNodeId-1;
 }
 
 
@@ -170,8 +172,48 @@ function makeInstructions(newTreeGuid, instrTreeNum) {
 
   makeBasicInstructions(newTreeGuid, instrTreeNum);
 
-  addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Do backups", "", 0);
+  var nodeId = 0;
+
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What do you use your system for now ?", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What do you want to use your system for in the future ?", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "Is there anything wrong with the current system ?", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "Why do you want to change the system ?", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What system features are most importand to you ?", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What applications are critical to you ?", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "Can anyone help you use the new system ?", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "Pick a new OS.", "", 0);
+    addInstruction(nodeId, "General choices.", "", 0);
+    addInstruction(nodeId, "Check distrowatch.", "", 0);
+    addInstruction(nodeId, "Check distrotest.", "", 0);
+    nodeId = addInstruction(nodeId, "Research your critical applications.", "", 0);
+      addInstruction(nodeId, "Check manufacturer's site to see if this OS is supported.", "", 0);
+      addInstruction(nodeId, "Ask on application's forums to see how well app runs on this OS.", "", 0);
+
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_TEST].nodeId, "Try a live-session boot of the new OS from a USB drive.", "", 0);
+    addInstruction(nodeId, "Download new OS installer to hard disk.", "", 0);
+    addInstruction(nodeId, "Burn new OS installer to USB drive.", "", 0);
+    addInstruction(nodeId, "Boot from USB drive.", "", 0);
+    addInstruction(nodeId, "Click on 'run from USB', not 'install'.", "", 0);
+    addInstruction(nodeId, "Test basic features.", "", 0);
+    addInstruction(nodeId, "Install and test any critical applications.", "", 0);
   
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Do very extensive backups.", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Clear cookies and caches and do cleaning, then see if you can log in to all the sites you need.", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Update BIOS.", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Put new OS installer on USB drive.", "", 0);
+    addInstruction(nodeId, "Download new OS installer to hard disk.", "", 0);
+    addInstruction(nodeId, "Burn new OS installer to USB drive.", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Put pre-install file on a second USB drive.", "", 0);
+
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_CHANGEHARDWARE].nodeId, "Add RAM.", "", 0);
+
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_INSTALL].nodeId, "Boot from installer USB drive.", "", 0);
+    addInstruction(nodeId, "Click on 'install'.", "", 0);
+    addInstruction(nodeId, "Click on option to use pre-install file.", "", 0);
+
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_POSTINSTALL].nodeId, "Configure OS.", "", 0);
+  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_POSTINSTALL].nodeId, "Configure applications.", "", 0);
+
   console.log("makeInstructions: return");
 }
 
