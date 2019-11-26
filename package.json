@@ -1,6 +1,6 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.26",
+ "version": "0.2.27",
  "description": "OS Installation Planner",
  "productName": "OS Installation Planner",
  "author": "Bill Dietrich",
@@ -34,6 +34,9 @@
   "url": "^0.11.0"
  },
  "devDependencies": {
-  "electron-packager": "^14.1.1"
+  "electron-installer-debian": "^2.0.1",
+  "electron-installer-dmg": "^3.0.0",
+  "electron-packager": "^14.1.1",
+  "electron-winstaller": "^4.0.0"
  }
 }

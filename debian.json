@@ -1,0 +1,13 @@
+{
+  "dest": "release-builds/",
+  "icon": "osinstallationplanner-128x128.png",
+  "categories": [
+    "Utility",
+    "Installation",
+    "Management",
+    "Configuration"
+  ],
+  "lintianOverrides": [
+    "changelog-file-missing-in-native-package"
+  ]
+}
