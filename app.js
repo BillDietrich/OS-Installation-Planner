@@ -136,12 +136,9 @@ app.once('ready', () => {
     // Don't show the window until it's ready, this prevents any white flickering
     show: false,
     webPreferences: { devTools: true, nodeIntegration: true },
-    icon: __dirname + '/osinstallationplanner-128x68.png'
+    icon: __dirname + '/osinstallationplanner-128x128.png'
   })
 
-  // packaging the app:
-  // use electron-packager and set the icon using the --icon switch
-  // use https://iconverticons.com/online/ to convert png to icns for OS X
   // arrow from https://gallery.yopriceville.com/Free-Clipart-Pictures/Arrows-PNG/Green_Right_Arrow_Transparent_PNG_Clip_Art_Image
 
   // Load a URL in the window to the local index.html path

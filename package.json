@@ -1,7 +1,8 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.25",
+ "version": "0.2.26",
  "description": "OS Installation Planner",
+ "productName": "OS Installation Planner",
  "author": "Bill Dietrich",
  "license": "ISC",
  "bugs": {
@@ -13,7 +14,7 @@
   "type": "git",
   "url": "https://github.com/BillDietrich/OS-Installation-Planner.git"
  },
- "icon": "osinstallationplanner.png",
+ "icon": "osinstallationplanner-128x128.png",
  "main": "app.js",
  "scripts": {
   "start": "./node_modules/electron/dist/electron app.js",
@@ -31,5 +32,8 @@
   "path": "^0.12.7",
   "systeminformation": "^4.15.3",
   "url": "^0.11.0"
+ },
+ "devDependencies": {
+  "electron-packager": "^14.1.1"
  }
 }
