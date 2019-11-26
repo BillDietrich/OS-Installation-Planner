@@ -1,9 +1,9 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.27",
+ "version": "0.2.28",
  "description": "OS Installation Planner",
  "productName": "OS Installation Planner",
- "author": "Bill Dietrich",
+ "author": { "name": "Bill Dietrich", "email": "gith4@billdietrich.me", "url": "https://github.com/BillDietrich" },
  "license": "ISC",
  "bugs": {
   "url": "https://github.com/BillDietrich/OS-Installation-Planner/issues",
@@ -21,8 +21,22 @@
   "start2": "/usr/local/lib/nodejs/node-v10.15.3-linux-x64/lib/node_modules/electron/dist/electron -i app.js",
   "comment": "npm run-script start2"
  },
+ "build": {
+  "appId": "osinstallationplanner",
+ "linux": {
+  "icon": "osinstallationplanner-256x256.png",
+  "category": "System"
+     },
+ "mac": {
+  "icon": "osinstallationplanner-32x32.icns",
+  "category": "public.app-category.utilities"
+     },
+ "win": {
+  "icon": "osinstallationplanner-256x256.ico",
+  "requestedExecutionLevel": "requireAdministrator"
+     }
+ },
  "dependencies": {
-  "electron": "^7.1.2",
   "fs": "0.0.1-security",
   "graceful-fs": "^4.2.3",
   "jsonfile": "^5.0.0",
@@ -34,6 +48,8 @@
   "url": "^0.11.0"
  },
  "devDependencies": {
+  "electron": "^7.1.2",
+  "electron-builder": "^21.2.0",
   "electron-installer-debian": "^2.0.1",
   "electron-installer-dmg": "^3.0.0",
   "electron-packager": "^14.1.1",

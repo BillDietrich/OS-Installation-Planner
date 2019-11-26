@@ -57,13 +57,13 @@ Electron desktop application to plan and pre-configure a single-user desktop OS 
 
 ## Development
 ### To-Do list
-* Hard-coded path to Electron in package.json
 
 ### Development Environment
 I'm no expert on this stuff, maybe I'm doing some things stupidly.
 
 I used:
-* Electron 
+* Linux Mint 19.2 Cinnamon
+* Electron
 
 I did:
 
