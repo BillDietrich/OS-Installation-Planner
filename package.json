@@ -1,6 +1,6 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.24",
+ "version": "0.2.25",
  "description": "OS Installation Planner",
  "author": "Bill Dietrich",
  "license": "ISC",
@@ -16,7 +16,9 @@
  "icon": "osinstallationplanner.png",
  "main": "app.js",
  "scripts": {
-  "start": "/usr/local/lib/nodejs/node-v10.15.3-linux-x64/lib/node_modules/electron/dist/electron app.js"
+  "start": "./node_modules/electron/dist/electron app.js",
+  "start2": "/usr/local/lib/nodejs/node-v10.15.3-linux-x64/lib/node_modules/electron/dist/electron -i app.js",
+  "comment": "npm run-script start2"
  },
  "dependencies": {
   "electron": "^7.1.2",

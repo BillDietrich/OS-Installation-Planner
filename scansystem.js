@@ -322,11 +322,11 @@ function addDiskInfo() {
               nodeId: gNextNodeId++,
               children: []
               });
-            if (fsSizeData[j].mount === "/boot") {
+            if (fsSizeData[j].mount === path.sep + "boot") {
               // we've found the boot partition for the current OS
               gBootPartitionUUID = uuid;
             }
-            if (fsSizeData[j].mount === "/") {
+            if (fsSizeData[j].mount === path.sep) {
               // we've found the root partition for the current OS
               gRootPartitionUUID = uuid;
             }
@@ -483,12 +483,23 @@ function addOSInfo() {
 
   // Booted from UEFI or BIOS ?
   // https://itsfoss.com/check-uefi-or-bios/
-  // Does folder /sys/firmware/efi exist ?
     var bBootedFromUEFI = true;
-    try {
-      fs.accessSync("/sys/firmware/efi");
-    } catch(e) {
-      bBootedFromUEFI = false;
+    switch (gnExistingSystemType) {
+      case SYSTEMTYPE_LINUX:
+      case SYSTEMTYPE_MACOSX:
+        // Does folder /sys/firmware/efi exist ?
+        try {
+          fs.accessSync("/sys/firmware/efi");
+        } catch(e) {
+          bBootedFromUEFI = false;
+        }
+        break;
+      case SYSTEMTYPE_WINDOWS:
+        // On Windows 10:
+        // look for line "Detected boot environment: BIOS"
+        // in huge file C:\Windows\Panther\setupact.log
+        // ???
+        break;
     }
 
   gTree[TOP_SOFTWARE].children.push({
@@ -656,11 +667,19 @@ function addAppsAndServicesInfo() {
     children: []
   });
 
-  const apps = [
+  const appsLinux = [
     { path: "/usr/bin/firefox", name: "Firefox", canHaveAddons: true },
     { path: "/opt/bogus", name: "bogus", canHaveAddons: true },
     { path: "/opt/thunderbird", name: "Thunderbird", canHaveAddons: true }
   ];
+
+  var apps = new Array();
+
+  switch (gnExistingSystemType) {
+    case SYSTEMTYPE_LINUX: apps = appsLinux; break;
+    case SYSTEMTYPE_MACOSX: break;
+    case SYSTEMTYPE_WINDOWS: break;
+  }
 
   for (var i = 0; i < apps.length; i++) {
     let filepath = apps[i].path.replace(/\//g, path.sep);
