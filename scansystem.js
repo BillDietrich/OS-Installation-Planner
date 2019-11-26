@@ -586,8 +586,26 @@ function addSecurityInfo() {
             children: []
             });
 
+  // https://www.npmjs.com/package/linux-sys-user
+  
+
   objSecurity.children.push({
             name: "SSH keys",
+            nodeEditable: false,
+            nodeCanAddChildren: true,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
+  // https://www.npmjs.com/package/node-ssh
+  // https://www.npmjs.com/package/node-forge
+  // https://www.npmjs.com/package/pkijs
+  // https://www.npmjs.com/package/integrator-jsrsasign
+
+
+  objSecurity.children.push({
+            name: "PGP keys",
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
