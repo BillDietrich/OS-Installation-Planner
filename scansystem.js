@@ -31,6 +31,16 @@ const crypto = require("crypto");
 
 //---------------------------------------------------------------------------
 
+const SYSTEMTYPE_UNKNOWN = 0;
+const SYSTEMTYPE_LINUX = 1;
+const SYSTEMTYPE_WINDOWS = 2;
+const SYSTEMTYPE_MACOSX = 3;
+var gnExistingSystemType = SYSTEMTYPE_UNKNOWN;
+
+
+
+//---------------------------------------------------------------------------
+
 var gObjAllData = null;
 var gObjBlockDevices = null;
 var gTree = null;
@@ -601,6 +611,24 @@ function addSecurityInfo() {
 function addAppsAndServicesInfo() {
   console.log("addAppsAndServicesInfo: called");
 
+  // to see running tasks/apps, use module "tasklist" ?
+
+  // to list all files in dir:
+  // https://stackfame.com/list-all-files-in-a-directory-nodejs
+
+  // list everything in PATH:
+  //  ls ${PATH//:/ }
+  // or
+  // for d in ${PATH//:/ } ; do 
+  //    for f in $d/* ; do  
+  //        test -x $f && test -f $f && echo $f
+  //    done
+  // done
+
+  // https://unix.stackexchange.com/questions/20979/how-do-i-list-all-installed-programs
+  // https://stackoverflow.com/questions/948008/linux-command-to-list-all-available-commands-and-aliases
+
+
   var objApps = new Object({
     name: "applications",
     nodeEditable: false,
@@ -664,7 +692,9 @@ function addAppsAndServicesInfo() {
     children: []
   });
 
-  /// SOMETHING !!!
+  // SOMETHING !!!
+  // https://www.2daygeek.com/how-to-check-all-running-services-in-linux/
+  // https://www.tecmint.com/list-all-running-services-under-systemd-in-linux/
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_APPSANDSERVICES].children.push(objServices);
 }
@@ -816,6 +846,12 @@ function scansystem() {
         console.log("systeminformation.getAllData(): " + JSON.stringify(data));
 
         gObjAllData = data;
+
+        switch (gObjAllData.os.platform) {
+          case 'linux': gnExistingSystemType = SYSTEMTYPE_LINUX; break;
+          case 'windows': gnExistingSystemType = SYSTEMTYPE_WINDOWS; break;
+          case 'darwin': gnExistingSystemType = SYSTEMTYPE_MACOSX; break;
+        }
 
         p = systeminformation.blockDevices()
           .then(data => {
