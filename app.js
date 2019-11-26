@@ -4,14 +4,14 @@
 //---------------------------------------------------------------------------
 
 
-const {app, BrowserWindow, Menu, ipcMain} = require('electron')
+const {app, dialog, BrowserWindow, Menu, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
 
 
 //---------------------------------------------------------------------------
 
-let window = null
+let gWindow = null;
 
 
 //---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ function createTopMenus() {
       {
          role: 'help',
          submenu: [
-            { label: 'Learn More' }
+            { label: 'Learn More', click() { openHelpDialog(); } }
          ]
       }
    ]
@@ -69,6 +69,23 @@ function createTopMenus() {
    Menu.setApplicationMenu(menu)
 }
 
+
+
+function openHelpDialog() {
+
+  console.log("openHelpDialog: called");
+
+  let options = {
+    type: "info",
+    title: "About OS Installation Planner",
+    message: "An application to plan and pre-configure a single-user desktop OS installation.",
+    detail: "https://github.com/BillDietrich/OS-Installation-Planner",
+    icon: __dirname + '/osinstallationplanner-128x68.png'
+  };
+
+  dialog.showMessageBoxSync(gWindow, options);
+
+}
 
 
 if (true) {
@@ -108,7 +125,7 @@ app.once('ready', () => {
 
   // Create a new window
   // https://electronjs.org/docs/api/browser-window
-  window = new BrowserWindow({
+  gWindow = new BrowserWindow({
     // Set the initial width in px
     width: 1100,
     // Set the initial height in px
@@ -128,15 +145,15 @@ app.once('ready', () => {
   // arrow from https://gallery.yopriceville.com/Free-Clipart-Pictures/Arrows-PNG/Green_Right_Arrow_Transparent_PNG_Clip_Art_Image
 
   // Load a URL in the window to the local index.html path
-  window.loadURL(url.format({
+  gWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
   }))
 
   // Show window when page is ready
-  window.once('ready-to-show', () => {
-    window.show()
+  gWindow.once('ready-to-show', () => {
+    gWindow.show()
   })
 })
 
