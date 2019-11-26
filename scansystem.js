@@ -64,7 +64,7 @@ const SOFTWARE_OS = 1;
 // indices in the OS children array
 const OS_SETTINGS = 0;
 const OS_CONNECTIONS = 1;
-const OS_APPLICATIONS = 2;
+const OS_APPSANDSERVICES = 2;
 
 //---------------------------------
 
@@ -525,9 +525,9 @@ function addOSInfo() {
   });
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
-    name: "applications",
+    name: "applications and services",
     nodeEditable: false,
-    nodeCanAddChildren: true,
+    nodeCanAddChildren: false,
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
     children: []
@@ -551,13 +551,69 @@ function addTimeInfo() {
 }
 
 
-function addApplicationInfo() {
-  console.log("addApplicationInfo: called");
-  
+function addBackgroundServicesInfo() {
+  //console.log("addBackgroundServicesInfo: called");
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
+            name: "background services",
+            nodeEditable: false,
+            nodeCanAddChildren: true,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
+
+function addSecurityInfo() {
+  //console.log("addSecurityInfo: called");
+
+  var objSecurity = Object({
+            name: "security",
+            nodeEditable: false,
+            nodeCanAddChildren: true,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
+  objSecurity.children.push({
+            name: "SSH keys",
+            nodeEditable: false,
+            nodeCanAddChildren: true,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
+  objSecurity.children.push({
+            name: "Identity certificates",
+            nodeEditable: false,
+            nodeCanAddChildren: true,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push(objSecurity);
+}
+
+
+function addAppsAndServicesInfo() {
+  console.log("addAppsAndServicesInfo: called");
+
+  var objApps = new Object({
+    name: "applications",
+    nodeEditable: false,
+    nodeCanAddChildren: true,
+    nodeStatus: "existing",
+    nodeId: gNextNodeId++,
+    children: []
+  });
+
   const apps = [
-    { path: "/usr/bin/firefox", name: "Firefox" },
-    { path: "/opt/bogus", name: "bogus" },
-    { path: "/opt/thunderbird", name: "Thunderbird" }
+    { path: "/usr/bin/firefox", name: "Firefox", canHaveAddons: true },
+    { path: "/opt/bogus", name: "bogus", canHaveAddons: true },
+    { path: "/opt/thunderbird", name: "Thunderbird", canHaveAddons: true }
   ];
 
   for (var i = 0; i < apps.length; i++) {
@@ -569,22 +625,48 @@ function addApplicationInfo() {
       //fs.statSync(filepath);
       //exists = fs.existsSync(filepath);
     } catch(e) {
-      //console.log("addApplicationInfo: caught e " + e);
+      //console.log("addAppsAndServicesInfo: caught e " + e);
       exists = false;
     }
-    //console.log("addApplicationInfo: i " + i + ", path " + apps[i].path + ", filepath " + filepath + ", exists " + exists);
+    //console.log("addAppsAndServicesInfo: i " + i + ", path " + apps[i].path + ", filepath " + filepath + ", exists " + exists);
 
     if (exists) {
-      gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_APPLICATIONS].children.push({
+      var obj = new Object({
                 name: apps[i].name,
                 nodeEditable: true,
-                nodeCanAddChildren: false,
+                nodeCanAddChildren: true,
                 nodeStatus: "existing",
                 nodeId: gNextNodeId++,
                 children: []
                 });
+      if (apps[i].canHaveAddons) {
+        obj.children.push({
+                  name: "addons",
+                  nodeEditable: true,
+                  nodeCanAddChildren: true,
+                  nodeStatus: "existing",
+                  nodeId: gNextNodeId++,
+                  children: []
+                  });
+      }
+      objApps.children.push(obj);
     }
   }
+
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_APPSANDSERVICES].children.push(objApps);
+
+  var objServices = new Object({
+    name: "services",
+    nodeEditable: false,
+    nodeCanAddChildren: true,
+    nodeStatus: "existing",
+    nodeId: gNextNodeId++,
+    children: []
+  });
+
+  /// SOMETHING !!!
+
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_APPSANDSERVICES].children.push(objServices);
 }
 
 
@@ -759,7 +841,10 @@ function scansystem() {
             addOSInfo();
 
             addTimeInfo();
-            addApplicationInfo();
+            addBackgroundServicesInfo();
+            addSecurityInfo();
+
+            addAppsAndServicesInfo();
             
             gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
 
