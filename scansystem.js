@@ -4,6 +4,7 @@
 // https://medium.com/@TK_CodeBear/manipulating-objects-in-javascript-59fefeb6a738
 //---------------------------------------------------------------------------
 
+
 // https://www.npmjs.com/package/os-locale
 const osLocale = require('os-locale');
 
@@ -21,6 +22,8 @@ const systeminformation = require('systeminformation');
 const path = require('path');
 
 const crypto = require("crypto");
+
+const process = require("process");
 
 
 
@@ -184,7 +187,7 @@ function addRAMInfo() {
   //console.log("addRAMInfo: called");
   gTree[TOP_HARDWARE].children.push({
             name: "RAM",
-            sizeBytes: gObjAllData.mem.total,
+            sizeBytes: gObjAllData.memLayout.size,
             nodeEditable: true,
             nodeCanAddChildren: false,
             nodeStatus: "existing",
@@ -263,13 +266,21 @@ function addDiskInfo() {
   //console.log("addDiskInfo: called");
   var diskLayoutData = gObjAllData.diskLayout;
   var fsSizeData = gObjAllData.fsSize;
+  let windowsDeviceNames = [ "C:", "D:", "E:", "F:", "G:", "H:", "I:", "J:", "K:", "L:", "M:" ];
 
   for (var i = 0; i < diskLayoutData.length; i++) {
 
     //console.log("addDiskInfo: diskLayoutData[" + i + "] " + JSON.stringify(diskLayoutData));
     var fulldevicename = diskLayoutData[i].device;
-    var n = fulldevicename.lastIndexOf(path.sep);
-    var name = fulldevicename.substr(n+1);
+    var name = "";
+    if (fulldevicename === "") {
+      // happens on Windows
+      fulldevicename = windowsDeviceNames[i];
+      name = fulldevicename;
+    } else {
+      var n = fulldevicename.lastIndexOf(path.sep);
+      name = fulldevicename.substr(n+1);
+    }
     //console.log("addDiskInfo: fulldevicename " + fulldevicename + ", path.sep " + path.sep + ", n " + n + ", name " + name);
 
     var type = (diskLayoutData[i].type === "HD" ? "hardDisk" : "");
@@ -281,7 +292,10 @@ function addDiskInfo() {
               removable: removable,
               vendor: diskLayoutData[i].vendor,
               model: diskLayoutData[i].name,
+              firmwareRevision: diskLayoutData[i].firmwareRevision,
               serialNum: diskLayoutData[i].serialNum,
+              interfaceType: diskLayoutData[i].interfaceType,
+              smartStatus: diskLayoutData[i].smartStatus,
               sizeBytes: diskLayoutData[i].size,
               hardwareEncryptionSupported: false,
               hardwareEncryptionEnabled: false,
@@ -292,10 +306,25 @@ function addDiskInfo() {
               children: []
               });
 
+    if (diskLayoutData[i].smartStatus !== "Ok") {
+      // add instruction !!!
+    }
+
     let MAXPARTNUM = 9;
     for (var k = 1; k<=MAXPARTNUM; k++) {
 
-      let subDevName = fulldevicename + k;
+      var subDevName = "";
+
+      switch (gnExistingSystemType) {
+        case SYSTEMTYPE_LINUX:
+        case SYSTEMTYPE_MACOSX:
+          subDevName = fulldevicename + k;
+          break;
+        case SYSTEMTYPE_WINDOWS:
+          subDevName = windowsDeviceNames[k];
+          break;
+      }
+
       var uuid = "";
 
       for (var j = 0; j < gObjBlockDevices.length; j++) {
@@ -315,6 +344,7 @@ function addDiskInfo() {
               type: "partition",
               sizeBytes: fsSizeData[j].size,
               fsType: fsSizeData[j].type,
+              mount: fsSizeData[j].mount,
               UUID: uuid,
               nodeEditable: true,
               nodeCanAddChildren: false,
@@ -499,6 +529,7 @@ function addOSInfo() {
         // look for line "Detected boot environment: BIOS"
         // in huge file C:\Windows\Panther\setupact.log
         // ???
+        bBootedFromUEFI = false;
         break;
     }
 
@@ -563,6 +594,22 @@ function addTimeInfo() {
             name: "time",
             timezone: gObjAllData.time.timezone,
             timezoneName: gObjAllData.time.timezoneName,
+            nodeEditable: true,
+            nodeCanAddChildren: false,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
+
+function addSwapInfo() {
+  //console.log("addSwapInfo: called");
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
+            name: "swap",
+            swapTotalBytes: gObjAllData.mem.swaptotal,
+            swapDevice: "",
+            swapFile: "",
             nodeEditable: true,
             nodeCanAddChildren: false,
             nodeStatus: "existing",
@@ -637,6 +684,7 @@ function addSecurityInfo() {
 }
 
 
+// don't add standard items, just ones that the user added to the system
 function addAppsAndServicesInfo() {
   console.log("addAppsAndServicesInfo: called");
 
@@ -667,6 +715,13 @@ function addAppsAndServicesInfo() {
     children: []
   });
 
+  console.log("addAppsAndServicesInfo: PATH " + process.env.PATH);
+  // remove any item with "node" in it
+  // assume nothing added in /bin, /sbin, /usr/bin, /usr/sbin, /usr/local/bin
+  // add /opt
+  // remove duplicates
+  // add things likely to be added in some of the places we assumed nothing would be added
+  // !!!
   const appsLinux = [
     { path: "/usr/bin/firefox", name: "Firefox", canHaveAddons: true },
     { path: "/opt/bogus", name: "bogus", canHaveAddons: true },
@@ -893,6 +948,8 @@ function scansystem() {
         p = systeminformation.blockDevices()
           .then(data => {
 
+            console.log("systeminformation.blockDevices(): " + JSON.stringify(data));
+
             gObjBlockDevices = data;
 
             gTree = new Array();
@@ -914,6 +971,7 @@ function scansystem() {
             addOSInfo();
 
             addTimeInfo();
+            addSwapInfo();
             addBackgroundServicesInfo();
             addSecurityInfo();
 

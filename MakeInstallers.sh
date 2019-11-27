@@ -5,6 +5,8 @@
 # png to icns for Mac OS X:  https://cloudconvert.com/png-to-icns
 
 
+# USE METHOD 2 !!!
+
 
 # METHOD 1: electron-packager and then electron-installer-*
 # uses directories: installers and release-builds, and debian.json file
@@ -62,8 +64,9 @@
 # succeeded; created a 243 MB ZIP file in dist, and 543 MB of stuff under dist/mac directory
 
 # build for Windows:
+# requires WINE
 ./node_modules/.bin/electron-builder --windows nsis
-# FAILS !!!:     requires WINE
+# succeeded; created a 199 MB EXE file in dist, and 537 MB of stuff under dist/win-unpacked directory
 
 # build for Linux:
 #./node_modules/.bin/electron-builder --x64 --linux deb
