@@ -67,8 +67,8 @@ var gRootPartitionUUID = "";
 // indices of the top array:
 const TOP_CONFIG = 0;
 const TOP_SYSTEM = 1;
-const TOP_HARDWARE = 2;
-const TOP_SOFTWARE = 3;
+const TOP_SOFTWARE = 2;
+const TOP_HARDWARE = 3;
 
 // indices in the software children array
 const SOFTWARE_BIOS = 0;
@@ -83,14 +83,16 @@ const OS_APPSANDSERVICES = 2;
 
 
 function addExistingConfigurationInfo() {
-  //console.log("addExistingConfigurationInfo: called");
-  const sGUID = crypto.randomBytes(16).toString("hex");
+  console.log("addExistingConfigurationInfo: called");
+  var sGUID = crypto.randomBytes(16).toString("hex");
   gNextNodeId = 1001;
   gTree.push({
             name: "Existing configuration",
             type: "existingConfiguration",
             guid: sGUID,
-            comparedGuid: "",
+            existingTreeGuid: sGUID,
+            newTreeGuid: "",
+            instructionsTreeGuid: gObjTree[2][0].guid,
             nextNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: false,
@@ -122,7 +124,7 @@ function addSystemInfo() {
             });
 
   gTree.push({
-            name: "hardware",
+            name: "software",
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -131,7 +133,7 @@ function addSystemInfo() {
             });
 
   gTree.push({
-            name: "software",
+            name: "hardware",
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",

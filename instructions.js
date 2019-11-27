@@ -44,19 +44,20 @@ var gInstrTree = null;
 function makeBasicInstructionsTree() {
   console.log("makeBasicInstructionsTree: called");
 
-  const guid = crypto.randomBytes(16).toString("hex");
+  var sGUID = crypto.randomBytes(16).toString("hex");
 
   gObjTree[2] = new Array();
-  let gInstrTree = gObjTree[2]; 
+  var gInstrTree = gObjTree[2]; 
 
   gNextInstrNodeId = 101;
 
   gInstrTree.push({
             name: "Instructions",
             type: "instructions",
-            guid: guid,
+            guid: sGUID,
             existingTreeGuid: "",
             newTreeGuid: "",
+            instructionsTreeGuid: sGUID,
             nextNodeId: 0,
             existingTreeNodeId: 0,
             newTreeNodeId: 0,

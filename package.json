@@ -1,6 +1,6 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.31",
+ "version": "0.2.32",
  "description": "OS Installation Planner",
  "productName": "OS Installation Planner",
  "author": { "name": "Bill Dietrich", "email": "gith4@billdietrich.me", "url": "https://github.com/BillDietrich" },

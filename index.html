@@ -49,11 +49,6 @@ delete module.exports
 
 
 
-
-makeBasicInstructionsTree();
-$('#t' + 2 + 'filename').text("");
-
-
 </script>
 
 
@@ -172,8 +167,8 @@ function doscansystem() {
   $('body').addClass('waiting');
   scansystem().then((objTree) => {
     loadTree(0, objTree);
-    refreshTreeView(0);
     makeInstructionsAfterExisting();
+    refreshTreeView(0);
     refreshTreeView(2);
     $('body').removeClass('waiting');
   });
@@ -181,13 +176,12 @@ function doscansystem() {
 
 function docopyexistingtonew() {
   $('body').addClass('waiting');
-  scansystem().then((objTree) => {
-    copyExistingTreeToNew(0, 1);
-    refreshTreeView(1);
-    makeInstructionsAfterNew();
-    refreshTreeView(2);
-    $('body').removeClass('waiting');
-  });
+  copyExistingTreeToNew(0, 1);
+  makeInstructionsAfterNew();
+  refreshTreeView(0);
+  refreshTreeView(1);
+  refreshTreeView(2);
+  $('body').removeClass('waiting');
 }
 
 
@@ -324,7 +318,13 @@ function nodeClicked(target) {
 
 <script src="rightclickmenus.js" charset="utf-8"></script>
 
+<script>
 
+makeBasicInstructionsTree();
+refreshTreeView(2);
+$('#t' + 2 + 'filename').text("");
+
+</script>
 
 </body>
 

@@ -29,7 +29,7 @@ function loadTreeFromFile(treenum) {
   //console.log("loadTreeFromFile: called, ", treenum, filename);
   gObjTree[treenum] = loadJsonFile.sync(gsTreeFilename[treenum]);
   $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
-  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
+  refreshTreeView(treenum);
   //console.log("loadTreeFromFile: gObjTree[treenum] ", gObjTree[treenum]);
   //console.log("loadTreeFromFile: return");
 }
@@ -40,8 +40,8 @@ function loadTreeFromText(treenum, text) {
   // don't wipe out the gsTreeFilepathname
   gObjTree[treenum] = JSON.parse(text);
   $('#t' + treenum + 'filename').text("");
-  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
   console.log("loadTreeFromText: gObjTree[treenum] ", gObjTree[treenum]);
+  refreshTreeView(treenum);
   //console.log("loadTreeFromText: return");
 }
 
@@ -51,7 +51,7 @@ function loadTree(treenum, objTree) {
   // don't wipe out the gsTreeFilepathname
   gObjTree[treenum] = objTree;
   $('#t' + treenum + 'filename').text("");
-  gObjTreeView[treenum] = new TreeView(gObjTree[treenum], 't' + treenum + 'tree', treenum);
+  refreshTreeView(treenum);
   //console.log("loadTree: return");
 }
 
@@ -192,6 +192,7 @@ function saveTreeUsingDialog(treenum) {
 
 
 function copyExistingTreeToNew(existingtreenum, newtreenum) {
+  console.log("copyExistingTreeToNew: called");
   gsTreeFilename[newtreenum] = "";
   // don't wipe out the gsTreeFilepathname
 
@@ -201,15 +202,19 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
   //gObjTree[newtreenum] = JSON.parse(sTreeNew);
   gObjTree[newtreenum] = JSON.parse(JSON.stringify(gObjTree[existingtreenum]));
 
-  gObjTree[newtreenum][0].name = "New configuration";
-  gObjTree[newtreenum][0].type = "newConfiguration";
-  let sNewGUID = crypto.randomBytes(16).toString("hex");
-  gObjTree[newtreenum][0].guid = sNewGUID;
-  let sOldGUID = gObjTree[existingtreenum][0].guid;
-  gObjTree[newtreenum][0].existingTreeGuid = sOldGUID;
+  gObjTree[newtreenum][TOP_CONFIG].name = "New configuration";
+  gObjTree[newtreenum][TOP_CONFIG].type = "newConfiguration";
+
+  var sNewGUID = crypto.randomBytes(16).toString("hex");
+  gObjTree[newtreenum][TOP_CONFIG].guid = sNewGUID;
+  gObjTree[newtreenum][TOP_CONFIG].newTreeGuid = sNewGUID;
+  gObjTree[existingtreenum][TOP_CONFIG].newTreeGuid = sNewGUID;
+  gObjTree[2][TOP_CONFIG].newTreeGuid = sNewGUID;
 
   $('#t' + newtreenum + 'filename').text("");
+  gObjTreeView[existingtreenum] = new TreeView(gObjTree[existingtreenum], 't' + existingtreenum + 'tree', existingtreenum);
   gObjTreeView[newtreenum] = new TreeView(gObjTree[newtreenum], 't' + newtreenum + 'tree', newtreenum);
+  gObjTreeView[2] = new TreeView(gObjTree[2], 't' + 2 + 'tree', 2);
   //console.log("copyExistingTreeToNew: return");
 }
 
