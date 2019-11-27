@@ -1,9 +1,13 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.33",
+ "version": "0.2.34",
  "description": "OS Installation Planner",
  "productName": "OS Installation Planner",
- "author": { "name": "Bill Dietrich", "email": "gith4@billdietrich.me", "url": "https://github.com/BillDietrich" },
+ "author": {
+  "name": "Bill Dietrich",
+  "email": "gith4@billdietrich.me",
+  "url": "https://github.com/BillDietrich"
+ },
  "license": "ISC",
  "bugs": {
   "url": "https://github.com/BillDietrich/OS-Installation-Planner/issues",
@@ -23,18 +27,18 @@
  },
  "build": {
   "appId": "osinstallationplanner",
- "linux": {
-  "icon": "osinstallationplanner-256x256.png",
-  "category": "System"
-     },
- "mac": {
-  "icon": "osinstallationplanner-32x32.icns",
-  "category": "public.app-category.utilities"
-     },
- "win": {
-  "icon": "osinstallationplanner-256x256.ico",
-  "requestedExecutionLevel": "requireAdministrator"
-     }
+  "linux": {
+   "icon": "osinstallationplanner-256x256.png",
+   "category": "System"
+  },
+  "mac": {
+   "icon": "osinstallationplanner-32x32.icns",
+   "category": "public.app-category.utilities"
+  },
+  "win": {
+   "icon": "osinstallationplanner-256x256.ico",
+   "requestedExecutionLevel": "requireAdministrator"
+  }
  },
  "dependencies": {
   "fs": "0.0.1-security",
@@ -44,7 +48,6 @@
   "os": "^0.1.1",
   "os-locale": "^4.0.0",
   "path": "^0.12.7",
-  "systeminformation": "^4.15.3",
   "url": "^0.11.0"
  },
  "devDependencies": {
@@ -53,6 +56,7 @@
   "electron-installer-debian": "^2.0.1",
   "electron-installer-dmg": "^3.0.0",
   "electron-packager": "^14.1.1",
-  "electron-winstaller": "^4.0.0"
+  "electron-winstaller": "^4.0.0",
+  "systeminformation": "^4.16.0"
  }
 }

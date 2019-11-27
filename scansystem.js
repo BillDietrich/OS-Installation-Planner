@@ -927,45 +927,46 @@ function scansystem() {
     p = systeminformation.getStaticData()
       .then(data => {
       
-        console.log("scansystem: systeminformation.getStaticData(): " + JSON.stringify(data));
+        //console.log("scansystem: systeminformation.getStaticData(): " + JSON.stringify(data));
 
         gObjAllData = data;
 
         switch (gObjAllData.os.platform) {
           case 'linux': gnExistingSystemType = SYSTEMTYPE_LINUX; break;
-          case 'windows': gnExistingSystemType = SYSTEMTYPE_WINDOWS; break;
+          case 'win32': gnExistingSystemType = SYSTEMTYPE_WINDOWS; break;
           case 'darwin': gnExistingSystemType = SYSTEMTYPE_MACOSX; break;
         }
 
         p = systeminformation.memLayout()
           .then(data => {
 
-            console.log("scansystem: systeminformation.memLayout(): " + JSON.stringify(data));
+            //console.log("scansystem: systeminformation.memLayout(): " + JSON.stringify(data));
 
-            gObjAllData.memlayout = data;
+            //gObjAllData.memLayout = data;
 
             p = systeminformation.fsSize()
               .then(data => {
 
-                console.log("scansystem: systeminformation.fsSize(): " + JSON.stringify(data));
+                //console.log("scansystem: systeminformation.fsSize(): " + JSON.stringify(data));
 
                 gObjAllData.fsSize = data;
 
                 p = systeminformation.mem()
                   .then(data => {
 
-                    console.log("scansystem: systeminformation.mem(): " + JSON.stringify(data));
+                    //console.log("scansystem: systeminformation.mem(): " + JSON.stringify(data));
 
                     gObjAllData.mem = data;
 
                     p = systeminformation.blockDevices()
                       .then(data => {
 
-                        console.log("scansystem: systeminformation.blockDevices(): " + JSON.stringify(data));
+                        //console.log("scansystem: systeminformation.blockDevices(): " + JSON.stringify(data));
 
                         gObjAllData.blockDevices = data;
 
                         gObjAllData.time = systeminformation.time();
+
                         console.log("scansystem: gObjAllData: " + JSON.stringify(gObjAllData));
 
                         gTree = new Array();
