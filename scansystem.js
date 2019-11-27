@@ -45,7 +45,7 @@ var gnExistingSystemType = SYSTEMTYPE_UNKNOWN;
 //---------------------------------------------------------------------------
 
 var gObjAllData = null;
-var gObjBlockDevices = null;
+
 var gTree = null;
 var gNextNodeId = 0;
 var gBootPartitionUUID = "";
@@ -106,16 +106,15 @@ function addExistingConfigurationInfo() {
 
 function addSystemInfo() {
   //console.log("addSystemInfo: called");
-  var system = gObjAllData.system;
   gTree.push({
             name: "system",
             hostname: gObjAllData.os.hostname,
-            manufacturer: system.manufacturer,
-            model: system.model,
+            manufacturer: gObjAllData.system.manufacturer,
+            model: gObjAllData.system.model,
             chassisType: gObjAllData.chassis.type,
-            serial: system.serial,
-            uuid: system.uuid,
-            sku: system.sku,
+            serial: gObjAllData.system.serial,
+            uuid: gObjAllData.system.uuid,
+            sku: gObjAllData.system.sku,
             nodeEditable: false,
             nodeCanAddChildren: false,
             nodeStatus: "existing",
@@ -147,14 +146,13 @@ function addSystemInfo() {
 
 function addMotherboardInfo() {
   //console.log("addMotherboardInfo: called");
-  var baseboard = gObjAllData.baseboard;
   gTree[TOP_HARDWARE].children.push({
             name: "motherboard",
-            manufacturer: baseboard.manufacturer,
-            model: baseboard.model,
-            version: baseboard.version,
-            serial: baseboard.serial,
-            assetTag: baseboard.assetTag,
+            manufacturer: gObjAllData.baseboard.manufacturer,
+            model: gObjAllData.baseboard.model,
+            version: gObjAllData.baseboard.version,
+            serial: gObjAllData.baseboard.serial,
+            assetTag: gObjAllData.baseboard.assetTag,
             nodeEditable: false,
             nodeCanAddChildren: false,
             nodeStatus: "existing",
@@ -166,17 +164,16 @@ function addMotherboardInfo() {
 
 function addCPUInfo() {
   //console.log("addCPUInfo: called");
-  var cpu = gObjAllData.cpu;
   gTree[TOP_HARDWARE].children.push({
             name: "CPU",
-            manufacturer: cpu.manufacturer,
-            brand: cpu.brand,
-            vendor: cpu.vendor,
-            family: cpu.family,
-            model: cpu.model,
-            stepping: cpu.stepping,
-            revision: cpu.revision,
-            flags: cpu.flags,
+            manufacturer: gObjAllData.cpu.manufacturer,
+            brand: gObjAllData.cpu.brand,
+            vendor: gObjAllData.cpu.vendor,
+            family: gObjAllData.cpu.family,
+            model: gObjAllData.cpu.model,
+            stepping: gObjAllData.cpu.stepping,
+            revision: gObjAllData.cpu.revision,
+            flags: gObjAllData.cpu.flags,
             nodeEditable: false,
             nodeCanAddChildren: false,
             nodeStatus: "existing",
@@ -187,35 +184,18 @@ function addCPUInfo() {
 
 function addRAMInfo() {
   //console.log("addRAMInfo: called");
-  gTree[TOP_HARDWARE].children.push({
-            name: "RAM",
-            sizeBytes: gObjAllData.memLayout.size,
-            nodeEditable: true,
-            nodeCanAddChildren: false,
-            nodeStatus: "existing",
-            nodeId: gNextNodeId++,
-            children: []
-            });
-}
-
-
-function addBatteryInfo() {
-  //console.log("addBatteryInfo: called");
-  gTree[TOP_HARDWARE].children.push({
-            name: "battery",
-            hasbattery: gObjAllData.battery.hasbattery,
-            maxcapacity: gObjAllData.battery.maxcapacity,
-            currentcapacity: gObjAllData.battery.currentcapacity,
-            type: gObjAllData.battery.type,
-            model: gObjAllData.battery.model,
-            manufacturer: gObjAllData.battery.manufacturer,
-            serial: gObjAllData.battery.serial,
-            nodeEditable: true,
-            nodeCanAddChildren: false,
-            nodeStatus: "existing",
-            nodeId: gNextNodeId++,
-            children: []
-            });
+  for (var i = 0; i < gObjAllData.memLayout.length; i++) {
+    gTree[TOP_HARDWARE].children.push({
+              name: "RAM" + i,
+              sizeBytes: gObjAllData.memLayout[i].size,
+              bank: gObjAllData.memLayout[i].bank,
+              nodeEditable: true,
+              nodeCanAddChildren: false,
+              nodeStatus: "existing",
+              nodeId: gNextNodeId++,
+              children: []
+              });
+  }
 }
 
 
@@ -266,15 +246,13 @@ function addAudioInfo() {
 
 function addDiskInfo() {
   //console.log("addDiskInfo: called");
-  var diskLayoutData = gObjAllData.diskLayout;
-  var fsSizeData = gObjAllData.fsSize;
   let windowsDeviceNames = [ "C:", "D:", "E:", "F:", "G:", "H:", "I:", "J:", "K:", "L:", "M:" ];
 
-  console.log("addDiskInfo: diskLayoutData.length " + diskLayoutData.length);
-  for (var i = 0; i < diskLayoutData.length; i++) {
+  console.log("addDiskInfo: gObjAllData.diskLayout.length " + gObjAllData.diskLayout.length);
+  for (var i = 0; i < gObjAllData.diskLayout.length; i++) {
 
-    //console.log("addDiskInfo: diskLayoutData[" + i + "] " + JSON.stringify(diskLayoutData));
-    var fulldevicename = diskLayoutData[i].device;
+    //console.log("addDiskInfo: gObjAllData.diskLayout[" + i + "] " + JSON.stringify(gObjAllData.diskLayout[i]));
+    var fulldevicename = gObjAllData.diskLayout[i].device;
     var name = "";
     if (fulldevicename === "") {
       // happens on Windows
@@ -286,8 +264,8 @@ function addDiskInfo() {
     }
     //console.log("addDiskInfo: fulldevicename " + fulldevicename + ", path.sep " + path.sep + ", n " + n + ", name " + name);
 
-    var type = (diskLayoutData[i].type === "HD" ? "hardDisk" : "");
-    var removable = (diskLayoutData[i].interfaceType === "USB");
+    var type = (gObjAllData.diskLayout[i].type === "HD" ? "hardDisk" : "");
+    var removable = (gObjAllData.diskLayout[i].interfaceType === "USB");
 
     // To be able to detect S.M.A.R.T. status on Linux you need to install smartmontools.
     // On DEBIAN based linux distributions you can install it by running sudo apt-get install smartmontools
@@ -304,15 +282,15 @@ function addDiskInfo() {
 
     var objDisk = new Object({
               name: name,
-              type: diskLayoutData[i].type,
+              type: gObjAllData.diskLayout[i].type,
               removable: removable,
-              vendor: diskLayoutData[i].vendor,
-              model: diskLayoutData[i].name,
-              firmwareRevision: diskLayoutData[i].firmwareRevision,
-              serialNum: diskLayoutData[i].serialNum,
-              interfaceType: diskLayoutData[i].interfaceType,
-              smartStatus: diskLayoutData[i].smartStatus,
-              sizeBytes: diskLayoutData[i].size,
+              vendor: gObjAllData.diskLayout[i].vendor,
+              model: gObjAllData.diskLayout[i].name,
+              firmwareRevision: gObjAllData.diskLayout[i].firmwareRevision,
+              serialNum: gObjAllData.diskLayout[i].serialNum,
+              interfaceType: gObjAllData.diskLayout[i].interfaceType,
+              smartStatus: gObjAllData.diskLayout[i].smartStatus,
+              sizeBytes: gObjAllData.diskLayout[i].size,
               hardwareEncryptionSupported: false,
               hardwareEncryptionEnabled: false,
               nodeEditable: true,
@@ -322,8 +300,8 @@ function addDiskInfo() {
               children: []
               });
 
-    if (diskLayoutData[i].smartStatus !== "Ok") {
-      var sInstruction = "Your disk '" + name + "' is giving SMART status of '" + diskLayoutData[i].smartStatus + "'.";
+    if (gObjAllData.diskLayout[i].smartStatus !== "Ok") {
+      var sInstruction = "Your disk '" + name + "' is giving SMART status of '" + gObjAllData.diskLayout[i].smartStatus + "'.";
       var sDetail = "";
       var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, objDisk.nodeId, 0);
     }
@@ -345,24 +323,24 @@ function addDiskInfo() {
 
       var uuid = "";
 
-      for (var j = 0; j < gObjBlockDevices.length; j++) {
-          //console.log("addDiskInfo: want name " + name + k + ", see gObjBlockDevices[j].name " + gObjBlockDevices[j].name);
-          if (gObjBlockDevices[j].name === name + k) {
-            uuid = gObjBlockDevices[j].uuid;
+      for (var j = 0; j < gObjAllData.blockDevices.length; j++) {
+          //console.log("addDiskInfo: want name " + name + k + ", see gObjAllData.blockDevices[j].name " + gObjAllData..blockDevices[j].name);
+          if (gObjAllData.blockDevices[j].name === name + k) {
+            uuid = gObjAllData.blockDevices[j].uuid;
             break;
           }
       }
 
-      for (var j = 0; j < fsSizeData.length; j++) {
-          //console.log("addDiskInfo: want subDevName " + subDevName + ", see fsSizeData[j].fs " + fsSizeData[j].fs);
-          if (fsSizeData[j].fs === subDevName) {
+      for (var j = 0; j < gObjAllData.fsSize.length; j++) {
+          //console.log("addDiskInfo: want subDevName " + subDevName + ", see gObjAllData.fsSize[j].fs " + gObjAllData.fsSize[j].fs);
+          if (gObjAllData.fsSize[j].fs === subDevName) {
             objDisk.children.push({
               name: name + k,
-              fullName: fsSizeData[j].fs,
+              fullName: gObjAllData.fsSize[j].fs,
               type: "partition",
-              sizeBytes: fsSizeData[j].size,
-              fsType: fsSizeData[j].type,
-              mount: fsSizeData[j].mount,
+              sizeBytes: gObjAllData.fsSize[j].size,
+              fsType: gObjAllData.fsSize[j].type,
+              mount: gObjAllData.fsSize[j].mount,
               UUID: uuid,
               nodeEditable: true,
               nodeCanAddChildren: false,
@@ -370,11 +348,11 @@ function addDiskInfo() {
               nodeId: gNextNodeId++,
               children: []
               });
-            if (fsSizeData[j].mount === path.sep + "boot") {
+            if (gObjAllData.fsSize[j].mount === path.sep + "boot") {
               // we've found the boot partition for the current OS
               gBootPartitionUUID = uuid;
             }
-            if (fsSizeData[j].mount === path.sep) {
+            if (gObjAllData.fsSize[j].mount === path.sep) {
               // we've found the root partition for the current OS
               gRootPartitionUUID = uuid;
             }
@@ -395,9 +373,6 @@ function addDiskInfo() {
 
 function addGraphicsInfo() {
       
-  var controllers = gObjAllData.graphics.controllers;
-  var displays = gObjAllData.graphics.displays;
-
   var objControllers = new Object({
     name: "graphicsControllers",
     nodeEditable: false,
@@ -407,14 +382,14 @@ function addGraphicsInfo() {
     children: []
   });
 
-  for (var i = 0; i < controllers.length; i++) {
+  for (var i = 0; i < gObjAllData.graphics.controllers.length; i++) {
     objControllers.children.push({
       name: "graphicsController" + i,
-      vendor: controllers[i].vendor,
-      model: controllers[i].model,
-      bus: controllers[i].bus,
-      vram: controllers[i].vram,
-      vramDynamic: controllers[i].vramDynamic,
+      vendor: gObjAllData.graphics.controllers[i].vendor,
+      model: gObjAllData.graphics.controllers[i].model,
+      bus: gObjAllData.graphics.controllers[i].bus,
+      vram: gObjAllData.graphics.controllers[i].vram,
+      vramDynamic: gObjAllData.graphics.controllers[i].vramDynamic,
       nodeEditable: true,
       nodeCanAddChildren: false,
       nodeStatus: "existing",
@@ -434,24 +409,24 @@ function addGraphicsInfo() {
     children: []
   });
 
-  for (var i = 0; i < displays.length; i++) {
+  for (var i = 0; i < gObjAllData.graphics.displays.length; i++) {
     objDisplays.children.push({
       name: "display" + i,
-      vendor: displays[i].vendor,
-      model: displays[i].model,
-      main: displays[i].main,
-      builtin: displays[i].builtin,
-      connection: displays[i].connection,
-      sizex: displays[i].sizex,
-      sizey: displays[i].sizey,
-      pixeldepth: displays[i].pixeldepth,
-      resolutionx: displays[i].resolutionx,
-      resolutiony: displays[i].resolutiony,
-      currentResX: displays[i].currentResX,
-      currentResY: displays[i].currentResY,
-      positionX: displays[i].positionX,
-      positionY: displays[i].positionY,
-      currentRefreshRate: displays[i].currentRefreshRate,
+      vendor: gObjAllData.graphics.displays[i].vendor,
+      model: gObjAllData.graphics.displays[i].model,
+      main: gObjAllData.graphics.displays[i].main,
+      builtin: gObjAllData.graphics.displays[i].builtin,
+      connection: gObjAllData.graphics.displays[i].connection,
+      sizex: gObjAllData.graphics.displays[i].sizex,
+      sizey: gObjAllData.graphics.displays[i].sizey,
+      pixeldepth: gObjAllData.graphics.displays[i].pixeldepth,
+      resolutionx: gObjAllData.graphics.displays[i].resolutionx,
+      resolutiony: gObjAllData.graphics.displays[i].resolutiony,
+      currentResX: gObjAllData.graphics.displays[i].currentResX,
+      currentResY: gObjAllData.graphics.displays[i].currentResY,
+      positionX: gObjAllData.graphics.displays[i].positionX,
+      positionY: gObjAllData.graphics.displays[i].positionY,
+      currentRefreshRate: gObjAllData.graphics.displays[i].currentRefreshRate,
       nodeEditable: true,
       nodeCanAddChildren: false,
       nodeStatus: "existing",
@@ -465,7 +440,6 @@ function addGraphicsInfo() {
 
 
 function addNetworkInterfaceInfo() {
-  var networkInterfaces = gObjAllData.net;
 
   var objIfaces = new Object({
     name: "networkInterfaces",
@@ -476,18 +450,18 @@ function addNetworkInterfaceInfo() {
     children: []
   });
 
-  for (var i = 0; i < networkInterfaces.length; i++) {
-    if ((networkInterfaces[i].type === "wired") || (networkInterfaces[i].type === "wireless")) {
+  for (var i = 0; i < gObjAllData.net.length; i++) {
+    if ((gObjAllData.net[i].type === "wired") || (gObjAllData.net[i].type === "wireless")) {
       objIfaces.children.push({
-        name: networkInterfaces[i].ifaceName,
-        iface: networkInterfaces[i].iface,
-        mac: networkInterfaces[i].mac,
-        internal: networkInterfaces[i].internal,
-        type: networkInterfaces[i].type,
-        bus: networkInterfaces[i].bus,
-        bus: networkInterfaces[i].bus,
-        bus: networkInterfaces[i].bus,
-        bus: networkInterfaces[i].bus,
+        name: gObjAllData.net[i].ifaceName,
+        iface: gObjAllData.net[i].iface,
+        mac: gObjAllData.net[i].mac,
+        internal: gObjAllData.net[i].internal,
+        type: gObjAllData.net[i].type,
+        bus: gObjAllData.net[i].bus,
+        bus: gObjAllData.net[i].bus,
+        bus: gObjAllData.net[i].bus,
+        bus: gObjAllData.net[i].bus,
         nodeEditable: true,
         nodeCanAddChildren: false,
         nodeStatus: "existing",
@@ -950,10 +924,10 @@ function scansystem() {
 
   return new Promise((resolve, reject) => {
 
-    p = systeminformation.getAllData("", "")
+    p = systeminformation.getStaticData()
       .then(data => {
       
-        console.log("systeminformation.getAllData(): " + JSON.stringify(data));
+        console.log("scansystem: systeminformation.getStaticData(): " + JSON.stringify(data));
 
         gObjAllData = data;
 
@@ -963,50 +937,79 @@ function scansystem() {
           case 'darwin': gnExistingSystemType = SYSTEMTYPE_MACOSX; break;
         }
 
-        p = systeminformation.blockDevices()
+        p = systeminformation.memLayout()
           .then(data => {
 
-            console.log("systeminformation.blockDevices(): " + JSON.stringify(data));
+            console.log("scansystem: systeminformation.memLayout(): " + JSON.stringify(data));
 
-            gObjBlockDevices = data;
+            gObjAllData.memlayout = data;
 
-            gTree = new Array();
+            p = systeminformation.fsSize()
+              .then(data => {
 
-            addExistingConfigurationInfo();
-            addSystemInfo();
-            addMotherboardInfo();
-            addCPUInfo();
-            addRAMInfo();
-            addBatteryInfo();
-            addKeyboardInfo();
-            addMouseTouchpadInfo();
-            addAudioInfo();
-            addDiskInfo();
-            addGraphicsInfo();
-            addNetworkInterfaceInfo();
+                console.log("scansystem: systeminformation.fsSize(): " + JSON.stringify(data));
 
-            addBIOSInfo();
-            addOSInfo();
+                gObjAllData.fsSize = data;
 
-            addTimeInfo();
-            addSwapInfo();
-            addBackgroundServicesInfo();
-            addSecurityInfo();
+                p = systeminformation.mem()
+                  .then(data => {
 
-            addAppsAndServicesInfo();
-            
-            gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
+                    console.log("scansystem: systeminformation.mem(): " + JSON.stringify(data));
 
-            console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
+                    gObjAllData.mem = data;
 
-            gObjTree[0] = gTree;
+                    p = systeminformation.blockDevices()
+                      .then(data => {
 
-            resolve(gTree);
+                        console.log("scansystem: systeminformation.blockDevices(): " + JSON.stringify(data));
 
+                        gObjAllData.blockDevices = data;
+
+                        gObjAllData.time = systeminformation.time();
+                        console.log("scansystem: gObjAllData: " + JSON.stringify(gObjAllData));
+
+                        gTree = new Array();
+
+                        addExistingConfigurationInfo();
+                        addSystemInfo();
+                        addMotherboardInfo();
+                        addCPUInfo();
+                        addRAMInfo();
+                        addKeyboardInfo();
+                        addMouseTouchpadInfo();
+                        addAudioInfo();
+                        addDiskInfo();
+                        addGraphicsInfo();
+                        addNetworkInterfaceInfo();
+
+                        addBIOSInfo();
+                        addOSInfo();
+
+                        addTimeInfo();
+                        addSwapInfo();
+                        addBackgroundServicesInfo();
+                        addSecurityInfo();
+
+                        addAppsAndServicesInfo();
+                        
+                        gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
+
+                        console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
+
+                        gObjTree[0] = gTree;
+
+                        resolve(gTree);
+
+                      })
+                      .catch(error => console.log("scansystem: systeminformation.blockDevices() error: " + error));
+                  })
+                  .catch(error => console.log("scansystem: systeminformation.mem() error: " + error));
+              })
+              .catch(error => console.log("scansystem: systeminformation.fsSize() error: " + error));
           })
-          .catch(error => console.log("systeminformation.blockDevices() error: " + error));
+          .catch(error => console.log("scansystem: systeminformation.memLayout() error: " + error));
       })
-      .catch(error => console.log("systeminformation.getAllData() error: " + error));
+      .catch(error => console.log("scansystem: systeminformation.getAllData() error: " + error));
   });
 }
 
