@@ -1,6 +1,6 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.34",
+ "version": "0.2.35",
  "description": "OS Installation Planner",
  "productName": "OS Installation Planner",
  "author": {
@@ -21,7 +21,7 @@
  "icon": "osinstallationplanner-128x128.png",
  "main": "app.js",
  "scripts": {
-  "start": "./node_modules/electron/dist/electron app.js",
+  "start": "./node_modules/electron/dist/electron --no-sandbox app.js",
   "start2": "/usr/local/lib/nodejs/node-v10.15.3-linux-x64/lib/node_modules/electron/dist/electron -i app.js",
   "comment": "npm run-script start2"
  },
@@ -48,7 +48,8 @@
   "os": "^0.1.1",
   "os-locale": "^4.0.0",
   "path": "^0.12.7",
-  "url": "^0.11.0"
+  "url": "^0.11.0",
+  "systeminformation": "^4.16.0"
  },
  "devDependencies": {
   "electron": "^7.1.2",
@@ -56,7 +57,6 @@
   "electron-installer-debian": "^2.0.1",
   "electron-installer-dmg": "^3.0.0",
   "electron-packager": "^14.1.1",
-  "electron-winstaller": "^4.0.0",
-  "systeminformation": "^4.16.0"
+  "electron-winstaller": "^4.0.0"
  }
 }

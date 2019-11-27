@@ -107,7 +107,7 @@ function addExistingConfigurationInfo() {
 function addSystemInfo() {
   //console.log("addSystemInfo: called");
   gTree.push({
-            name: "system",
+            name: "system" + ((gObjAllData.os.hostname !== "") ? " - " + gObjAllData.os.hostname : ""),
             hostname: gObjAllData.os.hostname,
             manufacturer: gObjAllData.system.manufacturer,
             model: gObjAllData.system.model,
@@ -184,18 +184,30 @@ function addCPUInfo() {
 
 function addRAMInfo() {
   //console.log("addRAMInfo: called");
-  for (var i = 0; i < gObjAllData.memLayout.length; i++) {
-    gTree[TOP_HARDWARE].children.push({
-              name: "RAM" + i,
-              sizeBytes: gObjAllData.memLayout[i].size,
-              bank: gObjAllData.memLayout[i].bank,
-              nodeEditable: true,
-              nodeCanAddChildren: false,
-              nodeStatus: "existing",
-              nodeId: gNextNodeId++,
-              children: []
-              });
+
+  var nSizeBytes = 0;
+
+  // tricky: on Linux, without admin/root privileges, memLayout[] will be empty
+
+  // https://stackoverflow.com/questions/37322862/check-if-electron-app-is-launched-with-admin-privileges-on-windows
+
+  if (gObjAllData.memLayout.length > 0) {
+    for (var i = 0; i < gObjAllData.memLayout.length; i++) {
+      nSizeBytes += gObjAllData.memLayout[i].size;
+    }
+  } else {
+    nSizeBytes += gObjAllData.mem.total;
   }
+
+  gTree[TOP_HARDWARE].children.push({
+            name: "RAM",
+            sizeBytes: nSizeBytes,
+            nodeEditable: true,
+            nodeCanAddChildren: false,
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
 }
 
 
@@ -279,6 +291,8 @@ function addDiskInfo() {
     //    sudo smartctl --health /dev/sda
     //    sudo smartctl --info /dev/sda
     //    sudo smartctl --xall /dev/sda | more
+
+    // tricky: on Linux, without admin/root privileges, SMART status of all disks will be "unknown"
 
     var objDisk = new Object({
               name: name,
@@ -937,78 +951,69 @@ function scansystem() {
           case 'darwin': gnExistingSystemType = SYSTEMTYPE_MACOSX; break;
         }
 
-        p = systeminformation.memLayout()
+        p = systeminformation.fsSize()
           .then(data => {
 
-            //console.log("scansystem: systeminformation.memLayout(): " + JSON.stringify(data));
+            //console.log("scansystem: systeminformation.fsSize(): " + JSON.stringify(data));
 
-            //gObjAllData.memLayout = data;
+            gObjAllData.fsSize = data;
 
-            p = systeminformation.fsSize()
+            p = systeminformation.mem()
               .then(data => {
 
-                //console.log("scansystem: systeminformation.fsSize(): " + JSON.stringify(data));
+                //console.log("scansystem: systeminformation.mem(): " + JSON.stringify(data));
 
-                gObjAllData.fsSize = data;
+                gObjAllData.mem = data;
 
-                p = systeminformation.mem()
+                p = systeminformation.blockDevices()
                   .then(data => {
 
-                    //console.log("scansystem: systeminformation.mem(): " + JSON.stringify(data));
+                    //console.log("scansystem: systeminformation.blockDevices(): " + JSON.stringify(data));
 
-                    gObjAllData.mem = data;
+                    gObjAllData.blockDevices = data;
 
-                    p = systeminformation.blockDevices()
-                      .then(data => {
+                    gObjAllData.time = systeminformation.time();
 
-                        //console.log("scansystem: systeminformation.blockDevices(): " + JSON.stringify(data));
+                    console.log("scansystem: gObjAllData: " + JSON.stringify(gObjAllData));
 
-                        gObjAllData.blockDevices = data;
+                    gTree = new Array();
 
-                        gObjAllData.time = systeminformation.time();
+                    addExistingConfigurationInfo();
+                    addSystemInfo();
+                    addMotherboardInfo();
+                    addCPUInfo();
+                    addRAMInfo();
+                    addKeyboardInfo();
+                    addMouseTouchpadInfo();
+                    addAudioInfo();
+                    addDiskInfo();
+                    addGraphicsInfo();
+                    addNetworkInterfaceInfo();
 
-                        console.log("scansystem: gObjAllData: " + JSON.stringify(gObjAllData));
+                    addBIOSInfo();
+                    addOSInfo();
 
-                        gTree = new Array();
+                    addTimeInfo();
+                    addSwapInfo();
+                    addBackgroundServicesInfo();
+                    addSecurityInfo();
 
-                        addExistingConfigurationInfo();
-                        addSystemInfo();
-                        addMotherboardInfo();
-                        addCPUInfo();
-                        addRAMInfo();
-                        addKeyboardInfo();
-                        addMouseTouchpadInfo();
-                        addAudioInfo();
-                        addDiskInfo();
-                        addGraphicsInfo();
-                        addNetworkInterfaceInfo();
+                    addAppsAndServicesInfo();
+                    
+                    gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
 
-                        addBIOSInfo();
-                        addOSInfo();
+                    console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
 
-                        addTimeInfo();
-                        addSwapInfo();
-                        addBackgroundServicesInfo();
-                        addSecurityInfo();
+                    gObjTree[0] = gTree;
 
-                        addAppsAndServicesInfo();
-                        
-                        gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
+                    resolve(gTree);
 
-                        console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
-
-                        gObjTree[0] = gTree;
-
-                        resolve(gTree);
-
-                      })
-                      .catch(error => console.log("scansystem: systeminformation.blockDevices() error: " + error));
                   })
-                  .catch(error => console.log("scansystem: systeminformation.mem() error: " + error));
+                  .catch(error => console.log("scansystem: systeminformation.blockDevices() error: " + error));
               })
-              .catch(error => console.log("scansystem: systeminformation.fsSize() error: " + error));
+              .catch(error => console.log("scansystem: systeminformation.mem() error: " + error));
           })
-          .catch(error => console.log("scansystem: systeminformation.memLayout() error: " + error));
+          .catch(error => console.log("scansystem: systeminformation.fsSize() error: " + error));
       })
       .catch(error => console.log("scansystem: systeminformation.getAllData() error: " + error));
   });
