@@ -203,10 +203,10 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
 
   gObjTree[newtreenum][0].name = "New configuration";
   gObjTree[newtreenum][0].type = "newConfiguration";
-  let newguid = crypto.randomBytes(16).toString("hex");
-  gObjTree[newtreenum][0].guid = newguid;
-  let oldguid = gObjTree[existingtreenum][0].guid;
-  gObjTree[newtreenum][0].comparedGuid = oldguid;
+  let sNewGUID = crypto.randomBytes(16).toString("hex");
+  gObjTree[newtreenum][0].guid = sNewGUID;
+  let sOldGUID = gObjTree[existingtreenum][0].guid;
+  gObjTree[newtreenum][0].existingTreeGuid = sOldGUID;
 
   $('#t' + newtreenum + 'filename').text("");
   gObjTreeView[newtreenum] = new TreeView(gObjTree[newtreenum], 't' + newtreenum + 'tree', newtreenum);

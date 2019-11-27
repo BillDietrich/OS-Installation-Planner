@@ -13,7 +13,8 @@
 //  {
 //    name: "something",
 //    ...
-//    systemTreeNodeId: number,
+//    existingTreeNodeId: number,
+//    newTreeNodeId: number,
 //    ...
 //    nodeEditable: boolean,
 //    nodeCanAddChildren: boolean,
@@ -40,13 +41,13 @@ var gInstrTree = null;
 
 
 
-function makeBasicInstructions(newTreeGuid, instrTreeNum) {
-  console.log("makeBasicInstructions: called, newTreeGuid " + newTreeGuid + ", instrTreeNum " + instrTreeNum);
+function makeBasicInstructionsTree() {
+  console.log("makeBasicInstructionsTree: called");
 
   const guid = crypto.randomBytes(16).toString("hex");
 
-  gObjTree[instrTreeNum] = new Array();
-  let gInstrTree = gObjTree[instrTreeNum]; 
+  gObjTree[2] = new Array();
+  let gInstrTree = gObjTree[2]; 
 
   gNextInstrNodeId = 101;
 
@@ -54,9 +55,11 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
             name: "Instructions",
             type: "instructions",
             guid: guid,
-            comparedGuid: newTreeGuid,
+            existingTreeGuid: "",
+            newTreeGuid: "",
             nextNodeId: 0,
-            systemTreeNodeId: 0,
+            existingTreeNodeId: 0,
+            newTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: false,
             nodeStatus: "existing",
@@ -67,7 +70,8 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
 
   gInstrTree.push({
             name: "Current system",
-            systemTreeNodeId: 0,
+            existingTreeNodeId: 0,
+            newTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -78,7 +82,8 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
 
   gInstrTree.push({
             name: "Plan",
-            systemTreeNodeId: 0,
+            existingTreeNodeId: 0,
+            newTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -88,7 +93,8 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
 
   gInstrTree.push({
             name: "Test",
-            systemTreeNodeId: 0,
+            existingTreeNodeId: 0,
+            newTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -98,7 +104,8 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
 
   gInstrTree.push({
             name: "Prepare",
-            systemTreeNodeId: 0,
+            existingTreeNodeId: 0,
+            newTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -108,7 +115,8 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
 
   gInstrTree.push({
             name: "Change hardware",
-            systemTreeNodeId: 0,
+            existingTreeNodeId: 0,
+            newTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -118,7 +126,8 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
 
   gInstrTree.push({
             name: "Install",
-            systemTreeNodeId: 0,
+            existingTreeNodeId: 0,
+            newTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -128,7 +137,8 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
 
   gInstrTree.push({
             name: "Post-install",
-            systemTreeNodeId: 0,
+            existingTreeNodeId: 0,
+            newTreeNodeId: 0,
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -137,14 +147,14 @@ function makeBasicInstructions(newTreeGuid, instrTreeNum) {
             });
 
   gInstrTree[TOP_CONFIG].nextNodeId = gNextInstrNodeId;
-  console.log("makeBasicInstructions: finished, gInstrTree: " + JSON.stringify(gInstrTree));
+  console.log("makeBasicInstructionsTree: finished, gInstrTree: " + JSON.stringify(gInstrTree));
 
-  console.log("makeBasicInstructions: return");
+  console.log("makeBasicInstructionsTree: return");
 }
 
 
-function addInstruction(parentNodeId, name, text, systemTreeNodeId) {
-  console.log("addInstruction: called, parentNodeId " + parentNodeId + ", name " + name + ", text " + text + ", systemTreeNodeId " + systemTreeNodeId);
+function addInstruction(parentNodeId, name, text, existingTreeNodeId, newTreeNodeId) {
+  console.log("addInstruction: called, parentNodeId " + parentNodeId + ", name " + name + ", text " + text + ", existingTreeNodeId " + existingTreeNodeId + ", newTreeNodeId " + newTreeNodeId);
 
   var obj = findNode(parentNodeId, gObjTree[2], null);
   console.log("addInstruction: found obj.node.nodeId " + obj.node.nodeId + " obj.parent.nodeId " + obj.parent.nodeId);
@@ -153,7 +163,8 @@ function addInstruction(parentNodeId, name, text, systemTreeNodeId) {
   obj.node.children.push({
             name: name,
             text: text,
-            systemTreeNodeId: systemTreeNodeId,
+            existingTreeNodeId: existingTreeNodeId,
+            newTreeNodeId: newTreeNodeId,
             nodeEditable: true,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
@@ -173,57 +184,73 @@ function addInstruction(parentNodeId, name, text, systemTreeNodeId) {
 
 //---------------------------------------------------------------------------
 
-function makeInstructions(newTreeGuid, instrTreeNum) {
+function makeInstructionsAfterExisting() {
 
-  console.log("makeInstructions: called, newTreeGuid " + newTreeGuid + ", instrTreeNum " + instrTreeNum);
-
-  makeBasicInstructions(newTreeGuid, instrTreeNum);
+  console.log("makeInstructionsAfterExisting: called");
 
   var nodeId = 0;
 
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_CURRENTSYSTEM].nodeId, "You're not using anti-virus ?", "", 0);
+  gObjTree[2][TOP_CONFIG].existingTreeGuid = gObjTree[0][TOP_CONFIG].guid;
 
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What do you use your system for now ?", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What do you want to use your system for in the future ?", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "Is there anything wrong with the current system ?", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "Why do you want to change the system ?", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What system features are most importand to you ?", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "What applications are critical to you ?", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "Can anyone help you use the new system ?", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PLAN].nodeId, "Pick a new OS.", "", 0);
-    addInstruction(nodeId, "General choices.", "", 0);
-    addInstruction(nodeId, "Check distrowatch.", "", 0);
-    addInstruction(nodeId, "Check distrotest.", "", 0);
-    nodeId = addInstruction(nodeId, "Research your critical applications.", "", 0);
-      addInstruction(nodeId, "Check manufacturer's site to see if this OS is supported.", "", 0);
-      addInstruction(nodeId, "Ask on application's forums to see how well app runs on this OS.", "", 0);
+  nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, "You're not using anti-virus ?", "", 0, 0);
 
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_TEST].nodeId, "Try a live-session boot of the new OS from a USB drive.", "", 0);
-    addInstruction(nodeId, "Download new OS installer to hard disk.", "", 0);
-    addInstruction(nodeId, "Burn new OS installer to USB drive.", "", 0);
-    addInstruction(nodeId, "Boot from USB drive.", "", 0);
-    addInstruction(nodeId, "Click on 'run from USB', not 'install'.", "", 0);
-    addInstruction(nodeId, "Test basic features.", "", 0);
-    addInstruction(nodeId, "Install and test any critical applications.", "", 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "What do you use your system for now ?", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "What do you want to use your system for in the future ?", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "Is there anything wrong with the current system ?", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "Why do you want to change the system ?", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "What system features are most importand to you ?", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "What applications are critical to you ?", "", 0, 0);
+
+  console.log("makeInstructionsAfterExisting: return");
+}
+
+
+
+//---------------------------------------------------------------------------
+
+function makeInstructionsAfterNew() {
+
+  console.log("makeInstructionsAfterNew: called");
+
+  var nodeId = 0;
+
+  gObjTree[2][TOP_CONFIG].newTreeGuid = gObjTree[1][TOP_CONFIG].guid;
+
+  nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "Can anyone help you use the new system ?", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "Pick a new OS.", "", 0, 0);
+    addInstruction(nodeId, "General choices.", "", 0, 0);
+    addInstruction(nodeId, "Check distrowatch.", "", 0, 0);
+    addInstruction(nodeId, "Check distrotest.", "", 0, 0);
+    nodeId = addInstruction(nodeId, "Research your critical applications.", "", 0, 0);
+      addInstruction(nodeId, "Check manufacturer's site to see if this OS is supported.", "", 0, 0);
+      addInstruction(nodeId, "Ask on application's forums to see how well app runs on this OS.", "", 0, 0);
+
+  nodeId = addInstruction(gObjTree[2][TOP_TEST].nodeId, "Try a live-session boot of the new OS from a USB drive.", "", 0, 0);
+    addInstruction(nodeId, "Download new OS installer to hard disk.", "", 0, 0);
+    addInstruction(nodeId, "Burn new OS installer to USB drive.", "", 0, 0);
+    addInstruction(nodeId, "Boot from USB drive.", "", 0, 0);
+    addInstruction(nodeId, "Click on 'run from USB', not 'install'.", "", 0, 0);
+    addInstruction(nodeId, "Test basic features.", "", 0, 0);
+    addInstruction(nodeId, "Install and test any critical applications.", "", 0, 0);
   
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Do very extensive backups.", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Clear cookies and caches and do cleaning, then see if you can log in to all the sites you need.", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Update BIOS.", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Put new OS installer on USB drive.", "", 0);
-    addInstruction(nodeId, "Download new OS installer to hard disk.", "", 0);
-    addInstruction(nodeId, "Burn new OS installer to USB drive.", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_PREPARE].nodeId, "Put pre-install file on a second USB drive.", "", 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PREPARE].nodeId, "Do very extensive backups.", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PREPARE].nodeId, "Clear cookies and caches and do cleaning, then see if you can log in to all the sites you need.", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PREPARE].nodeId, "Update BIOS.", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PREPARE].nodeId, "Put new OS installer on USB drive.", "", 0, 0);
+    addInstruction(nodeId, "Download new OS installer to hard disk.", "", 0, 0);
+    addInstruction(nodeId, "Burn new OS installer to USB drive.", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_PREPARE].nodeId, "Put pre-install file on a second USB drive.", "", 0, 0);
 
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_CHANGEHARDWARE].nodeId, "Add RAM.", "", 0);
+  nodeId = addInstruction(gObjTree[2][TOP_CHANGEHARDWARE].nodeId, "Add RAM.", "", 0, 0);
 
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_INSTALL].nodeId, "Boot from installer USB drive.", "", 0);
-    addInstruction(nodeId, "Click on 'install'.", "", 0);
-    addInstruction(nodeId, "Click on option to use pre-install file.", "", 0);
+  nodeId = addInstruction(gObjTree[2][TOP_INSTALL].nodeId, "Boot from installer USB drive.", "", 0, 0);
+    addInstruction(nodeId, "Click on 'install'.", "", 0, 0);
+    addInstruction(nodeId, "Click on option to use pre-install file.", "", 0, 0);
 
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_POSTINSTALL].nodeId, "Configure OS.", "", 0);
-  nodeId = addInstruction(gObjTree[instrTreeNum][TOP_POSTINSTALL].nodeId, "Configure applications.", "", 0);
+  nodeId = addInstruction(gObjTree[2][TOP_POSTINSTALL].nodeId, "Configure OS.", "", 0, 0);
+  nodeId = addInstruction(gObjTree[2][TOP_POSTINSTALL].nodeId, "Configure applications.", "", 0, 0);
 
-  console.log("makeInstructions: return");
+  console.log("makeInstructionsAfterNew: return");
 }
 
 

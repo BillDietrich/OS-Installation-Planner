@@ -84,12 +84,12 @@ const OS_APPSANDSERVICES = 2;
 
 function addExistingConfigurationInfo() {
   //console.log("addExistingConfigurationInfo: called");
-  const guid = crypto.randomBytes(16).toString("hex");
+  const sGUID = crypto.randomBytes(16).toString("hex");
   gNextNodeId = 1001;
   gTree.push({
             name: "Existing configuration",
             type: "existingConfiguration",
-            guid: guid,
+            guid: sGUID,
             comparedGuid: "",
             nextNodeId: 0,
             nodeEditable: false,
@@ -268,6 +268,7 @@ function addDiskInfo() {
   var fsSizeData = gObjAllData.fsSize;
   let windowsDeviceNames = [ "C:", "D:", "E:", "F:", "G:", "H:", "I:", "J:", "K:", "L:", "M:" ];
 
+  console.log("addDiskInfo: diskLayoutData.length " + diskLayoutData.length);
   for (var i = 0; i < diskLayoutData.length; i++) {
 
     //console.log("addDiskInfo: diskLayoutData[" + i + "] " + JSON.stringify(diskLayoutData));
@@ -285,6 +286,19 @@ function addDiskInfo() {
 
     var type = (diskLayoutData[i].type === "HD" ? "hardDisk" : "");
     var removable = (diskLayoutData[i].interfaceType === "USB");
+
+    // To be able to detect S.M.A.R.T. status on Linux you need to install smartmontools.
+    // On DEBIAN based linux distributions you can install it by running sudo apt-get install smartmontools
+    // https://www.smartmontools.org/
+    // Man pages:
+    //    man 8 smartctl
+    //    man 8 smartd
+    //    man 8 update-smart-drivedb
+    //    man 5 smartd.conf
+    // CLI commands:
+    //    sudo smartctl --health /dev/sda
+    //    sudo smartctl --info /dev/sda
+    //    sudo smartctl --xall /dev/sda | more
 
     var objDisk = new Object({
               name: name,
@@ -307,7 +321,9 @@ function addDiskInfo() {
               });
 
     if (diskLayoutData[i].smartStatus !== "Ok") {
-      // add instruction !!!
+      var sInstruction = "Your disk '" + name + "' is giving SMART status of '" + diskLayoutData[i].smartStatus + "'.";
+      var sDetail = "";
+      var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, objDisk.nodeId, 0);
     }
 
     let MAXPARTNUM = 9;

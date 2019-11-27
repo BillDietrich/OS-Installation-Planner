@@ -46,6 +46,14 @@ delete module.exports
 
 // If you just want to pretty print an object and not export it as valid JSON you can use console.dir().
 
+
+
+
+
+makeBasicInstructionsTree();
+$('#t' + 2 + 'filename').text("");
+
+
 </script>
 
 
@@ -165,6 +173,8 @@ function doscansystem() {
   scansystem().then((objTree) => {
     loadTree(0, objTree);
     refreshTreeView(0);
+    makeInstructionsAfterExisting();
+    refreshTreeView(2);
     $('body').removeClass('waiting');
   });
 }
@@ -174,8 +184,7 @@ function docopyexistingtonew() {
   scansystem().then((objTree) => {
     copyExistingTreeToNew(0, 1);
     refreshTreeView(1);
-    makeInstructions(gObjTree[1][TOP_CONFIG].guid, 2);
-    $('#t' + 2 + 'filename').text("");
+    makeInstructionsAfterNew();
     refreshTreeView(2);
     $('body').removeClass('waiting');
   });
