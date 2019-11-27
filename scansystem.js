@@ -34,6 +34,66 @@ const process = require("process");
 
 //---------------------------------------------------------------------------
 
+var gbPrivilegedUser = false;
+
+
+function checkPrivilegedUser() {
+  console.log("checkPrivilegedUser: called");
+
+  // https://stackoverflow.com/questions/37322862/check-if-electron-app-is-launched-with-admin-privileges-on-windows
+
+  return new Promise((resolve, reject) => {
+
+    p = systeminformation.osInfo()
+      .then(data => {
+
+        console.log("checkPrivilegedUser: osInfo: " + JSON.stringify(data));
+        switch (data.platform) {
+          case 'linux': gnExistingSystemType = SYSTEMTYPE_LINUX; break;
+          case 'win32': gnExistingSystemType = SYSTEMTYPE_WINDOWS; break;
+          case 'darwin': gnExistingSystemType = SYSTEMTYPE_MACOSX; break;
+        }
+        console.log("checkPrivilegedUser: gnExistingSystemType " + gnExistingSystemType);
+
+
+        // https://nodejs.org/api/child_process.html#child_process_child_process_execsync_command_options
+
+        var execSync = require('child_process').execSync;
+
+        var sCommand = "";
+        var sOutput = "";
+
+        switch (gnExistingSystemType) {
+          case SYSTEMTYPE_LINUX:
+          case SYSTEMTYPE_MACOSX:
+            sCommand = "wc /etc/shadow";
+            break;
+          case SYSTEMTYPE_WINDOWS:
+            sCommand = "net session";
+            break;
+        }
+
+        try {
+          sOutput = execSync(sCommand);
+          console.log("checkPrivilegedUser: sOutput: " + sOutput);
+          gbPrivilegedUser = true;
+        } catch(e) {
+          console.log("checkPrivilegedUser: e: " + e);
+          gbPrivilegedUser = false;
+        }
+    
+        console.log("checkPrivilegedUser: gbPrivilegedUser " + gbPrivilegedUser);
+        resolve(gbPrivilegedUser);
+
+    });
+    
+  });
+
+  console.log("checkPrivilegedUser: return");
+}
+
+//---------------------------------------------------------------------------
+
 const SYSTEMTYPE_UNKNOWN = 0;
 const SYSTEMTYPE_LINUX = 1;
 const SYSTEMTYPE_WINDOWS = 2;
@@ -189,8 +249,6 @@ function addRAMInfo() {
 
   // tricky: on Linux, without admin/root privileges, memLayout[] will be empty
 
-  // https://stackoverflow.com/questions/37322862/check-if-electron-app-is-launched-with-admin-privileges-on-windows
-
   if (gObjAllData.memLayout.length > 0) {
     for (var i = 0; i < gObjAllData.memLayout.length; i++) {
       nSizeBytes += gObjAllData.memLayout[i].size;
@@ -260,6 +318,12 @@ function addDiskInfo() {
   //console.log("addDiskInfo: called");
   let windowsDeviceNames = [ "C:", "D:", "E:", "F:", "G:", "H:", "I:", "J:", "K:", "L:", "M:" ];
 
+  if (!gbPrivilegedUser) {
+    var sInstruction = "The SMART status of your disks can not be determined because you are not running this application with administrator privileges.";
+    var sDetail = "";
+    var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, gTree[TOP_HARDWARE].nodeId, 0);
+  }
+
   console.log("addDiskInfo: gObjAllData.diskLayout.length " + gObjAllData.diskLayout.length);
   for (var i = 0; i < gObjAllData.diskLayout.length; i++) {
 
@@ -314,7 +378,7 @@ function addDiskInfo() {
               children: []
               });
 
-    if (gObjAllData.diskLayout[i].smartStatus !== "Ok") {
+    if (gbPrivilegedUser && (gObjAllData.diskLayout[i].type === "HD") && (gObjAllData.diskLayout[i].smartStatus !== "Ok")) {
       var sInstruction = "Your disk '" + name + "' is giving SMART status of '" + gObjAllData.diskLayout[i].smartStatus + "'.";
       var sDetail = "";
       var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, objDisk.nodeId, 0);
@@ -944,13 +1008,15 @@ function scansystem() {
         //console.log("scansystem: systeminformation.getStaticData(): " + JSON.stringify(data));
 
         gObjAllData = data;
-
+/*
         switch (gObjAllData.os.platform) {
           case 'linux': gnExistingSystemType = SYSTEMTYPE_LINUX; break;
           case 'win32': gnExistingSystemType = SYSTEMTYPE_WINDOWS; break;
           case 'darwin': gnExistingSystemType = SYSTEMTYPE_MACOSX; break;
         }
 
+        checkPrivilegedUser();
+*/
         p = systeminformation.fsSize()
           .then(data => {
 

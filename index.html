@@ -320,9 +320,16 @@ function nodeClicked(target) {
 
 <script>
 
-makeBasicInstructionsTree();
-refreshTreeView(2);
-$('#t' + 2 + 'filename').text("");
+var p = checkPrivilegedUser()
+      .then(bPrivileged => {
+
+        // if !bPrivileged    give a warning dialog
+        // !!!
+
+        makeBasicInstructionsTree();
+        refreshTreeView(2);
+        $('#t' + 2 + 'filename').text("");
+      });
 
 </script>
 
