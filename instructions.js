@@ -16,8 +16,7 @@
 //    existingTreeNodeId: number,
 //    newTreeNodeId: number,
 //    ...
-//    nodeEditable: boolean,
-//    nodeCanAddChildren: boolean,
+//    UIPermissions: "PCDEN",  // Properties / Clone / Delete / Edit / New Child
 //    nodeStatus: "existing / added / deleted / changed",
 //    nodeId: number,
 //    children: []
@@ -60,8 +59,7 @@ function makeBasicInstructionsTree() {
             nextNodeId: 0,
             existingTreeNodeId: 0,
             newTreeNodeId: 0,
-            nodeEditable: false,
-            nodeCanAddChildren: false,
+            UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -72,8 +70,7 @@ function makeBasicInstructionsTree() {
             name: "Current system",
             existingTreeNodeId: 0,
             newTreeNodeId: 0,
-            nodeEditable: false,
-            nodeCanAddChildren: true,
+            UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -84,8 +81,7 @@ function makeBasicInstructionsTree() {
             name: "Plan",
             existingTreeNodeId: 0,
             newTreeNodeId: 0,
-            nodeEditable: false,
-            nodeCanAddChildren: true,
+            UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -95,8 +91,7 @@ function makeBasicInstructionsTree() {
             name: "Test",
             existingTreeNodeId: 0,
             newTreeNodeId: 0,
-            nodeEditable: false,
-            nodeCanAddChildren: true,
+            UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -106,8 +101,7 @@ function makeBasicInstructionsTree() {
             name: "Prepare",
             existingTreeNodeId: 0,
             newTreeNodeId: 0,
-            nodeEditable: false,
-            nodeCanAddChildren: true,
+            UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -117,8 +111,7 @@ function makeBasicInstructionsTree() {
             name: "Change hardware",
             existingTreeNodeId: 0,
             newTreeNodeId: 0,
-            nodeEditable: false,
-            nodeCanAddChildren: true,
+            UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -128,8 +121,7 @@ function makeBasicInstructionsTree() {
             name: "Install",
             existingTreeNodeId: 0,
             newTreeNodeId: 0,
-            nodeEditable: false,
-            nodeCanAddChildren: true,
+            UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -139,8 +131,7 @@ function makeBasicInstructionsTree() {
             name: "Post-install",
             existingTreeNodeId: 0,
             newTreeNodeId: 0,
-            nodeEditable: false,
-            nodeCanAddChildren: true,
+            UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
             children: []
@@ -165,8 +156,7 @@ function addInstruction(parentNodeId, name, text, existingTreeNodeId, newTreeNod
             text: text,
             existingTreeNodeId: existingTreeNodeId,
             newTreeNodeId: newTreeNodeId,
-            nodeEditable: true,
-            nodeCanAddChildren: true,
+            UIPermissions: "PCDEN",
             nodeStatus: "existing",
             nodeId: nNewNodeId,
             children: []

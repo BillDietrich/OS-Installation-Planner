@@ -183,9 +183,7 @@ function saveTreeUsingDialog(treenum) {
 //  {
 //    name: "something",
 //    ...
-//    UIPermissions: "PCDEN"  // Properties / Clone / Delete / Edit / New Child
-//    nodeEditable: boolean,
-//    nodeCanAddChildren: boolean,
+//    UIPermissions: "PCDEN",  // Properties / Clone / Delete / Edit / New Child
 //    nodeStatus: "existing / added / deleted / changed",
 //    nodeId: number,
 //    children: []
@@ -206,6 +204,10 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
 
   gObjTree[newtreenum][TOP_CONFIG].name = "New configuration";
   gObjTree[newtreenum][TOP_CONFIG].type = "newConfiguration";
+
+  // modify UIPermissions in various parts of the tree
+  gObjTree[newtreenum][TOP_SOFTWARE].children[SOFTWARE_OS].UIPermissions = "PCDEn";
+  // MORE !!!
 
   var sNewGUID = crypto.randomBytes(16).toString("hex");
   gObjTree[newtreenum][TOP_CONFIG].guid = sNewGUID;

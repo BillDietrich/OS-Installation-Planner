@@ -198,14 +198,13 @@ window.addEventListener('contextmenu', (e) => {
     if (myid === '3') {
       // it's a leaf of the tree
       let sJSON = gRightClickElement.getAttribute('JSON');
-      let bNodeEditable = JSON.parse(sJSON).nodeEditable;
-      let bNodeCanAddChildren = JSON.parse(sJSON).nodeCanAddChildren;
-      console.log("myid "+ myid + ", sJSON " + sJSON + ", bNodeEditable " + bNodeEditable);
-      menuitemProperties.enabled = true;
-      menuitemClone.enabled = (gRightClickTreeNum != 0) && bNodeEditable;
-      menuitemDelete.enabled = (gRightClickTreeNum != 0) && bNodeEditable;
-      menuitemEdit.enabled = (gRightClickTreeNum != 0) && bNodeEditable;
-      menuitemNewChild.enabled = (gRightClickTreeNum != 0) && bNodeCanAddChildren;
+      let sUIPermissions = JSON.parse(sJSON).UIPermissions;
+      console.log("myid "+ myid + ", sJSON " + sJSON + ", sUIPermissions " + sUIPermissions);
+      menuitemProperties.enabled = (sUIPermissions.includes("P"));
+      menuitemClone.enabled = (sUIPermissions.includes("C"));
+      menuitemDelete.enabled = (sUIPermissions.includes("D"));
+      menuitemEdit.enabled = (sUIPermissions.includes("E"));
+      menuitemNewChild.enabled = (sUIPermissions.includes("N"));
       menuitemReadFromFile.enabled = false;
       menuitemSaveToFile.enabled = false;
       menuitemViewPrintable.enabled = false;
