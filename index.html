@@ -201,6 +201,7 @@ function setTreeLeafTextElementToColor(sId, sColor) {
 var gLastClickedTarget = null;
 var gLastClickedId = "";
 
+// left-clicked on a node; highlight associated nodes in other trees too
 function nodeClicked(target) {
   //console.log("nodeClicked: id ", target.id);
   //console.log("nodeClicked: nodeId ", target.getAttribute("nodeId"));

@@ -62,6 +62,7 @@
 # failed even quicker, same hdiutil problem
 #./node_modules/.bin/electron-builder --macos zip
 # succeeded; created a 243 MB ZIP file in dist, and 543 MB of stuff under dist/mac directory
+# https://stackoverflow.com/questions/286419/how-to-build-a-dmg-mac-os-x-file-on-a-non-mac-platform
 
 # build for Windows:
 # requires WINE

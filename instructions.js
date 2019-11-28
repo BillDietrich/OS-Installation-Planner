@@ -36,7 +36,6 @@ const TOP_POSTINSTALL = 7;
 
 //---------------------------------
 
-var gNextInstrNodeId = 0;
 var gInstrTree = null;
 
 
@@ -49,7 +48,7 @@ function makeBasicInstructionsTree() {
   gObjTree[2] = new Array();
   var gInstrTree = gObjTree[2]; 
 
-  gNextInstrNodeId = 101;
+  gNextNodeId = 101;
 
   gInstrTree.push({
             name: "Instructions",
@@ -64,7 +63,7 @@ function makeBasicInstructionsTree() {
             nodeEditable: false,
             nodeCanAddChildren: false,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: gNextNodeId++,
             children: []
             });
 
@@ -76,7 +75,7 @@ function makeBasicInstructionsTree() {
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: gNextNodeId++,
             children: []
             });
 
@@ -88,7 +87,7 @@ function makeBasicInstructionsTree() {
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: gNextNodeId++,
             children: []
             });
 
@@ -99,7 +98,7 @@ function makeBasicInstructionsTree() {
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: gNextNodeId++,
             children: []
             });
 
@@ -110,7 +109,7 @@ function makeBasicInstructionsTree() {
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: gNextNodeId++,
             children: []
             });
 
@@ -121,7 +120,7 @@ function makeBasicInstructionsTree() {
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: gNextNodeId++,
             children: []
             });
 
@@ -132,7 +131,7 @@ function makeBasicInstructionsTree() {
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: gNextNodeId++,
             children: []
             });
 
@@ -143,11 +142,10 @@ function makeBasicInstructionsTree() {
             nodeEditable: false,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: gNextNodeId++,
             children: []
             });
 
-  gInstrTree[TOP_CONFIG].nextNodeId = gNextInstrNodeId;
   console.log("makeBasicInstructionsTree: finished, gInstrTree: " + JSON.stringify(gInstrTree));
 
   console.log("makeBasicInstructionsTree: return");
@@ -161,6 +159,7 @@ function addInstruction(parentNodeId, name, text, existingTreeNodeId, newTreeNod
   console.log("addInstruction: found obj.node.nodeId " + obj.node.nodeId + " obj.parent.nodeId " + obj.parent.nodeId);
   console.log("addInstruction: found obj.node.name " + obj.node.name + " obj.parent.name " + obj.parent.name);
 
+  var nNewNodeId = gNextNodeId++;
   obj.node.children.push({
             name: name,
             text: text,
@@ -169,15 +168,13 @@ function addInstruction(parentNodeId, name, text, existingTreeNodeId, newTreeNod
             nodeEditable: true,
             nodeCanAddChildren: true,
             nodeStatus: "existing",
-            nodeId: gNextInstrNodeId++,
+            nodeId: nNewNodeId,
             children: []
             });
 
-  gObjTree[2][TOP_CONFIG].nextNodeId = gNextInstrNodeId;
-
   console.log("addInstruction: finished, gObjTree[2]: " + JSON.stringify(gObjTree[2]));
 
-  return gNextInstrNodeId-1;
+  return nNewNodeId;
 }
 
 

@@ -68,6 +68,7 @@ function saveTreeToFile(treenum) {
   // https://www.w3schools.com/nodejs/nodejs_filesystem.asp
   //fs.writeFile(gsTreeFilename[treenum], 'utf8');
   //fs.writeFileSync(gsTreeFilepathname[treenum], JSON.stringify(gObjTree[treenum]));
+  gObjTree[treenum][TOP_CONFIG].nextNodeId = gNextNodeId;
   try {
     jsonFile.writeFileSync(gsTreeFilepathname[treenum], gObjTree[treenum]);
   } catch(err) {
@@ -182,6 +183,7 @@ function saveTreeUsingDialog(treenum) {
 //  {
 //    name: "something",
 //    ...
+//    UIPermissions: "PCDEN"  // Properties / Clone / Delete / Edit / New Child
 //    nodeEditable: boolean,
 //    nodeCanAddChildren: boolean,
 //    nodeStatus: "existing / added / deleted / changed",
@@ -273,8 +275,7 @@ function findNode(nodeId, objTree, objParent) {
 function makeAllNodeIdsUnique(objTree, treenum) {
   console.log("makeAllNodeIdsUnique: called, treenum " + treenum);
 
-  console.log("makeAllNodeIdsUnique: gObjTree[treenum][TOP_CONFIG].nextNodeId " + gObjTree[treenum][TOP_CONFIG].nextNodeId);
-  objTree.nodeId = gObjTree[treenum][TOP_CONFIG].nextNodeId++;
+  objTree.nodeId = gNextNodeId++;
   console.log("makeAllNodeIdsUnique: objTree.nodeId set to " + objTree.nodeId);
   
   console.log("makeAllNodeIdsUnique: check the children of " + objTree.nodeId);

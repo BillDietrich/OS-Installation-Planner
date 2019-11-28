@@ -107,7 +107,7 @@ var gnExistingSystemType = SYSTEMTYPE_UNKNOWN;
 var gObjAllData = null;
 
 var gTree = null;
-var gNextNodeId = 0;
+var gNextNodeId = 0;    // shared by all trees
 var gBootPartitionUUID = "";
 var gRootPartitionUUID = "";
 
@@ -145,7 +145,6 @@ const OS_APPSANDSERVICES = 2;
 function addExistingConfigurationInfo() {
   console.log("addExistingConfigurationInfo: called");
   var sGUID = crypto.randomBytes(16).toString("hex");
-  gNextNodeId = 1001;
   gTree.push({
             name: "Existing configuration",
             type: "existingConfiguration",
@@ -1066,8 +1065,6 @@ function scansystem() {
 
                     addAppsAndServicesInfo();
                     
-                    gTree[TOP_CONFIG].nextNodeId = gNextNodeId;
-
                     console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
 
                     gObjTree[0] = gTree;
