@@ -242,26 +242,30 @@ function nodeClicked(target) {
   }
 
   //console.log("nodeClicked: do target");
-  nodeId = target.getAttribute("nodeId");
-  relatedNodeIds = null;
-  sRelatedNodeIdsAttr = target.getAttribute("relatedNodeIds");
-  //console.log("nodeClicked: target sRelatedNodeIdsAttr " + sRelatedNodeIdsAttr);
-  if (sRelatedNodeIdsAttr !== "undefined")
-    relatedNodeIds = JSON.parse(sRelatedNodeIdsAttr);
-  for (var i = 0; i < 3; i++) {
-    sDOMId = "t" + '012'[i] + "-" + nodeId;
-    //console.log("nodeClicked: do sDOMId " + sDOMId);
-    setTreeLeafTextElementToColor(sDOMId, "yellow");
-    if (relatedNodeIds) {
-      for (var j = 0; j < relatedNodeIds.length; j++) {
-        sDOMId = "t" + '012'[i] + "-" + relatedNodeIds[j];
-        //console.log("nodeClicked: do sDOMId " + sDOMId);
-        setTreeLeafTextElementToColor(sDOMId, "yellow");
+  if (target === gLastClickedTarget) {
+    gLastClickedTarget = null;
+  } else {
+    gLastClickedTarget = target;
+
+    nodeId = target.getAttribute("nodeId");
+    relatedNodeIds = null;
+    sRelatedNodeIdsAttr = target.getAttribute("relatedNodeIds");
+    //console.log("nodeClicked: target sRelatedNodeIdsAttr " + sRelatedNodeIdsAttr);
+    if (sRelatedNodeIdsAttr !== "undefined")
+      relatedNodeIds = JSON.parse(sRelatedNodeIdsAttr);
+    for (var i = 0; i < 3; i++) {
+      sDOMId = "t" + '012'[i] + "-" + nodeId;
+      //console.log("nodeClicked: do sDOMId " + sDOMId);
+      setTreeLeafTextElementToColor(sDOMId, "yellow");
+      if (relatedNodeIds) {
+        for (var j = 0; j < relatedNodeIds.length; j++) {
+          sDOMId = "t" + '012'[i] + "-" + relatedNodeIds[j];
+          //console.log("nodeClicked: do sDOMId " + sDOMId);
+          setTreeLeafTextElementToColor(sDOMId, "yellow");
+        }
       }
     }
   }
-
-  gLastClickedTarget = target;
 }
 
 

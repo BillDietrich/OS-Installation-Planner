@@ -170,7 +170,10 @@ function makeInstructionsAfterExisting() {
 
   gObjTree[2][TOP_CONFIG].existingTreeGuid = gObjTree[0][TOP_CONFIG].guid;
 
-  nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, "You're not using anti-virus ?", "", []);
+  nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, "Anti-virus.", "You're not using anti-virus ?", []);
+  nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, "VPN.", "You're not using a VPN ?", []);
+  nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, "Password Manager.", "You're not using a password manager ?", []);
+  nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, "Firewall.", "You're not using a firewall ?", []);
 
   nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "What do you use your system for now ?", "", []);
   nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "What do you want to use your system for in the future ?", "", []);

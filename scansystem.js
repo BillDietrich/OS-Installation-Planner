@@ -318,9 +318,14 @@ function addDiskInfo() {
   let windowsDeviceNames = [ "C:", "D:", "E:", "F:", "G:", "H:", "I:", "J:", "K:", "L:", "M:" ];
 
   if (!gbPrivilegedUser) {
-    var sInstruction = "The SMART status of your disks can not be determined because you are not running this application with administrator privileges.";
+    var sInstruction = "Disk SMART status.";
     var sDetail = "";
     var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].nodeId]);
+    gTree[TOP_HARDWARE].relatedNodeIds.push(nodeId);
+
+    sInstruction = "SMART status of the disks can not be determined because this application has been run without administrator privileges.";
+    sDetail = "";
+    nodeId = addInstruction(nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].nodeId]);
     gTree[TOP_HARDWARE].relatedNodeIds.push(nodeId);
   }
 
@@ -379,9 +384,14 @@ function addDiskInfo() {
               });
 
     if (gbPrivilegedUser && (gObjAllData.diskLayout[i].type === "HD") && (gObjAllData.diskLayout[i].smartStatus !== "Ok")) {
-      var sInstruction = "Your disk '" + name + "' is giving SMART status of '" + gObjAllData.diskLayout[i].smartStatus + "'.";
+      var sInstruction = "Disk SMART status";
       var sDetail = "";
       var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objDisk.nodeId]);
+      objDisk.relatedNodeIds.push(nodeId);
+
+      sInstruction = "Disk '" + name + "' has SMART status of '" + gObjAllData.diskLayout[i].smartStatus + "'.";
+      sDetail = "";
+      nodeId = addInstruction(nodeId, sInstruction, sDetail, [objDisk.nodeId]);
       objDisk.relatedNodeIds.push(nodeId);
     }
 
