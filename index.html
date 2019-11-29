@@ -114,6 +114,7 @@ function openPropertiesDialog(element, bReadonly) {
 <dialog id="makeChangesDialog" class="makeChangesDialogFrame">
 What would you like to change ?
 <br /><br />
+<!--
 Your current OS is <span id="mcdCurrentOS"></span>.
 <br /><br />
 <button id="mcd_replace">Replace</button> current OS with:
@@ -131,10 +132,15 @@ or
   <option value="Windows">Windows</option>
   <option value="OSX">Mac OS X</option>
 </select>
-<br /><br />
-<button id="mcdcancel" onclick="makeChangesDialogElement.close('cancel');">Cancel</button>
+-->
+<button id="mcdchangeos" onclick="">Change Operating System</button>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<button id="mcdsave" onclick="makeChangesDialogElement.close('save');">Save</button>
+<button id="mcdaddos" onclick="">Add another Operating System</button>
+<br /><br />
+To make smaller changes, right-click on an item in the New System tree<br />
+and select a menu item such as Clone, Delete, Edit, or New Child.
+<br /><br />
+<button id="mcddone" onclick="makeChangesDialogElement.close('done');">Done</button>
 </dialog>
 
 <script type="text/javascript">
@@ -164,6 +170,7 @@ function openMakeChangesDialog() {
 
 
 function doscansystem() {
+  console.log("doscansystem: called");
   $('body').addClass('waiting');
   scansystem().then((objTree) => {
     loadTree(0, objTree);
@@ -171,6 +178,7 @@ function doscansystem() {
     refreshTreeView(0);
     refreshTreeView(2);
     $('body').removeClass('waiting');
+    setTopButtonStates();
   });
 }
 
@@ -268,42 +276,46 @@ function nodeClicked(target) {
 <span style="height:100px; vertical-align:middle">
   <button id="scansystem1" class="top"
   title="Scan your current system to record hardware, software, security, and network settings."
-  onclick="doscansystem();"
+  onclick="doscansystem();setTopButtonStates();"
   >Scan System</button>
 </span>
 <span style="height:100px; vertical-align:middle">
   <span class="toparrow"><img src="osinstallationplanner-32x32.png" title="" alt="" /></span>
 </span>
 <span style="height:100px; vertical-align:middle">
-  <button type="button" class="top"
+  <button id="copytonew1" class="top"
   title="Copy everything from the Existing configuration pane to the New configuration pane."
-  onclick="docopyexistingtonew();"
+  onclick="docopyexistingtonew();setTopButtonStates();"
   >Copy to New</button>
 </span>
 <span style="height:100px; vertical-align:middle">
   <span class="toparrow"><img src="osinstallationplanner-32x32.png" title="" alt="" /></span>
 </span>
 <span style="height:100px; vertical-align:middle">
-  <button type="button" class="top"
+  <button id="makechanges1" class="top"
   title="Edit the New configuration to make the changes you want: add a second operating system,
   or replace the operating system with another, or add/remove other software, or add/remove hardware."
-  onclick="openMakeChangesDialog();"
+  onclick="openMakeChangesDialog();setTopButtonStates();"
   >Make Changes</button>
 </span>
 <span style="height:100px; vertical-align:middle">
   <span class="toparrow"><img src="osinstallationplanner-32x32.png" title="" alt="" /></span>
 </span>
 <span style="height:100px; vertical-align:middle">
-  <button type="button" class="top"
+  <button id="getinstructions1" class="top"
   title="Get instructions for changing the system from the Existing configuration to the new configuration.
-  Many steps will be manual steps, and some may be automatic steps.">Get Instructions</button>
+  Many steps will be manual steps, and some may be automatic steps."
+  onclick="setTopButtonStates();"
+  >Get Instructions</button>
 </span>
 <span style="height:100px; vertical-align:middle">
   <span class="toparrow"><img src="osinstallationplanner-32x32.png" title="" alt="" /></span>
 </span>
 <span style="height:100px; vertical-align:middle">
-  <button type="button" class="top"
-  title="Read and perform the steps in the instructions to change your system.">Follow Instructions</button>
+  <button id="followinstructions1" class="top"
+  title="Read and perform the steps in the instructions to change your system."
+  onclick="setTopButtonStates();"
+  >Follow Instructions</button>
 </span>
 </div>
 <br />
@@ -352,6 +364,18 @@ function nodeClicked(target) {
 
 <script>
 
+
+function setTopButtonStates() {
+  console.log("setTopButtonStates: called");
+  document.getElementById("scansystem1").disabled = false;
+  document.getElementById("copytonew1").disabled = (gObjTree[0] === null);
+  document.getElementById("makechanges1").disabled = (gObjTree[1] === null);
+  document.getElementById("getinstructions1").disabled = (gObjTree[2] === null);
+  document.getElementById("followinstructions1").disabled = (gObjTree[2] === null);
+}
+
+
+
 var p = checkPrivilegedUser()
       .then(bPrivileged => {
 
@@ -362,6 +386,10 @@ var p = checkPrivilegedUser()
         refreshTreeView(2);
         $('#t' + 2 + 'filename').text("");
       });
+
+
+setTopButtonStates();
+
 
 </script>
 

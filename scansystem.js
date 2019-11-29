@@ -435,6 +435,7 @@ function addDiskInfo() {
               // we've found the root partition for the current OS
               gRootPartitionUUID = uuid;
             }
+            // CHECK DIRTY BIT !!!
             break;
           }
       }
