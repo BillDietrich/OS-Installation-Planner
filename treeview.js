@@ -94,6 +94,7 @@
           text.setAttribute('myid', '3');
           //console.log("treeview render: item " + JSON.stringify(item));
           text.setAttribute('nodeId', item.nodeId);
+          text.setAttribute('relatedNodeIds', JSON.stringify(item.relatedNodeIds));
           text.id = 't' + self.treenum + '-' + item.nodeId;
           text.setAttribute('JSON', JSON.stringify(item));
           expando.setAttribute('myid', '4');

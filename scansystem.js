@@ -117,6 +117,7 @@ var gRootPartitionUUID = "";
 //  {
 //    name: "something",
 //    ...
+//    relatedNodeIds: [],
 //    UIPermissions: "PCDEN",  // Properties / Clone / Delete / Edit / New Child
 //    nodeStatus: "existing / added / deleted / changed",
 //    nodeId: number,
@@ -152,6 +153,7 @@ function addExistingConfigurationInfo() {
             newTreeGuid: "",
             instructionsTreeGuid: gObjTree[2][0].guid,
             nextNodeId: 0,
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -172,6 +174,7 @@ function addSystemInfo() {
             serial: gObjAllData.system.serial,
             uuid: gObjAllData.system.uuid,
             sku: gObjAllData.system.sku,
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -180,6 +183,7 @@ function addSystemInfo() {
 
   gTree.push({
             name: "software",
+            relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -188,6 +192,7 @@ function addSystemInfo() {
 
   gTree.push({
             name: "hardware",
+            relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -207,6 +212,7 @@ function addMotherboardInfo() {
             version: gObjAllData.baseboard.version,
             serial: gObjAllData.baseboard.serial,
             assetTag: gObjAllData.baseboard.assetTag,
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -227,6 +233,7 @@ function addCPUInfo() {
             stepping: gObjAllData.cpu.stepping,
             revision: gObjAllData.cpu.revision,
             flags: gObjAllData.cpu.flags,
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -252,6 +259,7 @@ function addRAMInfo() {
   gTree[TOP_HARDWARE].children.push({
             name: "RAM",
             sizeBytes: nSizeBytes,
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -266,6 +274,7 @@ function addKeyboardInfo() {
   gTree[TOP_HARDWARE].children.push({
             name: "keyboard",
             language: osLocale.sync(),
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -280,6 +289,7 @@ function addMouseTouchpadInfo() {
   //console.log("addMouseTouchpadInfo: called");
   gTree[TOP_HARDWARE].children.push({
             name: "mousetouchpad",
+            relatedNodeIds: [],
             UIPermissions: "PcdEn",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -293,6 +303,7 @@ function addAudioInfo() {
   //console.log("addAudioInfo: called");
   gTree[TOP_HARDWARE].children.push({
             name: "audio",
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -309,7 +320,8 @@ function addDiskInfo() {
   if (!gbPrivilegedUser) {
     var sInstruction = "The SMART status of your disks can not be determined because you are not running this application with administrator privileges.";
     var sDetail = "";
-    var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, gTree[TOP_HARDWARE].nodeId, 0);
+    var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].nodeId]);
+    gTree[TOP_HARDWARE].relatedNodeIds.push(nodeId);
   }
 
   console.log("addDiskInfo: gObjAllData.diskLayout.length " + gObjAllData.diskLayout.length);
@@ -359,6 +371,7 @@ function addDiskInfo() {
               sizeBytes: gObjAllData.diskLayout[i].size,
               hardwareEncryptionSupported: false,
               hardwareEncryptionEnabled: false,
+              relatedNodeIds: [],
               UIPermissions: "Pcden",
               nodeStatus: "existing",
               nodeId: gNextNodeId++,
@@ -368,7 +381,8 @@ function addDiskInfo() {
     if (gbPrivilegedUser && (gObjAllData.diskLayout[i].type === "HD") && (gObjAllData.diskLayout[i].smartStatus !== "Ok")) {
       var sInstruction = "Your disk '" + name + "' is giving SMART status of '" + gObjAllData.diskLayout[i].smartStatus + "'.";
       var sDetail = "";
-      var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, objDisk.nodeId, 0);
+      var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objDisk.nodeId]);
+      objDisk.relatedNodeIds.push(nodeId);
     }
 
     let MAXPARTNUM = 9;
@@ -407,6 +421,7 @@ function addDiskInfo() {
               fsType: gObjAllData.fsSize[j].type,
               mount: gObjAllData.fsSize[j].mount,
               UUID: uuid,
+              relatedNodeIds: [],
               UIPermissions: "Pcden",
               nodeStatus: "existing",
               nodeId: gNextNodeId++,
@@ -439,6 +454,7 @@ function addGraphicsInfo() {
       
   var objControllers = new Object({
     name: "graphicsControllers",
+    relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
@@ -453,6 +469,7 @@ function addGraphicsInfo() {
       bus: gObjAllData.graphics.controllers[i].bus,
       vram: gObjAllData.graphics.controllers[i].vram,
       vramDynamic: gObjAllData.graphics.controllers[i].vramDynamic,
+      relatedNodeIds: [],
       UIPermissions: "Pcden",
       nodeStatus: "existing",
       nodeId: gNextNodeId++,
@@ -464,6 +481,7 @@ function addGraphicsInfo() {
 
   var objDisplays = new Object({
     name: "displays",
+    relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
@@ -488,6 +506,7 @@ function addGraphicsInfo() {
       positionX: gObjAllData.graphics.displays[i].positionX,
       positionY: gObjAllData.graphics.displays[i].positionY,
       currentRefreshRate: gObjAllData.graphics.displays[i].currentRefreshRate,
+      relatedNodeIds: [],
       UIPermissions: "Pcden",
       nodeStatus: "existing",
       nodeId: gNextNodeId++,
@@ -503,6 +522,7 @@ function addNetworkInterfaceInfo() {
 
   var objIfaces = new Object({
     name: "networkInterfaces",
+    relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
@@ -521,6 +541,7 @@ function addNetworkInterfaceInfo() {
         bus: gObjAllData.net[i].bus,
         bus: gObjAllData.net[i].bus,
         bus: gObjAllData.net[i].bus,
+        relatedNodeIds: [],
         UIPermissions: "Pcden",
         nodeStatus: "existing",
         nodeId: gNextNodeId++,
@@ -548,6 +569,7 @@ function addBIOSInfo() {
             version: gObjAllData.bios.version,
             releaseDate: gObjAllData.bios.releaseDate,
             revision: gObjAllData.bios.revision,
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -600,6 +622,7 @@ function addOSInfo() {
             bootedFromUEFI: bBootedFromUEFI,
             bootPartitionUUID: gBootPartitionUUID,
             rootPartitionUUID: gRootPartitionUUID,
+            relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -608,6 +631,7 @@ function addOSInfo() {
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
     name: "settings",
+    relatedNodeIds: [],
     UIPermissions: "PcdeN",
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
@@ -616,6 +640,7 @@ function addOSInfo() {
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
     name: "connections",
+    relatedNodeIds: [],
     UIPermissions: "PcdeN",
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
@@ -624,6 +649,7 @@ function addOSInfo() {
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
     name: "applications and services",
+    relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
@@ -639,6 +665,7 @@ function addTimeInfo() {
             name: "time",
             timezone: gObjAllData.time.timezone,
             timezoneName: gObjAllData.time.timezoneName,
+            relatedNodeIds: [],
             UIPermissions: "PcdEn",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -654,6 +681,7 @@ function addSwapInfo() {
             swapTotalBytes: gObjAllData.mem.swaptotal,
             swapDevice: "",
             swapFile: "",
+            relatedNodeIds: [],
             UIPermissions: "PcdEn",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -666,6 +694,7 @@ function addBackgroundServicesInfo() {
   //console.log("addBackgroundServicesInfo: called");
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
             name: "background services",
+            relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -679,6 +708,7 @@ function addSecurityInfo() {
 
   var objSecurity = Object({
             name: "security",
+            relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -690,6 +720,7 @@ function addSecurityInfo() {
 
   objSecurity.children.push({
             name: "SSH keys",
+            relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -704,6 +735,7 @@ function addSecurityInfo() {
 
   objSecurity.children.push({
             name: "PGP keys",
+            relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -712,6 +744,7 @@ function addSecurityInfo() {
 
   objSecurity.children.push({
             name: "Identity certificates",
+            relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
             nodeId: gNextNodeId++,
@@ -746,6 +779,7 @@ function addAppsAndServicesInfo() {
 
   var objApps = new Object({
     name: "applications",
+    relatedNodeIds: [],
     UIPermissions: "PcdeN",
     nodeStatus: "existing",
     nodeId: gNextNodeId++,
@@ -790,6 +824,7 @@ function addAppsAndServicesInfo() {
     if (exists) {
       var obj = new Object({
                 name: apps[i].name,
+                relatedNodeIds: [],
                 UIPermissions: "PCDEN",
                 nodeStatus: "existing",
                 nodeId: gNextNodeId++,
@@ -798,6 +833,7 @@ function addAppsAndServicesInfo() {
       if (apps[i].canHaveAddons) {
         obj.children.push({
                   name: "addons",
+                  relatedNodeIds: [],
                   UIPermissions: "PCDEN",
                   nodeStatus: "existing",
                   nodeId: gNextNodeId++,
@@ -812,6 +848,7 @@ function addAppsAndServicesInfo() {
 
   var objServices = new Object({
     name: "services",
+    relatedNodeIds: [],
     UIPermissions: "PcdeN",
     nodeStatus: "existing",
     nodeId: gNextNodeId++,

@@ -185,8 +185,9 @@ function docopyexistingtonew() {
 }
 
 
-function setTreeLeafTextElementToColor(sId, sColor) {
-  var element = document.getElementById(sId);
+function setTreeLeafTextElementToColor(sDOMId, sColor) {
+  //console.log("setTreeLeafTextElementToColor: called, sDOMId " + sDOMId + ", sColor" + sColor);
+  var element = document.getElementById(sDOMId);
   if (!element)
     return;
   switch (sColor) {
@@ -199,30 +200,60 @@ function setTreeLeafTextElementToColor(sId, sColor) {
 }
 
 var gLastClickedTarget = null;
-var gLastClickedId = "";
 
 // left-clicked on a node; highlight associated nodes in other trees too
 function nodeClicked(target) {
-  //console.log("nodeClicked: id ", target.id);
-  //console.log("nodeClicked: nodeId ", target.getAttribute("nodeId"));
+  //console.log("nodeClicked: id " + target.id);
+  //console.log("nodeClicked: nodeId " + target.getAttribute("nodeId"));
+
   var nodeId = "";
-  var id = "";
+  var sRelatedNodeIdsAttr = "";
+  var relatedNodeIds = null;
+  var sDOMId = "";
+
   if (gLastClickedTarget) {
+    //console.log("nodeClicked: do gLastClickedTarget");
     nodeId = gLastClickedTarget.getAttribute("nodeId");
-    for (i = 0; i < 3; i++) {
-      id = "t" + '012'[i] + "-" + nodeId;
-      //console.log("nodeClicked: do id ", id);
-      setTreeLeafTextElementToColor(id, "");
+    relatedNodeIds = null;
+    sRelatedNodeIdsAttr = gLastClickedTarget.getAttribute("relatedNodeIds");
+    //console.log("nodeClicked: gLastClickedTarget sRelatedNodeIdsAttr " + sRelatedNodeIdsAttr);
+    if (sRelatedNodeIdsAttr !== "undefined")
+      relatedNodeIds = JSON.parse(sRelatedNodeIdsAttr);
+    for (var i = 0; i < 3; i++) {
+      sDOMId = "t" + '012'[i] + "-" + nodeId;
+      //console.log("nodeClicked: do sDOMId " + sDOMId);
+      setTreeLeafTextElementToColor(sDOMId, "");
+      if (relatedNodeIds) {
+        for (var j = 0; j < relatedNodeIds.length; j++) {
+          sDOMId = "t" + '012'[i] + "-" + relatedNodeIds[j];
+          //console.log("nodeClicked: do sDOMId " + sDOMId);
+          setTreeLeafTextElementToColor(sDOMId, "");
+        }
+      }
     }
   }
+
+  //console.log("nodeClicked: do target");
   nodeId = target.getAttribute("nodeId");
-  for (i = 0; i < 3; i++) {
-    id = "t" + '012'[i] + "-" + nodeId;
-    //console.log("nodeClicked: do id ", id);
-    setTreeLeafTextElementToColor(id, "yellow");
+  relatedNodeIds = null;
+  sRelatedNodeIdsAttr = target.getAttribute("relatedNodeIds");
+  //console.log("nodeClicked: target sRelatedNodeIdsAttr " + sRelatedNodeIdsAttr);
+  if (sRelatedNodeIdsAttr !== "undefined")
+    relatedNodeIds = JSON.parse(sRelatedNodeIdsAttr);
+  for (var i = 0; i < 3; i++) {
+    sDOMId = "t" + '012'[i] + "-" + nodeId;
+    //console.log("nodeClicked: do sDOMId " + sDOMId);
+    setTreeLeafTextElementToColor(sDOMId, "yellow");
+    if (relatedNodeIds) {
+      for (var j = 0; j < relatedNodeIds.length; j++) {
+        sDOMId = "t" + '012'[i] + "-" + relatedNodeIds[j];
+        //console.log("nodeClicked: do sDOMId " + sDOMId);
+        setTreeLeafTextElementToColor(sDOMId, "yellow");
+      }
+    }
   }
+
   gLastClickedTarget = target;
-  gLastClickedId = target.id;
 }
 
 
