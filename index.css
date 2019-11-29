@@ -62,8 +62,8 @@ div.makeChangesDialogFrame {
 	display:table;
 	vertical-align:top;
 	margin:0 auto;
-	height: 500px;
-	width: 600px;
+	min-height: 500px;
+	min-width: 600px;
 	background-color:lightblue;
 }
 

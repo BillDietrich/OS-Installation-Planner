@@ -137,7 +137,8 @@ const SOFTWARE_OS = 1;
 // indices in the OS children array
 const OS_SETTINGS = 0;
 const OS_CONNECTIONS = 1;
-const OS_APPSANDSERVICES = 2;
+const OS_INSTALLEDAPPLICATIONS = 2;
+const OS_INSTALLEDSERVICES = 3;
 
 //---------------------------------
 
@@ -659,7 +660,16 @@ function addOSInfo() {
   });
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
-    name: "applications and services",
+    name: "installed applications",
+    relatedNodeIds: [],
+    UIPermissions: "Pcden",
+    nodeStatus: "existing",
+    nodeId: gNextNodeId++,
+    children: []
+  });
+
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
+    name: "installed services",
     relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
@@ -701,10 +711,23 @@ function addSwapInfo() {
 }
 
 
-function addBackgroundServicesInfo() {
-  //console.log("addBackgroundServicesInfo: called");
+function addRunningServicesInfo() {
+  //console.log("addRunningServicesInfo: called");
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
-            name: "background services",
+            name: "running background services",
+            relatedNodeIds: [],
+            UIPermissions: "PcdeN",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+}
+
+
+function addPeriodicJobsInfo() {
+  //console.log("addPeriodicJobsInfo: called");
+  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
+            name: "periodic jobs",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
@@ -767,8 +790,8 @@ function addSecurityInfo() {
 
 
 // don't add standard items, just ones that the user added to the system
-function addAppsAndServicesInfo() {
-  console.log("addAppsAndServicesInfo: called");
+function addInstalledApplicationsInfo() {
+  console.log("addInstalledApplicationsInfo: called");
 
   // to see running tasks/apps, use module "tasklist" ?
 
@@ -787,90 +810,136 @@ function addAppsAndServicesInfo() {
   // https://unix.stackexchange.com/questions/20979/how-do-i-list-all-installed-programs
   // https://stackoverflow.com/questions/948008/linux-command-to-list-all-available-commands-and-aliases
 
-
-  var objApps = new Object({
-    name: "applications",
-    relatedNodeIds: [],
-    UIPermissions: "PcdeN",
-    nodeStatus: "existing",
-    nodeId: gNextNodeId++,
-    children: []
-  });
-
-  console.log("addAppsAndServicesInfo: PATH " + process.env.PATH);
-  // remove any item with "node" in it
+  console.log("addInstalledApplicationsInfo: PATH " + process.env.PATH);
+  var arrPathDirs = process.env.PATH.split(":");
+  console.log("addInstalledApplicationsInfo: arrPathDirs " + JSON.stringify(arrPathDirs));
+  // remove any item with "node", ".local", ".rvm", "wine" in it
+  var i = 0;
+  while (i < arrPathDirs.length) {
+    if (
+        (arrPathDirs[i].includes("node"))
+        || (arrPathDirs[i].includes(".local"))
+        || (arrPathDirs[i].includes(".rvm"))
+        || (arrPathDirs[i].includes("wine"))
+        )
+      arrPathDirs.splice(i, 1);
+    else
+      i++;
+  }
   // assume nothing added in /bin, /sbin, /usr/bin, /usr/sbin, /usr/local/bin
+  i = 0;
+  while (i < arrPathDirs.length) {
+    if (
+        (arrPathDirs[i] === "/bin")
+        || (arrPathDirs[i] === "/sbin")
+        || (arrPathDirs[i] === "/usr/bin")
+        || (arrPathDirs[i] === "/usr/sbin")
+        || (arrPathDirs[i] === "/usr/local/bin")
+        )
+      arrPathDirs.splice(i, 1);
+    else
+      i++;
+  }
+  console.log("addInstalledApplicationsInfo: now arrPathDirs " + JSON.stringify(arrPathDirs));
   // add /opt
+  arrPathDirs.push("/opt");
   // remove duplicates
+  i = 0;
+  while (i < arrPathDirs.length) {
+    var j = i+1;
+    while (j < arrPathDirs.length) {
+      if (arrPathDirs[i] === arrPathDirs[j])
+        arrPathDirs.splice(j, 1);
+      else
+        j++;
+    }
+    i++;
+  }
+  console.log("addInstalledApplicationsInfo: now2 arrPathDirs " + JSON.stringify(arrPathDirs));
+
+  var actualApps = new Array();
+
+  // get all files in the dirs
+  for (i = 0; i < arrPathDirs.length; i++) {
+    var arrsFilename = fs.readdirSync(arrPathDirs[i]);
+    console.log("addInstalledApplicationsInfo: arrPathDirs[" + i + "] filenames " + JSON.stringify(arrsFilename));
+    for (var j = 0; j < arrsFilename.length; j++) {
+      var bCanHaveAddons = false;
+      // tweaks
+      if (arrsFilename[j].includes("thunderbird"))
+        bCanHaveAddons = true;
+      actualApps.push({
+                    path: arrPathDirs[i] + "/" + arrsFilename[j],
+                    name: arrsFilename[j],
+                    canHaveAddons: bCanHaveAddons
+                  });
+    }
+  }
+  console.log("addInstalledApplicationsInfo: actualApps " + JSON.stringify(actualApps));
+
   // add things likely to be added in some of the places we assumed nothing would be added
-  // !!!
-  const appsLinux = [
+  const possAppsLinux = [
     { path: "/usr/bin/firefox", name: "Firefox", canHaveAddons: true },
-    { path: "/opt/bogus", name: "bogus", canHaveAddons: true },
-    { path: "/opt/thunderbird", name: "Thunderbird", canHaveAddons: true }
+    { path: "/usr/bin/chromium", name: "Chromium", canHaveAddons: true },
+    { path: "/usr/bin/code", name: "VSCode", canHaveAddons: true },
+    { path: "/usr/bin/code-exploration", name: "VSCode exploration", canHaveAddons: true }
   ];
 
-  var apps = new Array();
+  var possApps = new Array();
 
   switch (gnExistingSystemType) {
-    case SYSTEMTYPE_LINUX: apps = appsLinux; break;
+    case SYSTEMTYPE_LINUX: possApps = possAppsLinux; break;
     case SYSTEMTYPE_MACOSX: break;
     case SYSTEMTYPE_WINDOWS: break;
   }
 
-  for (var i = 0; i < apps.length; i++) {
-    let filepath = apps[i].path.replace(/\//g, path.sep);
+  for (var i = 0; i < possApps.length; i++) {
+    let filepath = possApps[i].path.replace(/\//g, path.sep);
 
-    var exists = true;
     try {
       fs.accessSync(filepath);
       //fs.statSync(filepath);
       //exists = fs.existsSync(filepath);
+      actualApps.push(possApps[i]);
     } catch(e) {
-      //console.log("addAppsAndServicesInfo: caught e " + e);
-      exists = false;
+      //console.log("addInstalledApplicationsInfo: caught e " + e);
     }
-    //console.log("addAppsAndServicesInfo: i " + i + ", path " + apps[i].path + ", filepath " + filepath + ", exists " + exists);
+  }
 
-    if (exists) {
-      var obj = new Object({
-                name: apps[i].name,
+  for (var i = 0; i < actualApps.length; i++) {
+    var obj = new Object({
+              name: actualApps[i].name,
+              relatedNodeIds: [],
+              UIPermissions: "PCDEN",
+              nodeStatus: "existing",
+              nodeId: gNextNodeId++,
+              children: []
+              });
+    if (actualApps[i].canHaveAddons) {
+      obj.children.push({
+                name: "addons",
                 relatedNodeIds: [],
                 UIPermissions: "PCDEN",
                 nodeStatus: "existing",
                 nodeId: gNextNodeId++,
                 children: []
                 });
-      if (apps[i].canHaveAddons) {
-        obj.children.push({
-                  name: "addons",
-                  relatedNodeIds: [],
-                  UIPermissions: "PCDEN",
-                  nodeStatus: "existing",
-                  nodeId: gNextNodeId++,
-                  children: []
-                  });
-      }
-      objApps.children.push(obj);
     }
+    gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_INSTALLEDAPPLICATIONS].children.push(obj);
   }
+}
 
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_APPSANDSERVICES].children.push(objApps);
 
-  var objServices = new Object({
-    name: "services",
-    relatedNodeIds: [],
-    UIPermissions: "PcdeN",
-    nodeStatus: "existing",
-    nodeId: gNextNodeId++,
-    children: []
-  });
+// don't add standard items, just ones that the user added to the system
+function addInstalledServicesInfo() {
+  console.log("addInstalledServicesInfo: called");
+
+  // to see running tasks/apps, use module "tasklist" ?
 
   // SOMETHING !!!
   // https://www.2daygeek.com/how-to-check-all-running-services-in-linux/
   // https://www.tecmint.com/list-all-running-services-under-systemd-in-linux/
 
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_APPSANDSERVICES].children.push(objServices);
 }
 
 
@@ -1073,10 +1142,12 @@ function scansystem() {
 
                     addTimeInfo();
                     addSwapInfo();
-                    addBackgroundServicesInfo();
+                    addRunningServicesInfo();
+                    addPeriodicJobsInfo();
                     addSecurityInfo();
 
-                    addAppsAndServicesInfo();
+                    addInstalledApplicationsInfo();
+                    addInstalledServicesInfo();
                     
                     console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
 
