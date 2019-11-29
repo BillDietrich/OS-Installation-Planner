@@ -66,7 +66,7 @@ function checkPrivilegedUser() {
         switch (gnExistingSystemType) {
           case SYSTEMTYPE_LINUX:
           case SYSTEMTYPE_MACOSX:
-            sCommand = "wc /etc/shadow";
+            sCommand = "ls /lost+found";
             break;
           case SYSTEMTYPE_WINDOWS:
             sCommand = "net session";

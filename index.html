@@ -106,6 +106,49 @@ function openPropertiesDialog(element, bReadonly) {
 
 
 <!----------------------------------------------------------------------------
+ Choose New OS Dialog
+------------------------------------------------------------------------------>
+
+<!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
+<!-- https://www.scriptol.com/javascript/electron-dialog.php -->
+<dialog id="chooseNewOSDialog" class="chooseNewOSDialogFrame">
+Choose a new OS:
+<br /><br />
+<button id="mcd_replace">Replace</button> current OS with:
+<select id="mcd_replace_select">
+  <option value="Linux" selected>Linux</option>
+  <option value="Windows">Windows</option>
+  <option value="OSX">Mac OS X</option>
+</select>
+<br /><br />
+  <button id="cnodcancel" onclick="gChooseNewOSDialogElement.close('');">Cancel</button>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <button id="cnodsave" onclick="gChooseNewOSDialogElement.close(document.getElementById('chooseNewOSDialog').value);">Save</button>
+</dialog>
+
+<script type="text/javascript">
+
+var gChooseNewOSDialogElement = document.getElementById('chooseNewOSDialog');
+
+
+
+function openChooseNewOSDialog() {
+
+  var fe = function(e) {
+    console.log("openChooseNewOSDialog: modal dialog returned " + gChooseNewOSDialogElement.returnValue);
+    gChooseNewOSDialogElement.removeEventListener("close", fe);
+  }
+
+  var x = gChooseNewOSDialogElement.showModal();
+  //document.getElementById('chooseNewOSDialog').innerText = "abcdef";
+  gChooseNewOSDialogElement.addEventListener('close', fe);
+
+}
+
+</script>
+
+
+<!----------------------------------------------------------------------------
  Make Changes Dialog
 ------------------------------------------------------------------------------>
 
@@ -114,26 +157,7 @@ function openPropertiesDialog(element, bReadonly) {
 <dialog id="makeChangesDialog" class="makeChangesDialogFrame">
 What would you like to change ?
 <br /><br />
-<!--
-Your current OS is <span id="mcdCurrentOS"></span>.
-<br /><br />
-<button id="mcd_replace">Replace</button> current OS with:
-<select id="mcd_replace_select">
-  <option value="Linux" selected>Linux</option>
-  <option value="Windows">Windows</option>
-  <option value="OSX">Mac OS X</option>
-</select>
-<br />
-or
-<br />
-<button id="mcd_dual">Dual-boot</button> current OS along with:
-<select id="mcd_dual_select">
-  <option value="Linux" selected>Linux</option>
-  <option value="Windows">Windows</option>
-  <option value="OSX">Mac OS X</option>
-</select>
--->
-<button id="mcdchangeos" onclick="">Change Operating System</button>
+<button id="mcdchangeos" onclick="openChooseNewOSDialog();">Change Operating System</button>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <button id="mcdaddos" onclick="">Add another Operating System</button>
 <br /><br />
@@ -157,7 +181,7 @@ function openMakeChangesDialog() {
   }
 
   var x = makeChangesDialogElement.showModal();
-  document.getElementById('mcdCurrentOS').innerText = "abcdef";
+  //document.getElementById('mcdCurrentOS').innerText = "abcdef";
   makeChangesDialogElement.addEventListener('close', fe);
 
 }
