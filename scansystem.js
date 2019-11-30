@@ -819,39 +819,77 @@ function addInstalledApplicationsInfo() {
   // https://unix.stackexchange.com/questions/20979/how-do-i-list-all-installed-programs
   // https://stackoverflow.com/questions/948008/linux-command-to-list-all-available-commands-and-aliases
 
+  var sPathSplitChar = " ";
+  switch (gnExistingSystemType) {
+    case SYSTEMTYPE_LINUX: sPathSplitChar = ":"; break;
+    case SYSTEMTYPE_MACOSX: sPathSplitChar = ":"; break;
+    case SYSTEMTYPE_WINDOWS: sPathSplitChar = ";"; break;
+  }
   console.log("addInstalledApplicationsInfo: PATH " + process.env.PATH);
-  var arrPathDirs = process.env.PATH.split(":");
+  var arrPathDirs = process.env.PATH.split(sPathSplitChar);
   console.log("addInstalledApplicationsInfo: arrPathDirs " + JSON.stringify(arrPathDirs));
-  // remove any item with "node", ".local", ".rvm", "wine" in it
-  var i = 0;
-  while (i < arrPathDirs.length) {
-    if (
-        (arrPathDirs[i].includes("node"))
-        || (arrPathDirs[i].includes(".local"))
-        || (arrPathDirs[i].includes(".rvm"))
-        || (arrPathDirs[i].includes("wine"))
-        )
-      arrPathDirs.splice(i, 1);
-    else
-      i++;
-  }
-  // assume nothing added in /bin, /sbin, /usr/bin, /usr/sbin, /usr/local/bin
-  i = 0;
-  while (i < arrPathDirs.length) {
-    if (
-        (arrPathDirs[i] === "/bin")
-        || (arrPathDirs[i] === "/sbin")
-        || (arrPathDirs[i] === "/usr/bin")
-        || (arrPathDirs[i] === "/usr/sbin")
-        || (arrPathDirs[i] === "/usr/local/bin")
-        )
-      arrPathDirs.splice(i, 1);
-    else
-      i++;
-  }
-  console.log("addInstalledApplicationsInfo: now arrPathDirs " + JSON.stringify(arrPathDirs));
-  // add /opt
-  arrPathDirs.push("/opt");
+
+  switch (gnExistingSystemType) {
+
+    case SYSTEMTYPE_LINUX:
+    case SYSTEMTYPE_MACOSX:
+      // remove any item that is empty or "."
+      // remove any item with "node", ".local", ".rvm", "wine" in it
+      var i = 0;
+      while (i < arrPathDirs.length) {
+        if (
+            (arrPathDirs[i] === "")
+            || (arrPathDirs[i] === ".")
+            || (arrPathDirs[i].includes("node"))
+            || (arrPathDirs[i].includes(".local"))
+            || (arrPathDirs[i].includes(".rvm"))
+            || (arrPathDirs[i].includes("wine"))
+            )
+          arrPathDirs.splice(i, 1);
+        else
+          i++;
+      }
+      // assume nothing added in /bin, /sbin, /usr/bin, /usr/sbin, /usr/local/bin
+      i = 0;
+      while (i < arrPathDirs.length) {
+        if (
+            (arrPathDirs[i] === "/bin")
+            || (arrPathDirs[i] === "/sbin")
+            || (arrPathDirs[i] === "/usr/bin")
+            || (arrPathDirs[i] === "/usr/sbin")
+            || (arrPathDirs[i] === "/usr/local/bin")
+            )
+          arrPathDirs.splice(i, 1);
+        else
+          i++;
+      }
+      console.log("addInstalledApplicationsInfo: now arrPathDirs " + JSON.stringify(arrPathDirs));
+      // add /opt
+      arrPathDirs.push("/opt");
+    break;
+
+    case SYSTEMTYPE_WINDOWS:
+      // remove any item that is empty or "."
+      // remove any item with ":\windows" in it
+      var i = 0;
+      while (i < arrPathDirs.length) {
+        if (
+            (arrPathDirs[i] === "")
+            || (arrPathDirs[i] === ".")
+            || (arrPathDirs[i].toLowerCase().includes(":\\windows"))
+            )
+          arrPathDirs.splice(i, 1);
+        else
+          i++;
+      }
+      console.log("addInstalledApplicationsInfo: now arrPathDirs " + JSON.stringify(arrPathDirs));
+      // add C:\Program Files, C:\Program Files (x86)
+      arrPathDirs.push("C:\\Program Files");
+      arrPathDirs.push("C:\\Program Files (x86)");
+      break;
+
+  };
+
   // remove duplicates
   i = 0;
   while (i < arrPathDirs.length) {
@@ -864,6 +902,7 @@ function addInstalledApplicationsInfo() {
     }
     i++;
   }
+
   console.log("addInstalledApplicationsInfo: now2 arrPathDirs " + JSON.stringify(arrPathDirs));
 
   var actualApps = new Array();
@@ -877,40 +916,50 @@ function addInstalledApplicationsInfo() {
       // tweaks
       if (arrsFilename[j].includes("thunderbird"))
         bCanHaveAddons = true;
-      actualApps.push({
-                    path: arrPathDirs[i] + "/" + arrsFilename[j],
-                    name: arrsFilename[j],
-                    canHaveAddons: bCanHaveAddons
-                  });
+      // on Windows, keep only names that end with ".exe"
+      if ((gnExistingSystemType != SYSTEMTYPE_WINDOWS)
+            || (arrsFilename[j].toLowerCase().endsWith(".exe"))) {
+        actualApps.push({
+                      path: arrPathDirs[i] + path.sep + arrsFilename[j],
+                      name: arrsFilename[j],
+                      canHaveAddons: bCanHaveAddons
+                    });
+      }
     }
   }
   console.log("addInstalledApplicationsInfo: actualApps " + JSON.stringify(actualApps));
 
   // add things likely to be added in some of the places we assumed nothing would be added
-  const possAppsLinux = [
-    { path: "/usr/bin/firefox", name: "Firefox", canHaveAddons: true },
-    { path: "/usr/bin/chromium", name: "Chromium", canHaveAddons: true },
-    { path: "/usr/bin/veracrypt", name: "Veracrypt", canHaveAddons: false },
-    { path: "/usr/bin/keepassxc", name: "KeePassXC", canHaveAddons: false },
-    { path: "/usr/bin/code", name: "VSCode", canHaveAddons: true },
-    { path: "/usr/bin/code-exploration", name: "VSCode exploration", canHaveAddons: true }
-  ];
-
-  var possApps = new Array();
+  var possApps = null;
 
   switch (gnExistingSystemType) {
-    case SYSTEMTYPE_LINUX: possApps = possAppsLinux; break;
-    case SYSTEMTYPE_MACOSX: break;
-    case SYSTEMTYPE_WINDOWS: break;
-  }
+
+    case SYSTEMTYPE_LINUX:
+    case SYSTEMTYPE_MACOSX:
+      possApps = [
+        { path: "/usr/bin/firefox", name: "Firefox", canHaveAddons: true },
+        { path: "/usr/bin/chromium", name: "Chromium", canHaveAddons: true },
+        { path: "/usr/bin/veracrypt", name: "Veracrypt", canHaveAddons: false },
+        { path: "/usr/bin/keepassxc", name: "KeePassXC", canHaveAddons: false },
+        { path: "/usr/bin/code", name: "VSCode", canHaveAddons: true },
+        { path: "/usr/bin/code-exploration", name: "VSCode exploration", canHaveAddons: true }
+      ];
+      break;
+
+    case SYSTEMTYPE_WINDOWS:
+      possApps = [];
+      break;
+  };
 
   for (var i = 0; i < possApps.length; i++) {
-    let filepath = possApps[i].path.replace(/\//g, path.sep);
-
     try {
-      fs.accessSync(filepath);
-      //fs.statSync(filepath);
+      // could be an executable file or a directory, allow either
+      filepath = possApps[i].path;
       //exists = fs.existsSync(filepath);
+      fs.accessSync(filepath);
+      //objStats = fs.statSync(filepath);
+      //console.log("addInstalledApplicationsInfo: objStats " + JSON.stringify(objStats));
+      //if (objStats.isFile() && ((objStats.mode & 0111) != 0))   // has execute permission
       actualApps.push(possApps[i]);
     } catch(e) {
       //console.log("addInstalledApplicationsInfo: caught e " + e);
@@ -920,6 +969,7 @@ function addInstalledApplicationsInfo() {
   for (var i = 0; i < actualApps.length; i++) {
     var obj = new Object({
               name: actualApps[i].name,
+              path: actualApps[i].path,
               relatedNodeIds: [],
               UIPermissions: "PCDEN",
               nodeStatus: "existing",
@@ -1094,8 +1144,11 @@ function scansystem() {
 
   return new Promise((resolve, reject) => {
 
+    console.log("scansystem: time before getStaticData: " + (new Date()).toLocaleTimeString());
     p = systeminformation.getStaticData()
       .then(data => {
+
+        console.log("scansystem: time after getStaticData: " + (new Date()).toLocaleTimeString());
       
         //console.log("scansystem: systeminformation.getStaticData(): " + JSON.stringify(data));
 
@@ -1161,6 +1214,7 @@ function scansystem() {
                     addInstalledServicesInfo();
                     
                     console.log("scansystem: finished, gTree: " + JSON.stringify(gTree));
+                    console.log("scansystem: time finished: " + (new Date()).toLocaleTimeString());
 
                     gObjTree[0] = gTree;
 
