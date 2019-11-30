@@ -101,6 +101,14 @@ const SYSTEMTYPE_MACOSX = 3;
 var gnExistingSystemType = SYSTEMTYPE_UNKNOWN;
 
 
+function osNumToPlatform(nOS) {
+  switch (nOS) {
+    case SYSTEMTYPE_LINUX: return("linux");
+    case SYSTEMTYPE_WINDOWS: return("win32");
+    case SYSTEMTYPE_MACOSX: return("darwin");
+  }
+}
+
 
 //---------------------------------------------------------------------------
 
@@ -619,6 +627,7 @@ function addOSInfo() {
   gTree[TOP_SOFTWARE].children.push({
             name: "OS - " + gObjAllData.os.platform + " - " + gObjAllData.os.distro + " - " + gObjAllData.os.release,
             platform: gObjAllData.os.platform,
+            ostypenum: gnExistingSystemType,
             distro: gObjAllData.os.distro,
             release: gObjAllData.os.release,
             codename: gObjAllData.os.codename,
@@ -881,6 +890,8 @@ function addInstalledApplicationsInfo() {
   const possAppsLinux = [
     { path: "/usr/bin/firefox", name: "Firefox", canHaveAddons: true },
     { path: "/usr/bin/chromium", name: "Chromium", canHaveAddons: true },
+    { path: "/usr/bin/veracrypt", name: "Veracrypt", canHaveAddons: false },
+    { path: "/usr/bin/keepassxc", name: "KeePassXC", canHaveAddons: false },
     { path: "/usr/bin/code", name: "VSCode", canHaveAddons: true },
     { path: "/usr/bin/code-exploration", name: "VSCode exploration", canHaveAddons: true }
   ];

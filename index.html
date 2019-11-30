@@ -130,6 +130,12 @@ Choose a new OS:
 
 var gChooseNewOSDialogElement = document.getElementById('chooseNewOSDialog');
 
+var garrNewOS = [
+  { ostype: SYSTEMTYPE_LINUX, name: "Linux Mint", homepage: "https://linuxmint.com/", download: "https://linuxmint.com/download.php" },
+  { ostype: SYSTEMTYPE_LINUX, name: "lubuntu", homepage: "https://lubuntu.net/", download: "https://lubuntu.net/downloads/" },
+  { ostype: SYSTEMTYPE_WINDOWS, name: "Windows 10 Home", homepage: "https://www.microsoft.com/en-us/windows/get-windows-10", download: "https://www.microsoft.com/software-download/windows10" },
+  { ostype: SYSTEMTYPE_MACOSX, name: "MacOS Catalina", homepage: "https://www.apple.com/macos/catalina/", download: "https://support.apple.com/en-us/HT201475" }
+];
 
 
 function openChooseNewOSDialog() {
@@ -137,6 +143,8 @@ function openChooseNewOSDialog() {
   var fe = function(e) {
     console.log("openChooseNewOSDialog: modal dialog returned " + gChooseNewOSDialogElement.returnValue);
     gChooseNewOSDialogElement.removeEventListener("close", fe);
+
+    convertOS(gObjTree[1][TOP_SOFTWARE].children[SOFTWARE_OS].nodeId, 1, SYSTEMTYPE_WINDOWS, "Windows 10 Home");
   }
 
   var x = gChooseNewOSDialogElement.showModal();
@@ -178,6 +186,8 @@ function openMakeChangesDialog() {
   var fe = function(e) {
     console.log("openMakeChangesDialog: modal dialog returned " + makeChangesDialogElement.returnValue);
     makeChangesDialogElement.removeEventListener("close", fe);
+    refreshTreeView(1);
+    refreshTreeView(2);
   }
 
   var x = makeChangesDialogElement.showModal();

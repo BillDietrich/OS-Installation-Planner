@@ -310,22 +310,22 @@ function makeAllNodeIdsUnique(objTree, treenum) {
 function doClone(nodeId, treenum) {
   console.log("doClone: called, nodeId " + nodeId + ", treenum " + treenum);
 
-  var obj = findNode(nodeId, gObjTree[treenum], null);
-  //console.log("doClone: found obj.node " + obj.node + " obj.parent " + obj.parent);
-  console.log("doClone: found obj.node.nodeId " + obj.node.nodeId + " obj.parent.nodeId " + obj.parent.nodeId);
-  console.log("doClone: found obj.node.name " + obj.node.name + " obj.parent.name " + obj.parent.name);
+  var objNAP = findNode(nodeId, gObjTree[treenum], null);
+  //console.log("doClone: found objNAP.node " + objNAP.node + " objNAP.parent " + objNAP.parent);
+  console.log("doClone: found objNAP.node.nodeId " + objNAP.node.nodeId + " objNAP.parent.nodeId " + objNAP.parent.nodeId);
+  console.log("doClone: found objNAP.node.name " + objNAP.node.name + " objNAP.parent.name " + objNAP.parent.name);
 
   // clone whole object tree; can't just clone top object
-  var newObj = JSON.parse(JSON.stringify(obj.node));
+  var newObj = JSON.parse(JSON.stringify(objNAP.node));
 
-  newObj.name = obj.node.name + " - clone";
+  newObj.name = objNAP.node.name + " - clone";
 
   makeAllNodeIdsUnique(newObj, treenum);
 
   // insert into array after original object, don't put at end
-  for (var i = 0; i < obj.parent.children.length; i++) {
-    if (obj.parent.children[i].nodeId === nodeId) {
-      obj.parent.children.splice(i+1, 0, newObj);
+  for (var i = 0; i < objNAP.parent.children.length; i++) {
+    if (objNAP.parent.children[i].nodeId === nodeId) {
+      objNAP.parent.children.splice(i+1, 0, newObj);
       break;
     }
   }
@@ -335,20 +335,49 @@ function doClone(nodeId, treenum) {
 function doDelete(nodeId, treenum) {
   console.log("doDelete: called, nodeId " + nodeId + ", treenum " + treenum);
 
-  var obj = findNode(nodeId, gObjTree[treenum], null);
-  //console.log("doDelete: found obj.node " + obj.node + " obj.parent " + obj.parent);
-  console.log("doDelete: found obj.node.nodeId " + obj.node.nodeId + " obj.parent.nodeId " + obj.parent.nodeId);
-  console.log("doDelete: found obj.node.name " + obj.node.name + " obj.parent.name " + obj.parent.name);
+  var objNAP = findNode(nodeId, gObjTree[treenum], null);
+  //console.log("doDelete: found objNAP.node " + objNAP.node + " objNAP.parent " + objNAP.parent);
+  console.log("doDelete: found objNAP.node.nodeId " + objNAP.node.nodeId + " objNAP.parent.nodeId " + objNAP.parent.nodeId);
+  console.log("doDelete: found objNAP.node.name " + objNAP.node.name + " objNAP.parent.name " + objNAP.parent.name);
 
-  for (var i = 0; i < obj.parent.children.length; i++) {
-    if (obj.parent.children[i].nodeId === nodeId) {
+  for (var i = 0; i < objNAP.parent.children.length; i++) {
+    if (objNAP.parent.children[i].nodeId === nodeId) {
       console.log("doDelete: delete item " + i + " from array");
-      obj.parent.children.splice(i, 1);
+      objNAP.parent.children.splice(i, 1);
       break;
     }
   }
 }
 
+
+
+
+function convertOS(nodeId, treenum, newostypenum, newosname) {
+  console.log("convertOS: called, nodeId " + nodeId + ", treenum " + treenum + ", newostypenum " + newostypenum + ", newosname " + newosname);
+
+  var objNAP = findNode(nodeId, gObjTree[treenum], null);
+  //console.log("doClone: found objNAP.node " + objNAP.node + " objNAP.parent " + objNAP.parent);
+  console.log("convertOS: found objNAP.node.nodeId " + objNAP.node.nodeId + " objNAP.parent.nodeId " + objNAP.parent.nodeId);
+  console.log("convertOS: found objNAP.node.name " + objNAP.node.name + " objNAP.parent.name " + objNAP.parent.name);
+
+  if ((gObjTree[1][TOP_SOFTWARE].children[SOFTWARE_OS].ostypenum === SYSTEMTYPE_LINUX)
+      && (newostypenum === SYSTEMTYPE_WINDOWS)) {
+
+    console.log("convertOS: change linux to windows");
+
+    objNAP.node.name = newosname;
+    objNAP.node.platform = osNumToPlatform(newostypenum);
+    objNAP.node.ostypenum = newostypenum;
+
+    var sInstruction = "Download new OS image.";
+    var sDetail = "Download image for " + newosname + " from xxxxxxxxxxxx";
+    var nodeId = addInstruction(gObjTree[2][TOP_PREPARE].nodeId, sInstruction, sDetail, [gObjTree[1][TOP_SOFTWARE].children[SOFTWARE_OS].nodeId]);
+    gObjTree[1][TOP_SOFTWARE].children[SOFTWARE_OS].relatedNodeIds.push(nodeId);
+
+  }
+
+  console.log("convertOS: return");
+}
 
 
 
