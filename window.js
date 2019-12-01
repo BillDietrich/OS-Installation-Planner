@@ -10,6 +10,9 @@ const loadJsonFile = require('load-json-file')
 // https://cnpmjs.org/package/jsonfile
 const jsonFile = require('jsonfile')
 
+// https://www.npmjs.com/package/tree-printer
+const treePrinter = require('tree-printer')
+
 
 
 
@@ -22,7 +25,6 @@ const jsonFile = require('jsonfile')
 
 
 // tree to printable-text format
-// https://www.npmjs.com/package/tree-printer
 // https://github.com/notatestuser/treeify
 
 // DOM tree to HTML format
@@ -43,14 +45,16 @@ var gsTreeFilepathname = new Array(null, null, null);
 
 //---------------------------------------------------------------------------
 
-function loadTreeFromFile(treenum) {
-  //console.log("loadTreeFromFile: called, ", treenum, filename);
+
+function loadTreeFromJSONFile(treenum) {
+  //console.log("loadTreeFromJSONFile: called, ", treenum, filename);
   gObjTree[treenum] = loadJsonFile.sync(gsTreeFilename[treenum]);
   $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
   refreshTreeView(treenum);
-  //console.log("loadTreeFromFile: gObjTree[treenum] ", gObjTree[treenum]);
-  //console.log("loadTreeFromFile: return");
+  //console.log("loadTreeFromJSONFile: gObjTree[treenum] ", gObjTree[treenum]);
+  //console.log("loadTreeFromJSONFile: return");
 }
+
 
 function loadTreeFromText(treenum, text) {
   //console.log("loadTreeFromText: called, ", treenum, text);
@@ -63,6 +67,7 @@ function loadTreeFromText(treenum, text) {
   //console.log("loadTreeFromText: return");
 }
 
+
 function loadTree(treenum, objTree) {
   console.log("loadTree: called, ", treenum, JSON.stringify(objTree));
   gsTreeFilename[treenum] = "";
@@ -73,6 +78,7 @@ function loadTree(treenum, objTree) {
   //console.log("loadTree: return");
 }
 
+
 // tree object has changed, refresh the view of it
 function refreshTreeView(treenum) {
   console.log("refreshTreeView: called, ", treenum);
@@ -81,8 +87,9 @@ function refreshTreeView(treenum) {
   //console.log("refreshTreeView: return");
 }
 
-function saveTreeToFile(treenum) {
-  console.log("saveTreeToFile: called, ", treenum);
+
+function saveTreeToJSONFile(treenum) {
+  console.log("saveTreeToJSONFile: called, ", treenum);
   // https://www.w3schools.com/nodejs/nodejs_filesystem.asp
   //fs.writeFile(gsTreeFilename[treenum], 'utf8');
   //fs.writeFileSync(gsTreeFilepathname[treenum], JSON.stringify(gObjTree[treenum]));
@@ -90,16 +97,31 @@ function saveTreeToFile(treenum) {
   try {
     jsonFile.writeFileSync(gsTreeFilepathname[treenum], gObjTree[treenum]);
   } catch(err) {
-    console.log('saveTreeToFile: error', err);
+    console.log('saveTreeToJSONFile: error', err);
   }
   /*
   fs.writeFileSync(gsTreeFilepathname[treenum], JSON.stringify(gObjTree[treenum]), function(err) {
     if (err)
-      console.log('saveTreeToFile: error', err);
+      console.log('saveTreeToJSONFile: error', err);
   });
   */
-  console.log("saveTreeToFile: return");
+  console.log("saveTreeToJSONFile: return");
 }
+
+
+function saveTreeToTextFile(treenum) {
+  console.log("saveTreeToTextFile: called, ", treenum);
+  // https://www.npmjs.com/package/tree-printer
+const treePrinter = require('tree-printer')
+  gObjTree[treenum][TOP_CONFIG].nextNodeId = gNextNodeId;
+  try {
+    fs.writeFileSync(gsTreeFilepathname[treenum], treePrinter(gObjTree[treenum]));
+  } catch(err) {
+    console.log('saveTreeToTextFile: error', err);
+  }
+  console.log("saveTreeToTextFile: return");
+}
+
 
 function readTreeUsingDialog(treenum) {
   //console.log("readTreeUsingDialog: called, ", treenum);
@@ -129,7 +151,7 @@ function readTreeUsingDialog(treenum) {
     defaultPath: defaultPath,
     buttonLabel : buttonText,
     filters :[ {name: 'json', extensions: ['json']} ],
-    properties : ['openFile']
+    properties : ['openFile', 'createDirectory']
   };
 
   // https://electronjs.org/docs/api/dialog
@@ -141,7 +163,7 @@ function readTreeUsingDialog(treenum) {
       gsTreeFilepathname[treenum] = retobj.filePaths[0];
       $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
 
-      loadTreeFromFile(treenum);
+      loadTreeFromJSONFile(treenum);
       refreshTreeView(treenum);
     }
   });
@@ -176,7 +198,10 @@ function saveTreeUsingDialog(treenum) {
     title : buttonText,
     defaultPath: defaultPath,
     buttonLabel : buttonText,
-    filters :[ {name: 'json', extensions: ['json']} ]
+    filters :[
+            { name: 'json', extensions: ['json'] },
+            { name: 'printable text', extensions: ['txt'] }
+            ]
   };
 
   var p = dialog.showSaveDialog(WIN, options).then((retobj) => {
@@ -187,7 +212,10 @@ function saveTreeUsingDialog(treenum) {
       gsTreeFilepathname[treenum] = retobj.filePath;
       $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
 
-      saveTreeToFile(treenum);
+      if (gsTreeFilename[treenum].endsWith(".json"))
+        saveTreeToJSONFile(treenum);
+      else
+        saveTreeToTextFile(treenum);
     }
   });
 
@@ -368,6 +396,21 @@ function convertOS(nodeId, treenum, newostypenum, newosname) {
     objNAP.node.name = newosname;
     objNAP.node.platform = osNumToPlatform(newostypenum);
     objNAP.node.ostypenum = newostypenum;
+    objNAP.node.distro = "Microsoft Windows 10 Home";
+    objNAP.node.release = "";
+    objNAP.node.codename = "";
+    objNAP.node.kernel = "";
+    objNAP.node.arch = "x64";
+    objNAP.node.desktop = "";
+    // objNAP.node.hostname
+    objNAP.node.codepage = "";
+    objNAP.node.logofile = "windows";
+    objNAP.node.serial = "";
+    objNAP.node.build = "";
+    objNAP.node.servicepack = "";
+    // objNAP.node.bootedFromUEFI
+    objNAP.node.bootPartitionUUID = "";
+    objNAP.node.rootPartitionUUID = "";
 
     var sInstruction = "Download new OS image.";
     var sDetail = "Download image for " + newosname + " from xxxxxxxxxxxx";
