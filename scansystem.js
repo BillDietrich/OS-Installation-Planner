@@ -148,6 +148,20 @@ const OS_CONNECTIONS = 1;
 const OS_INSTALLEDAPPLICATIONS = 2;
 const OS_INSTALLEDSERVICES = 3;
 
+// indices in the hardware children array
+const HARDWARE_MOTHERBOARD = 0;
+const HARDWARE_CPU = 1;
+const HARDWARE_RAM = 2;
+const HARDWARE_KEYBOARD = 3;
+const HARDWARE_MOUSETOUCHPAD = 4;
+const HARDWARE_AUDIO = 5;
+const HARDWARE_DISKS = 6;
+const HARDWARE_GRAPHICSCONTROLLERS = 7;
+const HARDWARE_DISPLAYS = 8;
+const HARDWARE_NETWORKINTERFACES = 9;
+
+
+
 //---------------------------------
 
 
@@ -324,18 +338,28 @@ function addAudioInfo() {
 
 function addDiskInfo() {
   //console.log("addDiskInfo: called");
+
+  gTree[TOP_HARDWARE].children.push({
+            name: "disks",
+            relatedNodeIds: [],
+            UIPermissions: "PcdeN",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
   let windowsDeviceNames = [ "C:", "D:", "E:", "F:", "G:", "H:", "I:", "J:", "K:", "L:", "M:" ];
 
   if (!gbPrivilegedUser) {
     var sInstruction = "Disk SMART status.";
     var sDetail = "";
-    var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].nodeId]);
-    gTree[TOP_HARDWARE].relatedNodeIds.push(nodeId);
+    var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].children[HARDWARE_DISKS].nodeId]);
+    gTree[TOP_HARDWARE].children[HARDWARE_DISKS].relatedNodeIds.push(nodeId);
 
     sInstruction = "SMART status of the disks can not be determined because this application has been run without administrator privileges.";
     sDetail = "";
-    nodeId = addInstruction(nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].nodeId]);
-    gTree[TOP_HARDWARE].relatedNodeIds.push(nodeId);
+    nodeId = addInstruction(nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].children[HARDWARE_DISKS].nodeId]);
+    gTree[TOP_HARDWARE].children[HARDWARE_DISKS].relatedNodeIds.push(nodeId);
   }
 
   console.log("addDiskInfo: gObjAllData.diskLayout.length " + gObjAllData.diskLayout.length);
@@ -461,7 +485,7 @@ function addDiskInfo() {
 
     }
 
-    gTree[TOP_HARDWARE].children.push(objDisk);
+    gTree[TOP_HARDWARE].children[HARDWARE_DISKS].children.push(objDisk);
 
   }
   console.log("addDiskInfo: return " + JSON.stringify(objDisk));

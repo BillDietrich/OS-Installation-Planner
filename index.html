@@ -55,6 +55,48 @@ delete module.exports
 
 
 <!---------------------------------------------------------------------------->
+<!-- Disks View Dialog -->
+
+<!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
+<!-- https://www.scriptol.com/javascript/electron-dialog.php -->
+<dialog id="disksViewDialog" class="disksViewDialogFrame">
+  <div id="disksViewDialogTable" class="disksViewDialogContent"></div>
+  <br />
+  <button id="odvdcancel" onclick="gDisksViewDialogElement.close('');">Cancel</button>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <button id="odvdsave" onclick="gDisksViewDialogElement.close(document.getElementById('disksViewDialogText').value);">Save</button>
+</dialog>
+
+<script type="text/javascript">
+
+var gDisksViewDialogElement = document.getElementById('disksViewDialog');
+
+
+function openDisksViewDialog(objHardwareTree) {
+
+
+  var fe = function(e) {
+    console.log("openDisksViewDialog: modal dialog returned " + gDisksViewDialogElement.returnValue);
+    gDisksViewDialogElement.removeEventListener("close", fe);
+    if (gDisksViewDialogElement.returnValue) {
+      console.log("openDisksViewDialog: changed value");
+    }
+  }
+
+  
+  document.getElementById('disksViewDialogTable').innerHTML = sTable;
+
+  var x = gDisksViewDialogElement.showModal();
+  gDisksViewDialogElement.addEventListener('close', fe);
+
+}
+
+</script>
+
+
+
+
+<!---------------------------------------------------------------------------->
 <!-- Properties Dialog -->
 
 <!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
