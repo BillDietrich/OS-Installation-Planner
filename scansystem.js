@@ -25,6 +25,12 @@ const crypto = require("crypto");
 
 const process = require("process");
 
+// https://github.com/ukoloff/win-ca
+const winca = require("win-ca/api");
+
+// https://nodejs.org/api/child_process.html#child_process_child_process_execsync_command_options
+const childprocess = require('child_process');
+
 
 
 // https://jsonchecker.com/
@@ -56,9 +62,6 @@ function checkPrivilegedUser() {
         console.log("checkPrivilegedUser: gnExistingSystemType " + gnExistingSystemType);
 
 
-        // https://nodejs.org/api/child_process.html#child_process_child_process_execsync_command_options
-
-        var execSync = require('child_process').execSync;
 
         var sCommand = "";
         var sOutput = "";
@@ -74,7 +77,7 @@ function checkPrivilegedUser() {
         }
 
         try {
-          sOutput = execSync(sCommand);
+          sOutput = childprocess.execSync(sCommand);
           console.log("checkPrivilegedUser: sOutput: " + sOutput);
           gbPrivilegedUser = true;
         } catch(e) {
@@ -772,6 +775,87 @@ function addPeriodicJobsInfo() {
 
 function addSecurityInfo() {
   //console.log("addSecurityInfo: called");
+
+/*
+Windows:
+Get-ChildItem cert:\ -Recurse
+Get-ChildItem -Path Cert:\* -Recurse -CodeSigningCert
+Get-ChildItem -Path Cert:\* -Recurse SSLServerAuthentication
+https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/about/about_certificate_provider?view=powershell-6
+
+https://github.com/ukoloff/win-ca
+https://example-code.com/nodejs/cert.asp
+
+Linux:
+find /etc/ssl -name '*.pem' -print | grep "\.pem$" | xargs -I{} openssl x509 -subject -noout -in {}
+*/
+
+  var arrCertNames = null;
+  switch (gnExistingSystemType) {
+    case SYSTEMTYPE_LINUX:
+    case SYSTEMTYPE_MACOSX:
+      let sCommand = "find /etc/ssl -name '*.pem' -print | xargs -I{} openssl x509 -subject -nameopt=sname -noout -in {} | sed 's/^.*\\/CN=\\(.*\\)$/\\1/' | sed 's/^.*\\/OU=\\(.*\\)$/\\1/' | sed 's/^.*\\/O=\\(.*\\)$/\\1/' | sort";
+      console.log("addSecurityInfo: sCommand " + sCommand);
+      /*
+      childprocess.exec(
+        sCommand,
+        {
+          //cwd: '/home/user/directory'
+        },
+        function(error, stdout, stderr) {
+          console.log("addSecurityInfo: openssl error " + JSON.stringify(error));
+          console.log("addSecurityInfo: openssl stderr " + stderr);
+          // work with result
+          console.log("addSecurityInfo: openssl stdout " + stdout);
+          var arrCertNames = stdout.split('\n');
+          console.log("addSecurityInfo: arrCertNames " + JSON.stringify(arrCertNames));
+        }
+      );
+      */
+      var stdout = childprocess.execSync(sCommand).toString();
+      console.log("addSecurityInfo: openssl stdout " + stdout);
+      arrCertNames = stdout.split('\n');
+      console.log("addSecurityInfo: arrCertNames " + JSON.stringify(arrCertNames));
+      break;
+    case SYSTEMTYPE_WINDOWS:
+      var list = winca({
+                    format: winca.der2.pem,
+                    store: ['root', 'ca', 'My', 'TrustedPublisher'],
+                    unique: true
+                  });
+      console.log("addSecurityInfo: winca list " + JSON.stringify(list));
+      arrCertNames = new Object();  // !!!
+      break;
+  }
+
+  var arrStandardCertNames = null;
+
+  switch (gnExistingSystemType) {
+    case SYSTEMTYPE_LINUX:
+    case SYSTEMTYPE_MACOSX:
+      arrStandardCertNames = ["AAA Certificate Services","ACCV/C=ES","AC RAIZ FNMT-RCM","Actalis Authentication Root CA","AddTrust External CA Root","AffirmTrust Commercial","AffirmTrust Networking","AffirmTrust Premium","AffirmTrust Premium ECC","Amazon Root CA 1","Amazon Root CA 2","Amazon Root CA 3","Amazon Root CA 4","Atos/C=DE","Autoridad de Certificacion Firmaprofesional CIF A62634068","Baltimore CyberTrust Root","Buypass Class 2 Root CA","Buypass Class 3 Root CA","CA Disig Root R2","Certigna","Certinomis - Root CA","Certplus Root CA G1","Certplus Root CA G2","certSIGN ROOT CA","Certum Trusted Network CA","Certum Trusted Network CA 2","CFCA EV ROOT","Chambers of Commerce Root - 2008","Class 2 Primary CA","COMODO Certification Authority","COMODO ECC Certification Authority","COMODO RSA Certification Authority","Cybertrust Global Root","Deutsche Telekom Root CA 2","DigiCert Assured ID Root CA","DigiCert Assured ID Root G2","DigiCert Assured ID Root G3","DigiCert Global Root CA","DigiCert Global Root G2","DigiCert Global Root G3","DigiCert High Assurance EV Root CA","DigiCert Trusted Root G4","DST Root CA X3","D-TRUST Root Class 3 CA 2 2009","D-TRUST Root Class 3 CA 2 EV 2009","EC-ACC","EE Certification Centre Root CA/emailAddress=pki@sk.ee","Entrust.net Certification Authority (2048)","Entrust Root Certification Authority","Entrust Root Certification Authority - EC1","Entrust Root Certification Authority - G2","ePKI Root Certification Authority","E-Tugra Certification Authority","GDCA TrustAUTH R5 ROOT","GeoTrust Global CA","GeoTrust Primary Certification Authority","GeoTrust Primary Certification Authority - G2","GeoTrust Primary Certification Authority - G3","GeoTrust Universal CA","GeoTrust Universal CA 2","Global Chambersign Root - 2008","GlobalSign","GlobalSign","GlobalSign","GlobalSign","GlobalSign Root CA","Go Daddy Class 2 Certification Authority","Go Daddy Root Certificate Authority - G2","Government Root Certification Authority","Hellenic Academic and Research Institutions ECC RootCA 2015","Hellenic Academic and Research Institutions RootCA 2011","Hellenic Academic and Research Institutions RootCA 2015","Hongkong Post Root CA 1","IdenTrust Commercial Root CA 1","IdenTrust Public Sector Root CA 1","ISRG Root X1","Izenpe.com","LuxTrust Global Root 2","Microsec e-Szigno Root CA 2009/emailAddress=info@e-szigno.hu","mint","NetLock Arany (Class Gold) F\\xC5\\x91tan\\xC3\\xBAs\\xC3\\xADtv\\xC3\\xA1ny","Network Solutions Certificate Authority","OISTE WISeKey Global Root GA CA","OISTE WISeKey Global Root GB CA","OpenTrust Root CA G1","OpenTrust Root CA G2","OpenTrust Root CA G3","QuoVadis Root CA 1 G3","QuoVadis Root CA 2","QuoVadis Root CA 2 G3","QuoVadis Root CA 3","QuoVadis Root CA 3 G3","QuoVadis Root Certification Authority","Secure Global CA","SecureSign RootCA11","SecureTrust CA","Security Communication RootCA1","Security Communication RootCA2","Sonera Class2 CA","SSL.com EV Root Certification Authority ECC","SSL.com EV Root Certification Authority RSA R2","SSL.com Root Certification Authority ECC","SSL.com Root Certification Authority RSA","Staat der Nederlanden EV Root CA","Staat der Nederlanden Root CA - G2","Staat der Nederlanden Root CA - G3","Starfield Class 2 Certification Authority","Starfield Root Certificate Authority - G2","Starfield Services Root Certificate Authority - G2","SwissSign Gold CA - G2","SwissSign Silver CA - G2","SZAFIR ROOT CA2","TeliaSonera Root CA v1","thawte Primary Root CA","thawte Primary Root CA - G2","thawte Primary Root CA - G3","TrustCor ECA-1","TrustCor RootCert CA-1","TrustCor RootCert CA-2","Trustis FPS Root CA","T-TeleSec GlobalRoot Class 2","T-TeleSec GlobalRoot Class 3","TUBITAK Kamu SM SSL Kok Sertifikasi - Surum 1","TWCA Global Root CA","TWCA Root Certification Authority","T\\xC3\\x9CRKTRUST Elektronik Sertifika Hizmet Sa\\xC4\\x9Flay\\xC4\\xB1c\\xC4\\xB1s\\xC4\\xB1 H5","USERTrust ECC Certification Authority","USERTrust RSA Certification Authority","VeriSign Class 3 Public Primary Certification Authority - G3","VeriSign Class 3 Public Primary Certification Authority - G4","VeriSign Class 3 Public Primary Certification Authority - G5","VeriSign Universal Root Certification Authority","Visa eCommerce Root","XRamp Global Certification Authority"];
+      break;
+    case SYSTEMTYPE_WINDOWS:
+      arrStandardCertNames = new Object();  // !!!
+      break;
+  }
+
+  // remove any empty names or standard names
+  // !!!
+  i = 0;
+  while (i < arrCertNames.length) {
+    var j = 0;
+    while ((i < arrCertNames.length) && (j < arrStandardCertNames.length)) {
+      if ((arrCertNames[i] === "") || (arrCertNames[i] === arrStandardCertNames[j])) {
+        arrCertNames.splice(i, 1);
+        j = 0;
+      } else
+        j++;
+    }
+    i++;
+  }
+  console.log("addSecurityInfo: now arrCertNames " + JSON.stringify(arrCertNames));
+
 
   var objSecurity = Object({
             name: "security",

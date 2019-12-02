@@ -1,6 +1,6 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.47",
+ "version": "0.2.48",
  "description": "OS Installation Planner",
  "productName": "OS Installation Planner",
  "author": {
@@ -50,7 +50,8 @@
   "path": "^0.12.7",
   "systeminformation": "^4.16.0",
   "tree-printer": "^1.1.1",
-  "url": "^0.11.0"
+  "url": "^0.11.0",
+  "win-ca": "^3.1.1"
  },
  "devDependencies": {
   "electron": "^7.1.2",
