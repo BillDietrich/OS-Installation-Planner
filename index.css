@@ -9,7 +9,7 @@ div.mytree0 {
 	display:table;
 	vertical-align:top;
 	margin:0 auto;
-	height: 2000px;
+	height: 3000px;
 	width: 320px;
 	font-family: monospace;
 	background-color:lightgreen;
@@ -22,7 +22,7 @@ div.mytree1 {
 	display:table;
 	vertical-align:top;
 	margin:0 auto;
-	height: 2000px;
+	height: 3000px;
 	width: 320px;
 	font-family: monospace;
 	background-color:lightblue;
@@ -35,7 +35,7 @@ div.mytree2 {
 	display:table;
 	vertical-align:top;
 	margin:0 auto;
-	height: 2000px;
+	height: 3000px;
 	width: 320px;
 	background-color:pink;
 }

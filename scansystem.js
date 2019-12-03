@@ -192,7 +192,7 @@ function addExistingConfigurationInfo() {
 function addSystemInfo() {
   //console.log("addSystemInfo: called");
   gTree.push({
-            name: "system" + ((gObjAllData.os.hostname !== "") ? " - " + gObjAllData.os.hostname : ""),
+            name: "System" + ((gObjAllData.os.hostname !== "") ? " - " + gObjAllData.os.hostname : ""),
             hostname: gObjAllData.os.hostname,
             manufacturer: gObjAllData.system.manufacturer,
             model: gObjAllData.system.model,
@@ -208,7 +208,7 @@ function addSystemInfo() {
             });
 
   gTree.push({
-            name: "software",
+            name: "Software",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
@@ -217,7 +217,7 @@ function addSystemInfo() {
             });
 
   gTree.push({
-            name: "hardware",
+            name: "Hardware",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
@@ -232,7 +232,7 @@ function addSystemInfo() {
 function addMotherboardInfo() {
   //console.log("addMotherboardInfo: called");
   gTree[TOP_HARDWARE].children.push({
-            name: "motherboard",
+            name: "Motherboard",
             manufacturer: gObjAllData.baseboard.manufacturer,
             model: gObjAllData.baseboard.model,
             version: gObjAllData.baseboard.version,
@@ -298,7 +298,7 @@ function addKeyboardInfo() {
   //console.log("addKeyboardInfo: called");
   // gets system locale, not actual info about keyboard
   gTree[TOP_HARDWARE].children.push({
-            name: "keyboard",
+            name: "Keyboard",
             language: osLocale.sync(),
             relatedNodeIds: [],
             UIPermissions: "Pcden",
@@ -314,7 +314,7 @@ function addKeyboardInfo() {
 function addMouseTouchpadInfo() {
   //console.log("addMouseTouchpadInfo: called");
   gTree[TOP_HARDWARE].children.push({
-            name: "mousetouchpad",
+            name: "Mouse / Touchpad",
             relatedNodeIds: [],
             UIPermissions: "PcdEn",
             nodeStatus: "existing",
@@ -328,7 +328,7 @@ function addMouseTouchpadInfo() {
 function addAudioInfo() {
   //console.log("addAudioInfo: called");
   gTree[TOP_HARDWARE].children.push({
-            name: "audio",
+            name: "Audio",
             relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
@@ -340,10 +340,10 @@ function addAudioInfo() {
 
 
 function addDiskInfo() {
-  //console.log("addDiskInfo: called");
+  console.log("addDiskInfo: called");
 
   gTree[TOP_HARDWARE].children.push({
-            name: "disks",
+            name: "Disks",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
@@ -368,7 +368,7 @@ function addDiskInfo() {
   console.log("addDiskInfo: gObjAllData.diskLayout.length " + gObjAllData.diskLayout.length);
   for (var i = 0; i < gObjAllData.diskLayout.length; i++) {
 
-    //console.log("addDiskInfo: gObjAllData.diskLayout[" + i + "] " + JSON.stringify(gObjAllData.diskLayout[i]));
+    console.log("addDiskInfo: gObjAllData.diskLayout[" + i + "] " + JSON.stringify(gObjAllData.diskLayout[i]));
     var fulldevicename = gObjAllData.diskLayout[i].device;
     var name = "";
     if (fulldevicename === "") {
@@ -379,7 +379,7 @@ function addDiskInfo() {
       var n = fulldevicename.lastIndexOf(path.sep);
       name = fulldevicename.substr(n+1);
     }
-    //console.log("addDiskInfo: fulldevicename " + fulldevicename + ", path.sep " + path.sep + ", n " + n + ", name " + name);
+    console.log("addDiskInfo: fulldevicename " + fulldevicename + ", path.sep " + path.sep + ", n " + n + ", name " + name);
 
     var type = (gObjAllData.diskLayout[i].type === "HD" ? "hardDisk" : "");
     var removable = (gObjAllData.diskLayout[i].interfaceType === "USB");
@@ -432,58 +432,66 @@ function addDiskInfo() {
     }
 
     let MAXPARTNUM = 9;
-    for (var k = 1; k<=MAXPARTNUM; k++) {
+    for (var k = 0; k<=MAXPARTNUM; k++) {
 
       var subDevName = "";
+      var minName = "";
 
       switch (gnExistingSystemType) {
         case SYSTEMTYPE_LINUX:
         case SYSTEMTYPE_MACOSX:
           subDevName = fulldevicename + k;
+          minName = name + k;
           break;
         case SYSTEMTYPE_WINDOWS:
           subDevName = windowsDeviceNames[k];
+          minName = windowsDeviceNames[k];
           break;
       }
 
       var uuid = "";
 
       for (var j = 0; j < gObjAllData.blockDevices.length; j++) {
-          //console.log("addDiskInfo: want name " + name + k + ", see gObjAllData.blockDevices[j].name " + gObjAllData..blockDevices[j].name);
-          if (gObjAllData.blockDevices[j].name === name + k) {
-            uuid = gObjAllData.blockDevices[j].uuid;
-            break;
-          }
+        console.log("addDiskInfo: for uuid, want minName " + minName + ", see gObjAllData.blockDevices[j].name " + gObjAllData.blockDevices[j].name);
+        if (gObjAllData.blockDevices[j].name === minName) {
+          uuid = gObjAllData.blockDevices[j].uuid;
+          break;
+        }
       }
 
       for (var j = 0; j < gObjAllData.fsSize.length; j++) {
-          //console.log("addDiskInfo: want subDevName " + subDevName + ", see gObjAllData.fsSize[j].fs " + gObjAllData.fsSize[j].fs);
-          if (gObjAllData.fsSize[j].fs === subDevName) {
-            objDisk.children.push({
-              name: name + k,
-              fullName: gObjAllData.fsSize[j].fs,
-              type: "partition",
-              sizeBytes: gObjAllData.fsSize[j].size,
-              fsType: gObjAllData.fsSize[j].type,
-              mount: gObjAllData.fsSize[j].mount,
-              UUID: uuid,
-              relatedNodeIds: [],
-              UIPermissions: "Pcden",
-              nodeStatus: "existing",
-              nodeId: gNextNodeId++,
-              children: []
-              });
-            if (gObjAllData.fsSize[j].mount === path.sep + "boot") {
-              // we've found the boot partition for the current OS
-              gBootPartitionUUID = uuid;
-            }
-            if (gObjAllData.fsSize[j].mount === path.sep) {
-              // we've found the root partition for the current OS
-              gRootPartitionUUID = uuid;
-            }
-            // CHECK DIRTY BIT !!!
-            break;
+        console.log("addDiskInfo: for fs, want subDevName " + subDevName + ", see gObjAllData.fsSize[j].fs " + gObjAllData.fsSize[j].fs);
+        if (gObjAllData.fsSize[j].fs === subDevName) {
+          objDisk.children.push({
+            name: subDevName,
+            fullName: gObjAllData.fsSize[j].fs,
+            type: "partition",
+            sizeBytes: gObjAllData.fsSize[j].size,
+            fsType: gObjAllData.fsSize[j].type,
+            mount: gObjAllData.fsSize[j].mount,
+            UUID: uuid,
+            relatedNodeIds: [],
+            UIPermissions: "Pcden",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+          if (gObjAllData.fsSize[j].mount === path.sep + "boot") {
+            // we've found the boot partition for the current OS
+            console.log("addDiskInfo: found boot");
+            gBootPartitionUUID = uuid;
           }
+          if (gObjAllData.fsSize[j].mount === path.sep) {
+            // we've found the root partition for the current OS
+            console.log("addDiskInfo: found root");
+            gRootPartitionUUID = uuid;
+          }
+          // CHECK DIRTY BIT !!!
+          // only one partition per mounted device on Windows
+          if (gnExistingSystemType == SYSTEMTYPE_WINDOWS)
+            k = MAXPARTNUM + 1;
+          break;
+        }
       }
 
     }
@@ -498,9 +506,10 @@ function addDiskInfo() {
 
 
 function addGraphicsInfo() {
+  console.log("addGraphicsInfo: called");
       
   var objControllers = new Object({
-    name: "graphicsControllers",
+    name: "Graphics Controllers",
     relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
@@ -527,7 +536,7 @@ function addGraphicsInfo() {
   gTree[TOP_HARDWARE].children.push(objControllers);
 
   var objDisplays = new Object({
-    name: "displays",
+    name: "Displays",
     relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
@@ -562,13 +571,16 @@ function addGraphicsInfo() {
   }
 
   gTree[TOP_HARDWARE].children.push(objDisplays);
+
+  console.log("addGraphicsInfo: return");
 }
 
 
 function addNetworkInterfaceInfo() {
+  console.log("addNetworkInterfaceInfo: called");
 
   var objIfaces = new Object({
-    name: "networkInterfaces",
+    name: "NetworkInterfaces",
     relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
@@ -598,6 +610,8 @@ function addNetworkInterfaceInfo() {
   }
 
   gTree[TOP_HARDWARE].children.push(objIfaces);
+
+  console.log("addNetworkInterfaceInfo: return");
 }
 
 
@@ -678,7 +692,7 @@ function addOSInfo() {
             });
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
-    name: "settings",
+    name: "Settings",
     relatedNodeIds: [],
     UIPermissions: "PcdeN",
     nodeStatus: "existing",
@@ -687,7 +701,7 @@ function addOSInfo() {
   });
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
-    name: "connections",
+    name: "Connections",
     relatedNodeIds: [],
     UIPermissions: "PcdeN",
     nodeStatus: "existing",
@@ -696,7 +710,7 @@ function addOSInfo() {
   });
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
-    name: "installed applications",
+    name: "Installed Applications",
     relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
@@ -705,7 +719,7 @@ function addOSInfo() {
   });
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
-    name: "installed services",
+    name: "Installed Services",
     relatedNodeIds: [],
     UIPermissions: "Pcden",
     nodeStatus: "existing",
@@ -719,7 +733,7 @@ function addOSInfo() {
 function addTimeInfo() {
   //console.log("addTimeInfo: called");
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
-            name: "time",
+            name: "Time",
             timezone: gObjAllData.time.timezone,
             timezoneName: gObjAllData.time.timezoneName,
             relatedNodeIds: [],
@@ -734,7 +748,7 @@ function addTimeInfo() {
 function addSwapInfo() {
   //console.log("addSwapInfo: called");
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
-            name: "swap",
+            name: "Swap",
             swapTotalBytes: gObjAllData.mem.swaptotal,
             swapDevice: "",
             swapFile: "",
@@ -750,7 +764,7 @@ function addSwapInfo() {
 function addRunningServicesInfo() {
   //console.log("addRunningServicesInfo: called");
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
-            name: "running background services",
+            name: "Running Background Services",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
@@ -763,7 +777,7 @@ function addRunningServicesInfo() {
 function addPeriodicJobsInfo() {
   //console.log("addPeriodicJobsInfo: called");
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
-            name: "periodic jobs",
+            name: "Periodic Jobs",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
@@ -774,7 +788,7 @@ function addPeriodicJobsInfo() {
 
 
 function addSecurityInfo() {
-  //console.log("addSecurityInfo: called");
+  console.log("addSecurityInfo: called");
 
 /*
 Windows:
@@ -815,18 +829,28 @@ find /etc/ssl -name '*.pem' -print | grep "\.pem$" | xargs -I{} openssl x509 -su
       var stdout = childprocess.execSync(sCommand).toString();
       console.log("addSecurityInfo: openssl stdout " + stdout);
       arrCertNames = stdout.split('\n');
-      console.log("addSecurityInfo: arrCertNames " + JSON.stringify(arrCertNames));
       break;
     case SYSTEMTYPE_WINDOWS:
-      var list = winca({
-                    format: winca.der2.pem,
-                    store: ['root', 'ca', 'My', 'TrustedPublisher'],
-                    unique: true
-                  });
-      console.log("addSecurityInfo: winca list " + JSON.stringify(list));
-      arrCertNames = new Object();  // !!!
+      arrCertNames = new Array();
+      var arrCertObjs = new Array();
+      winca({
+        format: winca.der2.txt,
+        store: ['root', 'ca', 'My', 'TrustedPublisher'],
+        unique: true,
+        ondata: crt => arrCertObjs.push(crt)
+      });
+      /*  DOESN'T WORK !!!
+      for (i = 0; i < arrCertObjs.length; i++) {
+        // first line is:  Subject\tTHESUBJECTINFO\n
+        console.log("addSecurityInfo: arrCertObjs[" + i + "] " + arrCertObjs[i]);
+        var result = arrCertObjs[i].match(/Subject\t(.*)$/);
+        console.log("addSecurityInfo: result " + JSON.stringify(result));
+        arrCertNames.push(result[1]);
+      }
+      */
       break;
   }
+  console.log("addSecurityInfo: arrCertNames " + JSON.stringify(arrCertNames));
 
   var arrStandardCertNames = null;
 
@@ -841,7 +865,6 @@ find /etc/ssl -name '*.pem' -print | grep "\.pem$" | xargs -I{} openssl x509 -su
   }
 
   // remove any empty names or standard names
-  // !!!
   i = 0;
   while (i < arrCertNames.length) {
     var j = 0;
@@ -856,9 +879,29 @@ find /etc/ssl -name '*.pem' -print | grep "\.pem$" | xargs -I{} openssl x509 -su
   }
   console.log("addSecurityInfo: now arrCertNames " + JSON.stringify(arrCertNames));
 
+  var objCerts = Object({
+            name: "Identity Certificates",
+            relatedNodeIds: [],
+            UIPermissions: "PcdeN",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
+
+  for (i = 0; i < arrCertNames.length; i++) {
+    objCerts.children.push({
+              name: arrCertNames[i],
+              relatedNodeIds: [],
+              UIPermissions: "PcDen",
+              nodeStatus: "existing",
+              nodeId: gNextNodeId++,
+              children: []
+              });
+  }
+
 
   var objSecurity = Object({
-            name: "security",
+            name: "Security",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
             nodeStatus: "existing",
@@ -868,6 +911,15 @@ find /etc/ssl -name '*.pem' -print | grep "\.pem$" | xargs -I{} openssl x509 -su
 
   // https://www.npmjs.com/package/linux-sys-user
   
+
+  objSecurity.children.push({
+            name: "Users",
+            relatedNodeIds: [],
+            UIPermissions: "PcdeN",
+            nodeStatus: "existing",
+            nodeId: gNextNodeId++,
+            children: []
+            });
 
   objSecurity.children.push({
             name: "SSH keys",
@@ -893,16 +945,11 @@ find /etc/ssl -name '*.pem' -print | grep "\.pem$" | xargs -I{} openssl x509 -su
             children: []
             });
 
-  objSecurity.children.push({
-            name: "Identity certificates",
-            relatedNodeIds: [],
-            UIPermissions: "PcdeN",
-            nodeStatus: "existing",
-            nodeId: gNextNodeId++,
-            children: []
-            });
+  objSecurity.children.push(objCerts);
 
   gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push(objSecurity);
+
+  console.log("addSecurityInfo: return");
 }
 
 
