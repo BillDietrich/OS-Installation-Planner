@@ -58,6 +58,18 @@ textarea.propertiesDialogContent {
 	background-color:lightyellow;
 }
 
+table.disks {
+	background-color:lightyellow;
+	border: 1px solid black;
+	border-collapse: collapse;
+	width: 500px;
+}
+
+td.disks {
+	background-color:lightyellow;
+	border: 1px solid black;
+}
+
 div.makeChangesDialogFrame {
 	display:table;
 	vertical-align:top;
