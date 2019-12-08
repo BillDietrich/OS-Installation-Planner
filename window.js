@@ -15,6 +15,9 @@ const treePrinter = require('tree-printer')
 
 
 
+// info about installers:
+// https://pay.reddit.com/r/linuxquestions/comments/e75mru/how_to_deploy_linux_from_the_local_drive_like_a/
+
 
 // possible replacements for treeview
 // FAR simpler:  https://www.w3schools.com/howto/howto_js_treeview.asp

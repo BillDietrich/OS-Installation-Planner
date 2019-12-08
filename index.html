@@ -59,8 +59,12 @@ delete module.exports
 
 <!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
 <!-- https://www.scriptol.com/javascript/electron-dialog.php -->
-<dialog id="disksViewDialog" class="disksViewDialogFrame">
-  <div id="disksViewDialogTable" class="disksViewDialogContent"></div>
+<dialog id="disksViewDialog" class="disksViewDialogClass">
+  <b>Existing disks:</b>
+  <div id="odvdExistingDisks" class="disksViewClass"></div>
+  <br />
+  <b>New configuration:</b>
+  <div id="odvdNewDisks" class="disksViewClass"></div>
   <br />
   <button id="odvdcancel" onclick="gDisksViewDialogElement.close('');">Cancel</button>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -72,17 +76,9 @@ delete module.exports
 var gDisksViewDialogElement = document.getElementById('disksViewDialog');
 
 
-function openDisksViewDialog(objDisksTree) {
+function makeHtmlForDisks(objDisksTree, bReadOnly) {
 
-  console.log("openDisksViewDialog: objDisksTree " + JSON.stringify(objDisksTree));
-
-  var fe = function(e) {
-    console.log("openDisksViewDialog: modal dialog returned " + gDisksViewDialogElement.returnValue);
-    gDisksViewDialogElement.removeEventListener("close", fe);
-    if (gDisksViewDialogElement.returnValue) {
-      console.log("openDisksViewDialog: changed value");
-    }
-  }
+  console.log("makeHtmlForDisks: objDisksTree " + JSON.stringify(objDisksTree) + ", bReadOnly " + bReadOnly);
 
   var nMaxSizeBytes = 0;
   var nMaxPartitionsPerDisk = 0;
@@ -92,36 +88,65 @@ function openDisksViewDialog(objDisksTree) {
     if (objDisksTree.children[i].children.length > nMaxPartitionsPerDisk)
       nMaxPartitionsPerDisk = objDisksTree.children[i].children.length;
   }
-  console.log("openDisksViewDialog: nMaxSizeBytes " + nMaxSizeBytes);
+  console.log("makeHtmlForDisks: nMaxSizeBytes " + nMaxSizeBytes);
+
   // GB = 10^9
   // GiB = 1024^3
-  let nBytesPerPx = nMaxSizeBytes / (500 - 100);
+  let nGBPerPx = (nMaxSizeBytes / ((500 - 100) * 1600000000));
+  console.log("makeHtmlForDisks: nGBPerPx " + nGBPerPx);
   var nSizeGB = 0;
-  var sTable = "<table class='disks'>";   // 500px wide
-  sTable += "<thead><tr><td class='disks'><b>Disks</b></td><td class='disks' colspan='" + nMaxPartitionsPerDisk + "'><b>Partitions</b></td></tr></thead>";
-  sTable += "<tbody>";
+  var nWidthPx = 0;
+
+  var sHTML = "&nbsp;&nbsp;<b>Disks</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Partitions</b><br />";
   for (var i = 0; i < objDisksTree.children.length; i++) {
     var objDisk = objDisksTree.children[i];
     nSizeGB = Math.round(objDisk.sizeBytes / 1000000000);
-    sTable += "<tr>";
-    sTable += ("<td class='disks'><b>" + objDisk.name + "</b><br />(" + ((nSizeGB == 0) ? "&lt;1" : nSizeGB) + " GB)</td>");
+    sHTML += "<table class='disks'>";
+    sHTML += "<tr>";
+    sHTML += ("<td class='diskname' width='70px'><b>" + objDisk.name + "</b>:<br />(" + ((nSizeGB == 0) ? "&lt;1" : nSizeGB) + " GB)</td>");
+    sHTML += ("<td class='diskpart' width='50px'><b>ptable</b><br />()</td>");
     for (var j = 0; j < objDisk.children.length; j++) {
       var objPartition = objDisk.children[j];
       nSizeGB = Math.round(objPartition.sizeBytes / 1000000000);
-      sTable += ("<td class='disks'><b>" + objPartition.name + "</b><br />(" + ((nSizeGB == 0) ? "&lt;1" : nSizeGB) + " GB)</td>");
+      nWidthPx = Math.round(nSizeGB * nGBPerPx);
+      console.log("makeHtmlForDisks: nSizeGB " + nSizeGB + ", nWidthPx " + nWidthPx);
+      var sSizeHTML = "";
+      if (bReadOnly)
+        sSizeHTML = ((nSizeGB == 0) ? "&lt;1" : nSizeGB);
+      else
+        sSizeHTML = "<input type='text' class='disksize' value='" + nSizeGB + "'/>";
+        //sSizeHTML = "<input type='number' class='disksize' min='0' max='2000' value='" + nSizeGB + "'/>";
+      sHTML += ("<td class='diskpart' width='" + nWidthPx + "px'><b>" + objPartition.name + "</b><br />(" + sSizeHTML + " GB)</td>");
     }
-    // add empty cells
-    for (var j = objDisk.children.length; j < nMaxPartitionsPerDisk; j++) {
-      sTable += ("<td class='disks'>&nbsp;</td>");
-    }
-    sTable += "</tr>";
+    sHTML += "</tr>";
+    sHTML += "</table>";
+    sHTML += "<br />";
   }
-  sTable += "</tbody>";
-  sTable += "</table>";
-  console.log("openDisksViewDialog: sTable " + sTable);
 
-  document.getElementById('disksViewDialogTable').innerHTML = sTable;
+  console.log("makeHtmlForDisks: sHTML " + sHTML);
+  return sHTML;
+}
 
+
+function openDisksViewDialog(objDisksTree) {
+
+  console.log("openDisksViewDialog: objDisksTree " + JSON.stringify(objDisksTree));
+
+  var fe = function(e) {
+    console.log("openDisksViewDialog: modal dialog returned " + gDisksViewDialogElement.returnValue);
+    gDisksViewDialogElement.style.visibility = "hidden";
+    gDisksViewDialogElement.removeEventListener("close", fe);
+    if (gDisksViewDialogElement.returnValue) {
+      console.log("openDisksViewDialog: changed value");
+    }
+  }
+
+  var sHTML = makeHtmlForDisks(objDisksTree, true);
+  document.getElementById('odvdExistingDisks').innerHTML = sHTML;
+  sHTML = makeHtmlForDisks(objDisksTree, false);
+  document.getElementById('odvdNewDisks').innerHTML = sHTML;
+
+  gDisksViewDialogElement.style.visibility = "visible";
   var x = gDisksViewDialogElement.showModal();
   gDisksViewDialogElement.addEventListener('close', fe);
 
@@ -137,7 +162,7 @@ function openDisksViewDialog(objDisksTree) {
 
 <!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
 <!-- https://www.scriptol.com/javascript/electron-dialog.php -->
-<dialog id="propertiesDialog" class="propertiesDialogFrame">
+<dialog id="propertiesDialog" class="propertiesDialogClass">
   <textarea id="propertiesDialogText" class="propertiesDialogContent"></textarea>
   <br />
   <button id="pdcancel" onclick="gPropertiesDialogElement.close('');">Cancel</button>
@@ -169,12 +194,14 @@ function openPropertiesDialog(element, bReadonly) {
 
   var fe = function(e) {
     console.log("openPropertiesDialog: modal dialog returned " + gPropertiesDialogElement.returnValue);
+    gPropertiesDialogElement.style.visibility = "hidden";
     gPropertiesDialogElement.removeEventListener("close", fe);
     if (gPropertiesDialogElement.returnValue) {
       console.log("openPropertiesDialog: changed value");
     }
   }
 
+  gPropertiesDialogElement.style.visibility = "visible";
   var x = gPropertiesDialogElement.showModal();
   gPropertiesDialogElement.addEventListener('close', fe);
 
@@ -189,7 +216,7 @@ function openPropertiesDialog(element, bReadonly) {
 
 <!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
 <!-- https://www.scriptol.com/javascript/electron-dialog.php -->
-<dialog id="chooseNewOSDialog" class="chooseNewOSDialogFrame">
+<dialog id="chooseNewOSDialog" class="chooseNewOSDialogClass">
 Choose a new OS:
 <br /><br />
 <button id="mcd_replace">Replace</button> current OS with:
@@ -220,11 +247,13 @@ function openChooseNewOSDialog() {
 
   var fe = function(e) {
     console.log("openChooseNewOSDialog: modal dialog returned " + gChooseNewOSDialogElement.returnValue);
-    gChooseNewOSDialogElement.removeEventListener("close", fe);
+    gPropertiesDialogElement.style.visibility = "hidden";
+    gPropertiesDialogElement.removeEventListener("close", fe);
 
     convertOS(gObjTree[1][TOP_SOFTWARE].children[SOFTWARE_OS].nodeId, 1, SYSTEMTYPE_WINDOWS, "Windows 10 Home");
   }
 
+  gChooseNewOSDialogElement.style.visibility = "visible";
   var x = gChooseNewOSDialogElement.showModal();
   //document.getElementById('chooseNewOSDialog').innerText = "abcdef";
   gChooseNewOSDialogElement.addEventListener('close', fe);
@@ -240,7 +269,7 @@ function openChooseNewOSDialog() {
 
 <!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
 <!-- https://www.scriptol.com/javascript/electron-dialog.php -->
-<dialog id="makeChangesDialog" class="makeChangesDialogFrame">
+<dialog id="makeChangesDialog" class="makeChangesDialogClass">
 What would you like to change ?
 <br /><br />
 <button id="mcdchangeos" onclick="openChooseNewOSDialog();">Change Operating System</button>
@@ -252,27 +281,29 @@ What would you like to change ?
 To make smaller changes, right-click on an item in the New System tree<br />
 and select a menu item such as Clone, Delete, Edit, or New Child.
 <br /><br />
-<button id="mcddone" onclick="makeChangesDialogElement.close('done');">Done</button>
+<button id="mcddone" onclick="gMakeChangesDialogElement.close('done');">Done</button>
 </dialog>
 
 <script type="text/javascript">
 
-var makeChangesDialogElement = document.getElementById('makeChangesDialog');
+var gMakeChangesDialogElement = document.getElementById('makeChangesDialog');
 
 
 
 function openMakeChangesDialog() {
 
   var fe = function(e) {
-    console.log("openMakeChangesDialog: modal dialog returned " + makeChangesDialogElement.returnValue);
-    makeChangesDialogElement.removeEventListener("close", fe);
+    console.log("openMakeChangesDialog: modal dialog returned " + gMakeChangesDialogElement.returnValue);
+    gMakeChangesDialogElement.style.visibility = "hidden";
+    gMakeChangesDialogElement.removeEventListener("close", fe);
     refreshTreeView(1);
     refreshTreeView(2);
   }
 
-  var x = makeChangesDialogElement.showModal();
+  gMakeChangesDialogElement.style.visibility = "visible";
+  var x = gMakeChangesDialogElement.showModal();
   //document.getElementById('mcdCurrentOS').innerText = "abcdef";
-  makeChangesDialogElement.addEventListener('close', fe);
+  gMakeChangesDialogElement.addEventListener('close', fe);
 
 }
 

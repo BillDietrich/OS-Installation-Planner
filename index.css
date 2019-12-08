@@ -40,7 +40,12 @@ div.mytree2 {
 	background-color:pink;
 }
 
-div.propertiesDialogFrame {
+dialog.propertiesDialogClass {
+	visibility: hidden;
+	position: absolute;
+	left: 0px;
+  	top: 50px;
+  	z-index: 2;
 	display:table;
 	vertical-align:top;
 	margin:0 auto;
@@ -59,24 +64,73 @@ textarea.propertiesDialogContent {
 }
 
 table.disks {
-	background-color:lightyellow;
-	border: 1px solid black;
+	float: left;
+	border: none;
 	border-collapse: collapse;
-	width: 500px;
+	padding: 5px;
 }
 
-td.disks {
-	background-color:lightyellow;
+td.diskpart {
+	background-color:yellow;
 	border: 1px solid black;
+	text-align: center;
 }
 
-div.makeChangesDialogFrame {
-	display:table;
+td.diskname {
+	border: none;
+	text-align: right;
+}
+
+input.disksize {
+	background-color:yellow;
+	text-align: right;
+	max-width: 40px;
+}
+
+
+dialog.chooseNewOSDialogClass {
+	visibility: hidden;
+	position: absolute;
+	left: 0px;
+  	top: 50px;
+  	z-index: 2;
+	display: table;
 	vertical-align:top;
 	margin:0 auto;
 	min-height: 500px;
 	min-width: 600px;
 	background-color:lightblue;
+}
+
+dialog.makeChangesDialogClass {
+	visibility: hidden;
+	position: absolute;
+	left: 0px;
+  	top: 50px;
+  	z-index: 2;
+	display: table;
+	vertical-align:top;
+	margin:0 auto;
+	min-height: 500px;
+	min-width: 600px;
+	background-color:lightblue;
+}
+
+dialog.disksViewDialogClass {
+	visibility: hidden;
+	position: absolute;
+	left: 0px;
+  	top: 50px;
+  	z-index: 2;
+	min-height: 500px;
+	min-width: 800px;
+	background-color:lightblue;
+}
+
+div.disksViewClass {
+	min-height: 200px;
+	min-width: 750px;
+	background-color:lightgreen;
 }
 
 button.top {

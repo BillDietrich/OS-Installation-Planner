@@ -33,6 +33,7 @@ const childprocess = require('child_process');
 
 
 
+
 // https://jsonchecker.com/
 // https://jsonprettyprint.org/
 
@@ -802,6 +803,12 @@ https://example-code.com/nodejs/cert.asp
 
 Linux:
 find /etc/ssl -name '*.pem' -print | grep "\.pem$" | xargs -I{} openssl x509 -subject -noout -in {}
+
+password keyrings:
+GNOME keyring
+Linux kernel keyring
+https://docs.microsoft.com/en-us/windows/win32/api/wincred/
+https://developer.apple.com/documentation/security/keychain_services
 */
 
   var arrCertNames = null;
