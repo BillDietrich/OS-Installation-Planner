@@ -182,6 +182,9 @@ function makeInstructionsAfterExisting() {
   nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "What system features are most importand to you ?", "", []);
   nodeId = addInstruction(gObjTree[2][TOP_PLAN].nodeId, "What applications are critical to you ?", "", []);
 
+  checkAllDiskPartitions(0);
+  checkOSDiskPartitions(0);
+
   console.log("makeInstructionsAfterExisting: return");
 }
 

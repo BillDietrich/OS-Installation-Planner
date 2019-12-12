@@ -69,7 +69,9 @@ const menuitemClone = new MenuItem ({
       let sJSON = gRightClickElement.getAttribute('JSON');
       let nodeId = JSON.parse(sJSON).nodeId;
       doClone(nodeId, gRightClickTreeNum);
+      checkOSDiskPartitions(gRightClickTreeNum);
       refreshTreeView(gRightClickTreeNum);
+      refreshTreeView(2);
   }
 });
 const menuitemDelete = new MenuItem ({

@@ -1,6 +1,6 @@
 {
  "name": "osinstallationplanner",
- "version": "0.2.51",
+ "version": "0.2.52",
  "description": "OS Installation Planner",
  "productName": "OS Installation Planner",
  "author": {
@@ -45,6 +45,7 @@
   "graceful-fs": "^4.2.3",
   "jsonfile": "^5.0.0",
   "load-json-file": "^6.2.0",
+  "lodash.merge": "^4.6.2",
   "os": "^0.1.1",
   "os-locale": "^4.0.0",
   "path": "^0.12.7",

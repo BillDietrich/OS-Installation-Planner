@@ -255,7 +255,11 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
   gObjTree[newtreenum][TOP_CONFIG].type = "newConfiguration";
 
   // modify UIPermissions in various parts of the tree
-  gObjTree[newtreenum][TOP_SOFTWARE].children[SOFTWARE_OS].UIPermissions = "PCDEn";
+  // there can be multiple OS's
+  for (var i = 0; i < gObjTree[newtreenum][TOP_SOFTWARE].children.length; i++) {
+    if (gObjTree[newtreenum][TOP_SOFTWARE].children[i].ostypenum !== undefined)
+      gObjTree[newtreenum][TOP_SOFTWARE].children[i].UIPermissions = "PCDEn";
+  }
   // MORE !!!
 
   var sNewGUID = crypto.randomBytes(16).toString("hex");
@@ -383,15 +387,15 @@ function doDelete(nodeId, treenum) {
 
 
 
-function convertOS(nodeId, treenum, newostypenum, newosname) {
-  console.log("convertOS: called, nodeId " + nodeId + ", treenum " + treenum + ", newostypenum " + newostypenum + ", newosname " + newosname);
+function convertOS(osNodeId, treenum, newostypenum, newosname) {
+  console.log("convertOS: called, osNodeId " + osNodeId + ", treenum " + treenum + ", newostypenum " + newostypenum + ", newosname " + newosname);
 
-  var objNAP = findNode(nodeId, gObjTree[treenum], null);
+  var objNAP = findNode(osNodeId, gObjTree[treenum], null);
   //console.log("doClone: found objNAP.node " + objNAP.node + " objNAP.parent " + objNAP.parent);
   console.log("convertOS: found objNAP.node.nodeId " + objNAP.node.nodeId + " objNAP.parent.nodeId " + objNAP.parent.nodeId);
   console.log("convertOS: found objNAP.node.name " + objNAP.node.name + " objNAP.parent.name " + objNAP.parent.name);
 
-  if ((gObjTree[1][TOP_SOFTWARE].children[SOFTWARE_OS].ostypenum === SYSTEMTYPE_LINUX)
+  if ((objNAP.ostypenum === SYSTEMTYPE_LINUX)
       && (newostypenum === SYSTEMTYPE_WINDOWS)) {
 
     console.log("convertOS: change linux to windows");
@@ -417,12 +421,128 @@ function convertOS(nodeId, treenum, newostypenum, newosname) {
 
     var sInstruction = "Download new OS image.";
     var sDetail = "Download image for " + newosname + " from xxxxxxxxxxxx";
-    var nodeId = addInstruction(gObjTree[2][TOP_PREPARE].nodeId, sInstruction, sDetail, [gObjTree[1][TOP_SOFTWARE].children[SOFTWARE_OS].nodeId]);
-    gObjTree[1][TOP_SOFTWARE].children[SOFTWARE_OS].relatedNodeIds.push(nodeId);
+    var instrNodeId = addInstruction(gObjTree[2][TOP_PREPARE].nodeId, sInstruction, sDetail, [osNodeId]);
+    objNAP.relatedNodeIds.push(instrNodeId);
 
   }
 
   console.log("convertOS: return");
+}
+
+
+
+function checkOSDiskPartitions(treenum) {
+  console.log("checkOSDiskPartitions: called, treenum " + treenum);
+
+  // there can be multiple OS's
+  var usedPartitionUUIDs = [];
+  for (var i = 0; i < gObjTree[treenum][TOP_SOFTWARE].children.length; i++) {
+    var objOS = gObjTree[treenum][TOP_SOFTWARE].children[i];
+    if (objOS.ostypenum !== undefined) {
+      console.log("checkOSDiskPartitions: found OS, ostypenum " + objOS.ostypenum);
+
+      switch (objOS.ostypenum) {
+
+        case SYSTEMTYPE_LINUX:
+        case SYSTEMTYPE_MACOSX:
+          console.log("checkOSDiskPartitions: bootPartitionUUID " + objOS.bootPartitionUUID);
+          if (objOS.bootPartitionUUID === "") {
+            var sInstruction = "Boot partition not found for OS '" + objOS.name + "'";
+            var sDetail = "";
+            var instrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objOS.nodeId]);
+            objOS.relatedNodeIds.push(instrNodeId);
+          } else {
+            for (var j = 0; j < usedPartitionUUIDs.length; j++) {
+              if (objOS.bootPartitionUUID === usedPartitionUUIDs[j].uuid) {
+                var sInstruction = "Boot partition '" + objOS.bootPartitionUUID + "' used by two OS's";
+                var sDetail = "OS '" + usedPartitionUUIDs[j].objOS.name + "' and OS '" + objOS.name + "' use same partition";
+                var instrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objOS.nodeId, usedPartitionUUIDs[j].objOS.nodeId]);
+                objOS.relatedNodeIds.push(instrNodeId);
+                usedPartitionUUIDs[j].objOS.relatedNodeIds.push(instrNodeId);
+              }
+            }
+            usedPartitionUUIDs.push({uuid: objOS.bootPartitionUUID, objOS:objOS });
+          }
+          console.log("checkOSDiskPartitions: rootPartitionUUID " + objOS.rootPartitionUUID);
+          if (objOS.rootPartitionUUID === "") {
+            var sInstruction = "Root partition not found for OS '" + objOS.name + "'";
+            var sDetail = "";
+            var instrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objOS.nodeId]);
+            objOS.relatedNodeIds.push(instrNodeId);
+          } else {
+            for (var j = 0; j < usedPartitionUUIDs.length; j++) {
+              if (objOS.rootPartitionUUID === usedPartitionUUIDs[j].uuid) {
+                var sInstruction = "Root partition '" + objOS.rootPartitionUUID + "' used by two OS's";
+                var sDetail = "OS '" + usedPartitionUUIDs[j].objOS.name + "' and OS '" + objOS.name + "' use same partition";
+                var instrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objOS.nodeId, usedPartitionUUIDs[j].objOS.nodeId]);
+                objOS.relatedNodeIds.push(instrNodeId);
+                usedPartitionUUIDs[j].objOS.relatedNodeIds.push(instrNodeId);
+              }
+            }
+            usedPartitionUUIDs.push({uuid: objOS.rootPartitionUUID, objOS:objOS });
+          }
+          break;
+
+        case SYSTEMTYPE_WINDOWS:
+          break;
+      }
+    }
+  }
+
+  console.log("checkOSDiskPartitions: return");
+}
+
+
+
+function checkDiskPartitions(objDisk) {
+  console.log("checkDiskPartitions: called");
+
+  console.log("checkDiskPartitions: disk name " + objDisk.name + ", sizeBytes " + objDisk.sizeBytes);
+
+  var nNextBytePosition = 0;
+  var sPrevPartitionName = "";
+  for (var i = 0; i < objDisk.children.length; i++) {
+    console.log("checkDiskPartitions: nNextBytePosition " + nNextBytePosition);
+    var objPartition = objDisk.children[i];
+    console.log("checkDiskPartitions: partition " + i + ", name " + objPartition.name);
+    console.log("checkDiskPartitions: partition startByte " + objPartition.startByte + ", sizeBytes " + objPartition.sizeBytes);
+    var sDetail = "";
+    var sInstruction = "Unused area on disk '" + objDisk.name + "'";
+    if ((i > 0) && (nNextBytePosition > objPartition.startByte)) {
+      var sInstruction = "Overlapping partitions on disk '" + objDisk.name + "'";
+      sDetail = "Partition '" + sPrevPartitionName + "' ends at " + (nNextBytePosition-1) + "; partition '" + objPartition.name + "' starts at " + objPartition.startByte;
+      var instrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objDisk.nodeId]);
+      objDisk.relatedNodeIds.push(instrNodeId);
+    }
+    if (objPartition.startByte > nNextBytePosition) {
+      sDetail = "Unused area of " + (objPartition.startByte-nNextBytePosition) + " bytes before partition '" + objPartition.name + "'";
+      var instrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objDisk.nodeId]);
+      objDisk.relatedNodeIds.push(instrNodeId);
+    }
+    nNextBytePosition = objPartition.startByte + objPartition.sizeBytes;
+    console.log("checkDiskPartitions: now nNextBytePosition " + nNextBytePosition);
+    if ((i == objDisk.children.length-1) && (nNextBytePosition < objDisk.sizeBytes)) {
+      sDetail = "Unused area of " + (objDisk.sizeBytes-nNextBytePosition) + " bytes after partition '" + objPartition.name + "'";
+      var instrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objDisk.nodeId]);
+      objDisk.relatedNodeIds.push(instrNodeId);
+    }
+    sPrevPartitionName = objPartition.name;
+  }
+
+  console.log("checkDiskPartitions: return");
+}
+
+
+function checkAllDiskPartitions(treenum) {
+  console.log("checkAllDiskPartitions: called, treenum " + treenum);
+
+  var objDisks = gObjTree[treenum][TOP_HARDWARE].children[HARDWARE_DISKS];
+
+  for (var i = 0; i < objDisks.children.length; i++) {
+    checkDiskPartitions(objDisks.children[i]);
+  }
+
+  console.log("checkAllDiskPartitions: return");
 }
 
 

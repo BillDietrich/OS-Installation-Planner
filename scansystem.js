@@ -144,7 +144,7 @@ const TOP_HARDWARE = 3;
 
 // indices in the software children array
 const SOFTWARE_BIOS = 0;
-const SOFTWARE_OS = 1;
+const SOFTWARE_FIRSTOS = 1;
 
 // indices in the OS children array
 const OS_SETTINGS = 0;
@@ -357,13 +357,12 @@ function addDiskInfo() {
   if (!gbPrivilegedUser) {
     var sInstruction = "Disk SMART status.";
     var sDetail = "";
-    var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].children[HARDWARE_DISKS].nodeId]);
-    gTree[TOP_HARDWARE].children[HARDWARE_DISKS].relatedNodeIds.push(nodeId);
+    var topInstrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, []);
 
     sInstruction = "SMART status of the disks can not be determined because this application has been run without administrator privileges.";
     sDetail = "";
-    nodeId = addInstruction(nodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].children[HARDWARE_DISKS].nodeId]);
-    gTree[TOP_HARDWARE].children[HARDWARE_DISKS].relatedNodeIds.push(nodeId);
+    var instrNodeId = addInstruction(topInstrNodeId, sInstruction, sDetail, [gTree[TOP_HARDWARE].children[HARDWARE_DISKS].nodeId]);
+    gTree[TOP_HARDWARE].children[HARDWARE_DISKS].relatedNodeIds.push(instrNodeId);
   }
 
   console.log("addDiskInfo: gObjAllData.diskLayout.length " + gObjAllData.diskLayout.length);
@@ -410,7 +409,7 @@ function addDiskInfo() {
               serialNum: gObjAllData.diskLayout[i].serialNum,
               interfaceType: gObjAllData.diskLayout[i].interfaceType,
               smartStatus: gObjAllData.diskLayout[i].smartStatus,
-              sizeBytes: gObjAllData.diskLayout[i].size,
+              sizeBytes: parseInt(gObjAllData.diskLayout[i].size),
               hardwareEncryptionSupported: false,
               hardwareEncryptionEnabled: false,
               relatedNodeIds: [],
@@ -423,13 +422,12 @@ function addDiskInfo() {
     if (gbPrivilegedUser && (gObjAllData.diskLayout[i].type === "HD") && (gObjAllData.diskLayout[i].smartStatus !== "Ok")) {
       var sInstruction = "Disk SMART status";
       var sDetail = "";
-      var nodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, [objDisk.nodeId]);
-      objDisk.relatedNodeIds.push(nodeId);
+      var topInstrNodeId = addInstruction(gObjTree[2][TOP_CURRENTSYSTEM].nodeId, sInstruction, sDetail, []);
 
       sInstruction = "Disk '" + name + "' has SMART status of '" + gObjAllData.diskLayout[i].smartStatus + "'.";
       sDetail = "";
-      nodeId = addInstruction(nodeId, sInstruction, sDetail, [objDisk.nodeId]);
-      objDisk.relatedNodeIds.push(nodeId);
+      var instrNodeId = addInstruction(topInstrNodeId, sInstruction, sDetail, [objDisk.nodeId]);
+      objDisk.relatedNodeIds.push(instrNodeId);
     }
 
     let MAXPARTNUM = 9;
@@ -467,7 +465,8 @@ function addDiskInfo() {
             name: subDevName,
             fullName: gObjAllData.fsSize[j].fs,
             type: "partition",
-            sizeBytes: gObjAllData.fsSize[j].size,
+            startByte: 0,   // !!!
+            sizeBytes: parseInt(gObjAllData.fsSize[j].size),
             fsType: gObjAllData.fsSize[j].type,
             mount: gObjAllData.fsSize[j].mount,
             UUID: uuid,
@@ -692,7 +691,7 @@ function addOSInfo() {
             children: []
             });
 
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children.push({
     name: "Settings",
     relatedNodeIds: [],
     UIPermissions: "PcdeN",
@@ -701,7 +700,7 @@ function addOSInfo() {
     children: []
   });
 
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children.push({
     name: "Connections",
     relatedNodeIds: [],
     UIPermissions: "PcdeN",
@@ -710,7 +709,7 @@ function addOSInfo() {
     children: []
   });
 
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children.push({
     name: "Installed Applications",
     relatedNodeIds: [],
     UIPermissions: "Pcden",
@@ -719,7 +718,7 @@ function addOSInfo() {
     children: []
   });
 
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children.push({
     name: "Installed Services",
     relatedNodeIds: [],
     UIPermissions: "Pcden",
@@ -733,7 +732,7 @@ function addOSInfo() {
 
 function addTimeInfo() {
   //console.log("addTimeInfo: called");
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children[OS_SETTINGS].children.push({
             name: "Time",
             timezone: gObjAllData.time.timezone,
             timezoneName: gObjAllData.time.timezoneName,
@@ -748,7 +747,7 @@ function addTimeInfo() {
 
 function addSwapInfo() {
   //console.log("addSwapInfo: called");
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children[OS_SETTINGS].children.push({
             name: "Swap",
             swapTotalBytes: gObjAllData.mem.swaptotal,
             swapDevice: "",
@@ -764,7 +763,7 @@ function addSwapInfo() {
 
 function addRunningServicesInfo() {
   //console.log("addRunningServicesInfo: called");
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children[OS_SETTINGS].children.push({
             name: "Running Background Services",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
@@ -777,7 +776,7 @@ function addRunningServicesInfo() {
 
 function addPeriodicJobsInfo() {
   //console.log("addPeriodicJobsInfo: called");
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push({
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children[OS_SETTINGS].children.push({
             name: "Periodic Jobs",
             relatedNodeIds: [],
             UIPermissions: "PcdeN",
@@ -954,7 +953,7 @@ https://developer.apple.com/documentation/security/keychain_services
 
   objSecurity.children.push(objCerts);
 
-  gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_SETTINGS].children.push(objSecurity);
+  gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children[OS_SETTINGS].children.push(objSecurity);
 
   console.log("addSecurityInfo: return");
 }
@@ -1148,7 +1147,7 @@ function addInstalledApplicationsInfo() {
                 children: []
                 });
     }
-    gTree[TOP_SOFTWARE].children[SOFTWARE_OS].children[OS_INSTALLEDAPPLICATIONS].children.push(obj);
+    gTree[TOP_SOFTWARE].children[SOFTWARE_FIRSTOS].children[OS_INSTALLEDAPPLICATIONS].children.push(obj);
   }
 }
 
@@ -1341,7 +1340,7 @@ function scansystem() {
                 p = systeminformation.blockDevices()
                   .then(data => {
 
-                    //console.log("scansystem: systeminformation.blockDevices(): " + JSON.stringify(data));
+                    console.log("scansystem: systeminformation.blockDevices(): " + JSON.stringify(data));
 
                     gObjAllData.blockDevices = data;
 
