@@ -199,7 +199,7 @@ function addSystemInfo() {
             model: gObjAllData.system.model,
             chassisType: gObjAllData.chassis.type,
             serial: gObjAllData.system.serial,
-            uuid: gObjAllData.system.uuid,
+            sysUUID: gObjAllData.system.uuid,
             sku: gObjAllData.system.sku,
             relatedNodeIds: [],
             UIPermissions: "Pcden",
@@ -448,12 +448,12 @@ function addDiskInfo() {
           break;
       }
 
-      var uuid = "";
+      var devUUID = "";
 
       for (var j = 0; j < gObjAllData.blockDevices.length; j++) {
-        console.log("addDiskInfo: for uuid, want minName " + minName + ", see gObjAllData.blockDevices[j].name " + gObjAllData.blockDevices[j].name);
+        console.log("addDiskInfo: for devUUID, want minName " + minName + ", see gObjAllData.blockDevices[j].name " + gObjAllData.blockDevices[j].name);
         if (gObjAllData.blockDevices[j].name === minName) {
-          uuid = gObjAllData.blockDevices[j].uuid;
+          devUUID = gObjAllData.blockDevices[j].uuid;
           break;
         }
       }
@@ -469,7 +469,7 @@ function addDiskInfo() {
             sizeBytes: parseInt(gObjAllData.fsSize[j].size),
             fsType: gObjAllData.fsSize[j].type,
             mount: gObjAllData.fsSize[j].mount,
-            UUID: uuid,
+            devUUID: devUUID,
             relatedNodeIds: [],
             UIPermissions: "Pcden",
             nodeStatus: "existing",
@@ -479,12 +479,12 @@ function addDiskInfo() {
           if (gObjAllData.fsSize[j].mount === path.sep + "boot") {
             // we've found the boot partition for the current OS
             console.log("addDiskInfo: found boot");
-            gBootPartitionUUID = uuid;
+            gBootPartitionUUID = devUUID;
           }
           if (gObjAllData.fsSize[j].mount === path.sep) {
             // we've found the root partition for the current OS
             console.log("addDiskInfo: found root");
-            gRootPartitionUUID = uuid;
+            gRootPartitionUUID = devUUID;
           }
           // CHECK DIRTY BIT !!!
           // only one partition per mounted device on Windows

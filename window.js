@@ -1,14 +1,17 @@
+//// @ts-check
 //---------------------------------------------------------------------------
 // "OS Installation Planner" window.js
 // Runs in Electron render process
 //---------------------------------------------------------------------------
 
-const {remote} = require('electron')
+const {remote, dialog} = require('electron')
 
 const loadJsonFile = require('load-json-file')
 
 // https://cnpmjs.org/package/jsonfile
 const jsonFile = require('jsonfile')
+
+const TreeView = require('./treeview')
 
 // https://www.npmjs.com/package/tree-printer
 const treePrinter = require('tree-printer')
@@ -52,7 +55,7 @@ var gsTreeFilepathname = new Array(null, null, null);
 function loadTreeFromJSONFile(treenum) {
   //console.log("loadTreeFromJSONFile: called, ", treenum, filename);
   gObjTree[treenum] = loadJsonFile.sync(gsTreeFilename[treenum]);
-  $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
+  document.getElementById("t" + treenum + "filename").innerText = gsTreeFilename[treenum];
   refreshTreeView(treenum);
   //console.log("loadTreeFromJSONFile: gObjTree[treenum] ", gObjTree[treenum]);
   //console.log("loadTreeFromJSONFile: return");
@@ -64,7 +67,7 @@ function loadTreeFromText(treenum, text) {
   gsTreeFilename[treenum] = "";
   // don't wipe out the gsTreeFilepathname
   gObjTree[treenum] = JSON.parse(text);
-  $('#t' + treenum + 'filename').text("");
+  document.getElementById("t" + treenum + "filename").innerText = "";
   console.log("loadTreeFromText: gObjTree[treenum] ", gObjTree[treenum]);
   refreshTreeView(treenum);
   //console.log("loadTreeFromText: return");
@@ -76,7 +79,7 @@ function loadTree(treenum, objTree) {
   gsTreeFilename[treenum] = "";
   // don't wipe out the gsTreeFilepathname
   gObjTree[treenum] = objTree;
-  $('#t' + treenum + 'filename').text("");
+  document.getElementById("t" + treenum + "filename").innerText = "";
   refreshTreeView(treenum);
   //console.log("loadTree: return");
 }
@@ -118,6 +121,7 @@ function saveTreeToTextFile(treenum) {
 const treePrinter = require('tree-printer')
   gObjTree[treenum][TOP_CONFIG].nextNodeId = gNextNodeId;
   try {
+    // @ts-ignore
     fs.writeFileSync(gsTreeFilepathname[treenum], treePrinter(gObjTree[treenum]));
   } catch(err) {
     console.log('saveTreeToTextFile: error', err);
@@ -131,7 +135,7 @@ function readTreeUsingDialog(treenum) {
 
   // https://electronjs.org/docs/api/dialog
 
-  dialog = remote.dialog;
+  //dialog = remote.dialog;
   WIN = remote.getCurrentWindow();
 
   var buttonText = "";
@@ -143,6 +147,7 @@ function readTreeUsingDialog(treenum) {
   var defaultPath = "";
   if (gsTreeFilepathname[treenum] === null) {
     switch (treenum) {
+      // @ts-ignore
       case 0: defaultPath = __dirname + path.sep + "System-Existing.json"; break;
       case 1: defaultPath = __dirname + path.sep + "System-New.json"; break;
       case 2: defaultPath = __dirname + path.sep + "System-Instructions.json"; break;
@@ -164,7 +169,7 @@ function readTreeUsingDialog(treenum) {
       console.log("readTreeUsingDialog: retobj.filePaths ", retobj.filePaths);
       gsTreeFilename[treenum] = path.parse(retobj.filePaths[0]).base;
       gsTreeFilepathname[treenum] = retobj.filePaths[0];
-      $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
+      document.getElementById("t" + treenum + "filename").innerText = gsTreeFilename[treenum];
 
       loadTreeFromJSONFile(treenum);
       refreshTreeView(treenum);
@@ -213,7 +218,7 @@ function saveTreeUsingDialog(treenum) {
       console.log("saveTreeUsingDialog: retobj.filePath ", retobj.filePath);
       gsTreeFilename[treenum] = path.parse(retobj.filePath).base;
       gsTreeFilepathname[treenum] = retobj.filePath;
-      $('#t' + treenum + 'filename').text(gsTreeFilename[treenum]);
+      document.getElementById("t" + treenum + "filename").innerText = gsTreeFilename[treenum];
 
       if (gsTreeFilename[treenum].endsWith(".json"))
         saveTreeToJSONFile(treenum);
@@ -268,7 +273,7 @@ function copyExistingTreeToNew(existingtreenum, newtreenum) {
   gObjTree[existingtreenum][TOP_CONFIG].newTreeGuid = sNewGUID;
   gObjTree[2][TOP_CONFIG].newTreeGuid = sNewGUID;
 
-  $('#t' + newtreenum + 'filename').text("");
+  document.getElementById("t" + newtreenum + "filename").innerText = "";
   gObjTreeView[existingtreenum] = new TreeView(gObjTree[existingtreenum], 't' + existingtreenum + 'tree', existingtreenum);
   gObjTreeView[newtreenum] = new TreeView(gObjTree[newtreenum], 't' + newtreenum + 'tree', newtreenum);
   gObjTreeView[2] = new TreeView(gObjTree[2], 't' + 2 + 'tree', 2);
