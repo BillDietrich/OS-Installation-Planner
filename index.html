@@ -60,11 +60,7 @@ delete module.exports
 <!-- https://www.hongkiat.com/blog/html5-dialog-window/ -->
 <!-- https://www.scriptol.com/javascript/electron-dialog.php -->
 <dialog id="disksViewDialog" class="disksViewDialogClass">
-  <b>Existing disks:</b>
-  <div id="odvdExistingDisks" class="disksViewClass"></div>
-  <br />
-  <b>New configuration:</b>
-  <div id="odvdNewDisks" class="disksViewClass"></div>
+  <div id="odvdDisks" class="disksViewClass"></div>
   <br />
   <button id="odvdcancel" onclick="gDisksViewDialogElement.close('');">Cancel</button>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -76,54 +72,112 @@ delete module.exports
 var gDisksViewDialogElement = document.getElementById('disksViewDialog');
 
 
-function makeHtmlForDisks(objDisksTree, bReadOnly) {
 
-  console.log("makeHtmlForDisks: objDisksTree " + JSON.stringify(objDisksTree) + ", bReadOnly " + bReadOnly);
 
-  var nMaxSizeBytes = 0;
-  var nMaxPartitionsPerDisk = 0;
-  for (var i = 0; i < objDisksTree.children.length; i++) {
-    if (objDisksTree.children[i].sizeBytes > nMaxSizeBytes)
-      nMaxSizeBytes = objDisksTree.children[i].sizeBytes;
-    if (objDisksTree.children[i].children.length > nMaxPartitionsPerDisk)
-      nMaxPartitionsPerDisk = objDisksTree.children[i].children.length;
-  }
-  console.log("makeHtmlForDisks: nMaxSizeBytes " + nMaxSizeBytes);
+function makeHtmlForAllDisks(objExistingDisksTree, objNewDisksTree) {
 
-  // GB = 10^9
-  // GiB = 1024^3
-  let nGBPerPx = (nMaxSizeBytes / ((500 - 100) * 4000000000));
-  console.log("makeHtmlForDisks: nGBPerPx " + nGBPerPx);
-  var nSizeGB = 0;
-  var nWidthPx = 0;
+  console.log("makeHtmlForAllDisks: objExistingDisksTree " + JSON.stringify(objExistingDisksTree) + ", objNewDisksTree " + JSON.stringify(objNewDisksTree));
 
-  var sHTML = "&nbsp;&nbsp;<b>Disks</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Partitions</b><br />";
-  for (var i = 0; i < objDisksTree.children.length; i++) {
-    var objDisk = objDisksTree.children[i];
-    nSizeGB = Math.round(objDisk.sizeBytes / 1000000000);
-    sHTML += "<table class='disks'>";
-    sHTML += "<tr>";
-    sHTML += ("<td class='diskname' width='70px'><b>" + objDisk.name + "</b>:<br />(" + ((nSizeGB == 0) ? "&lt;1" : nSizeGB) + " GB)</td>");
-    sHTML += ("<td class='diskpart' width='50px'><b>ptable</b><br />()</td>");
-    for (var j = 0; j < objDisk.children.length; j++) {
-      var objPartition = objDisk.children[j];
-      nSizeGB = Math.round(objPartition.sizeBytes / 1000000000);
-      nWidthPx = Math.round(nSizeGB * nGBPerPx);
-      console.log("makeHtmlForDisks: nSizeGB " + nSizeGB + ", nWidthPx " + nWidthPx);
-      var sSizeHTML = "";
-      if (bReadOnly)
-        sSizeHTML = ((nSizeGB == 0) ? "&lt;1" : nSizeGB);
-      else
-        sSizeHTML = "<input type='text' class='disksize' value='" + nSizeGB + "'/>";
-        //sSizeHTML = "<input type='number' class='disksize' min='0' max='2000' value='" + nSizeGB + "'/>";
-      sHTML += ("<td class='diskpart' width='" + nWidthPx + "px'><b>" + objPartition.name + "</b><br />(" + sSizeHTML + " GB)</td>");
+  var arrDiskMapping = [];
+  var arrDiskPartitionMapping = [];
+  
+  var bFound = false;
+  for (var i = 0; i < objExistingDisksTree.children.length; i++) {
+    console.log("makeHtmlForAllDisks: existing disk " + i + ", name " + objExistingDisksTree.children[i].name + ", serialNum " + objExistingDisksTree.children[i].serialNum);
+    for (var j = 0; j < objNewDisksTree.children.length; j++) {
+      console.log("makeHtmlForAllDisks: check new disk " + j + ", name " + objNewDisksTree.children[j].name + ", serialNum " + objNewDisksTree.children[j].serialNum);
+      if (objExistingDisksTree.children[i].serialNum === objNewDisksTree.children[j].serialNum) {
+        arrDiskMapping.push({ objExisting: objExistingDisksTree.children[i], objNew: objExistingDisksTree.children[j] });
+        bFound = true;
+        break;
+      }
+    if (!bFound)
+      arrDiskMapping.push({ objExisting: objExistingDisksTree.children[i], objNew: null });
     }
-    sHTML += "</tr>";
-    sHTML += "</table>";
-    sHTML += "<br />";
   }
+  console.log("makeHtmlForAllDisks: arrDiskMapping.length " + arrDiskMapping.length);
+  for (var j = 0; j < objNewDisksTree.children.length; j++) {
+    bFound = false;
+    for (var k = 0; k < arrDiskMapping.length; k++) {
+      if ((arrDiskMapping[k].objNew != null)
+            && (objNewDisksTree.children[j].serialNum === arrDiskMapping[k].objNew.serialNum)) {
+        bFound = true;
+        break;
+      }
+    }
+    if (!bFound)
+      arrDiskMapping.push({ objExisting: null, objNew: objNewDisksTree.children[j] });
+  }
+  console.log("makeHtmlForAllDisks: new arrDiskMapping.length " + arrDiskMapping.length);
+  console.log("makeHtmlForAllDisks: arrDiskMapping " + JSON.stringify(arrDiskMapping));
 
-  console.log("makeHtmlForDisks: sHTML " + sHTML);
+  var sHTML = "";
+  sHTML += "<table class='disks'>";
+  sHTML += "<tr><td><center><b>Existing</b></center></td><td><center><b>New</b></center></td></tr>";
+
+  for (var i = 0; i < arrDiskMapping.length; i++) {
+    var objExistingDisk = arrDiskMapping[i].objExisting;
+    var objNewDisk = arrDiskMapping[i].objNew;
+    sHTML += "<tr>";
+
+    if (objExistingDisk == null) {
+      sHTML += "<td>&nbsp;</td>";
+    } else {
+      var nSizeGB = Math.round(objExistingDisk.sizeBytes / 1000000000);
+      sHTML += "<td>";
+      sHTML += "<table class='disks'>";
+      sHTML += "<tr>";
+      sHTML += ("<td class='diskname'><b>" + objExistingDisk.name + "</b>:<br />(" + ((nSizeGB == 0) ? "&lt;1" : nSizeGB) + " GB)</td>");
+      sHTML += "<td>";
+      sHTML += "<table class='disks'>";
+      sHTML += ("<tr><td class='diskpart' width='50px'><b>ptable</b> ()</td></tr>");
+      for (var j = 0; j < objExistingDisk.children.length; j++) {
+        var objPartition = objExistingDisk.children[j];
+        nSizeGB = Math.round(objPartition.sizeBytes / 1000000000);
+        console.log("makeHtmlForAllDisks: nSizeGB " + nSizeGB);
+        var sSizeHTML = "";
+        sSizeHTML = ((nSizeGB == 0) ? "&lt;1" : nSizeGB);
+        sHTML += ("<tr><td class='diskpart'><b>" + objPartition.name + "</b> (" + sSizeHTML + " GB)</td></tr>");
+      }
+      sHTML += "</table>";
+      sHTML += "</td>";
+      sHTML += "</tr>";
+      sHTML += "</table>";
+      sHTML += "</td>";
+    }
+
+    if (objNewDisk == null) {
+      sHTML += "<td>&nbsp;</td>";
+    } else {
+      var nSizeGB = Math.round(objNewDisk.sizeBytes / 1000000000);
+      sHTML += "<td>";
+      sHTML += "<table class='disks'>";
+      sHTML += "<tr>";
+      sHTML += ("<td class='diskname'><b>" + objNewDisk.name + "</b>:<br />(" + ((nSizeGB == 0) ? "&lt;1" : nSizeGB) + " GB)</td>");
+      sHTML += "<td>";
+      sHTML += "<table class='disks'>";
+      sHTML += ("<tr><td class='diskpart' width='50px'><b>ptable</b> ()</td></tr>");
+      for (var j = 0; j < objNewDisk.children.length; j++) {
+        var objPartition = objNewDisk.children[j];
+        nSizeGB = Math.round(objPartition.sizeBytes / 1000000000);
+        console.log("makeHtmlForAllDisks: nSizeGB " + nSizeGB);
+        var sSizeHTML = "";
+        sSizeHTML = ((nSizeGB == 0) ? "&lt;1" : nSizeGB);
+        sHTML += ("<tr><td class='diskpart'><b>" + objPartition.name + "</b> (" + sSizeHTML + " GB)</td></tr>");
+      }
+      sHTML += "</table>";
+      sHTML += "</td>";
+      sHTML += "</tr>";
+      sHTML += "</table>";
+      sHTML += "</td>";
+    }
+
+    sHTML += "</tr>";
+  }
+  sHTML += "</table>";
+  sHTML += "<br />";
+
+  console.log("makeHtmlForAllDisks: sHTML " + sHTML);
   return sHTML;
 }
 
@@ -141,10 +195,8 @@ function openDisksViewDialog(objDisksTree) {
     }
   }
 
-  var sHTML = makeHtmlForDisks(objDisksTree, true);
-  document.getElementById('odvdExistingDisks').innerHTML = sHTML;
-  sHTML = makeHtmlForDisks(objDisksTree, false);
-  document.getElementById('odvdNewDisks').innerHTML = sHTML;
+  var sHTML = makeHtmlForAllDisks(gObjTree[0][TOP_HARDWARE].children[HARDWARE_DISKS], gObjTree[1][TOP_HARDWARE].children[HARDWARE_DISKS]);
+  document.getElementById('odvdDisks').innerHTML = sHTML;
 
   gDisksViewDialogElement.style.visibility = "visible";
   var x = gDisksViewDialogElement.showModal();

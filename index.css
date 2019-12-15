@@ -65,7 +65,7 @@ textarea.propertiesDialogContent {
 
 table.disks {
 	float: left;
-	border: none;
+	border: 1px solid black;
 	border-collapse: collapse;
 	padding: 5px;
 }
@@ -73,7 +73,7 @@ table.disks {
 td.diskpart {
 	background-color:yellow;
 	border: 1px solid black;
-	text-align: center;
+	text-align: left;
 }
 
 td.diskname {
@@ -128,8 +128,8 @@ dialog.disksViewDialogClass {
 }
 
 div.disksViewClass {
-	min-height: 200px;
-	min-width: 750px;
+	min-height: 500px;
+	min-width: 450px;
 	background-color:lightgreen;
 }
 

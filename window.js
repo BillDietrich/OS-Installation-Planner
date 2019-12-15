@@ -6,6 +6,8 @@
 
 const {remote, dialog} = require('electron')
 
+
+
 const loadJsonFile = require('load-json-file')
 
 // https://cnpmjs.org/package/jsonfile
@@ -15,6 +17,8 @@ const TreeView = require('./treeview')
 
 // https://www.npmjs.com/package/tree-printer
 const treePrinter = require('tree-printer')
+
+
 
 
 
@@ -38,6 +42,9 @@ const treePrinter = require('tree-printer')
 
 // printing text file to printer
 // https://github.com/tojocky/node-printer
+
+
+
 
 
 
@@ -118,11 +125,10 @@ function saveTreeToJSONFile(treenum) {
 function saveTreeToTextFile(treenum) {
   console.log("saveTreeToTextFile: called, ", treenum);
   // https://www.npmjs.com/package/tree-printer
-const treePrinter = require('tree-printer')
   gObjTree[treenum][TOP_CONFIG].nextNodeId = gNextNodeId;
   try {
     // @ts-ignore
-    fs.writeFileSync(gsTreeFilepathname[treenum], treePrinter(gObjTree[treenum]));
+    fs.writeFileSync(gsTreeFilepathname[treenum], TreePrinter(gObjTree[treenum]));
   } catch(err) {
     console.log('saveTreeToTextFile: error', err);
   }
